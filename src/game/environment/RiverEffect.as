@@ -8,6 +8,9 @@ package game.environment
    import game.isometric.SceneLoader;
    import game.states.GameState;
    
+   import flash.utils.getQualifiedClassName;
+   import game.render.view.GpuClip;
+
    public class RiverEffect extends RandomEffect
    {
       
@@ -68,12 +71,15 @@ package game.environment
             }
             if(clipClass)
             {
-               mClip = new clipClass();
+               // Drawn by the GPU timeline player when it can: built as a
+               // Flash clip, this costs a large construction on every spawn
+               // and every frame while it plays.
+               mClip = GpuClip.create(getQualifiedClassName(clipClass)) || new clipClass();
             }
          }
          if(mClip)
          {
-            (mClip as MovieClip).gotoAndPlay(1);
+            Object(mClip).gotoAndPlay(1);
             mClip.x = SceneLoader.GRID_CELL_SIZE * _loc3_.mPosI;
             mClip.y = SceneLoader.GRID_CELL_SIZE * _loc3_.mPosJ;
             this.addToParent();
@@ -87,7 +93,7 @@ package game.environment
       
       override public function update(param1:int) : Boolean
       {
-         var _loc2_:MovieClip = mClip as MovieClip;
+         var _loc2_:Object = mClip;
          if(!_loc2_ || _loc2_.currentFrame == _loc2_.totalFrames)
          {
             destroy();

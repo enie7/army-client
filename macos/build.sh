@@ -34,6 +34,9 @@ fi
 # 2. Compile the game code. Timeline classes (src/*_fla) are only referenced
 #    from the SWF's symbol table, never from code, so include them by name.
 SYMBOL_CLASSES=$(cd $SRC && find . -path './*_fla/*.as' | sed 's|^\./||; s|\.as$||; s|/|.|g' | sort | paste -sd, -)
+# Art classes we replace (src/hint_health_*.as): nothing references them by
+# name in code, so include them explicitly.
+SYMBOL_CLASSES=$SYMBOL_CLASSES,hint_health_enemy,hint_health_friendly,hint_health_enemy_attention,hint_health_friendly_attention
 $AIR_SDK/bin/amxmlc \
   -source-path+=$SRC \
   -source-path+=$STARLING/starling/src \

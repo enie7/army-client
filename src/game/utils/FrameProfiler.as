@@ -28,6 +28,7 @@ package game.utils
    import flash.utils.getQualifiedClassName;
    import flash.utils.getTimer;
    import game.render.WorldRenderer;
+   import game.gui.PauseDialog;
    import game.isometric.GridCell;
    import game.isometric.characters.IsometricCharacter;
    import game.states.GameState;
@@ -145,6 +146,18 @@ package game.utils
             {
                WorldRenderer.galleryShots = int(arg.substr(16));
             }
+            if(arg.indexOf("--autoload=") == 0)
+            {
+               PauseDialog.autoloadPath = arg.substr(11);
+            }
+            if(arg.indexOf("--freeze-stage=") == 0)
+            {
+               PauseDialog.freezeSeconds = int(arg.substr(15));
+            }
+            if(arg.indexOf("--autoquit=") == 0)
+            {
+               PauseDialog.autoquitSeconds = int(arg.substr(11));
+            }
             if(arg == "--gallery-hold")
             {
                WorldRenderer.galleryHold = true;
@@ -157,6 +170,13 @@ package game.utils
             sLog.open(file,FileMode.WRITE);
             log("profiling to " + file.nativePath + " (debugger=" + Capabilities.isDebugger + ")");
          }
+      }
+
+      // A marker line in the profile log (e.g. when an automated run starts
+      // playing), so runs can be cut into phases.
+      public static function mark(text:String) : void
+      {
+         log("== " + text + " at " + getTimer() + "ms");
       }
 
       private static function log(line:String) : void
@@ -272,7 +292,33 @@ package game.utils
       // Count display objects and MovieClips (animated / currently playing)
       // under each root layer, hidden ones included: the runtime advances
       // every playing timeline each frame whether it is drawn or not.
-      private static function census(root:DisplayObjectContainer) : void
+      // The playing MovieClips under `root`: path, class, frames, children.
+      public static function listPlaying(root:DisplayObjectContainer) : void
+      {
+         var out:Array = [];
+         var walk:Function = function(o:DisplayObject, path:String):void
+         {
+            var mc:MovieClip = o as MovieClip;
+            if(mc && mc.isPlaying)
+            {
+               out.push(path + " [" + getQualifiedClassName(mc) + "] frame " + mc.currentFrame + "/" + mc.totalFrames + ", " + mc.numChildren + " children");
+            }
+            var c:DisplayObjectContainer = o as DisplayObjectContainer;
+            for(var i:int = 0; c && i < c.numChildren; i++)
+            {
+               var child:DisplayObject = c.getChildAt(i);
+               walk(child,path + "/" + (child ? child.name : "?"));
+            }
+         };
+         walk(root,root.name);
+         log("playing clips under " + root.name + ": " + out.length);
+         for each(var line:String in out.slice(0,25))
+         {
+            log("  " + line);
+         }
+      }
+
+      public static function census(root:DisplayObjectContainer) : void
       {
          log("census of " + root.numChildren + " root layers (objects / MovieClips / multi-frame / playing):");
          for(var i:int = 0; i < root.numChildren; i++)
@@ -328,6 +374,19 @@ package game.utils
          pauseSampling();
          var byType:Object = {};
          var bySite:Object = {};
+         // Where new display objects live: the root of their tree (off the
+         // display list, a clip that keeps playing builds children unseen).
+         var byRoot:Object = {};
+         var rootObjects:Object = {};
+         // Where instances of exported art classes (not plain MovieClips)
+         // are made, with a deeper stack.
+         var bySymbolSite:Object = {};
+         // CPU: periodic stack samples (plain Samples), by innermost frame and
+         // by every frame on the stack (inclusive).
+         var cpuSelf:Object = {};
+         var cpuIncl:Object = {};
+         var cpuCount:int = 0;
+         var cpuStacks:Object = {};
          var total:Number = 0;
          var count:int = 0;
          for each(var sample:Object in getSamples())
@@ -335,6 +394,31 @@ package game.utils
             var alloc:NewObjectSample = sample as NewObjectSample;
             if(alloc == null)
             {
+               if(getQualifiedClassName(sample) == "flash.sampler::Sample" && sample.stack)
+               {
+                  ++cpuCount;
+                  var seen:Object = {};
+                  var chain:Array = [];
+                  for(var g:int = 0; g < sample.stack.length && chain.length < 7; g++)
+                  {
+                     chain.push(String(sample.stack[g].name).replace("flash.display::",""));
+                  }
+                  var stackKey:String = chain.join(" < ");
+                  cpuStacks[stackKey] = Number(cpuStacks[stackKey] || 0) + 1;
+                  for(var f:int = 0; f < sample.stack.length; f++)
+                  {
+                     var fn:String = String(sample.stack[f].name);
+                     if(f == 0)
+                     {
+                        cpuSelf[fn] = Number(cpuSelf[fn] || 0) + 1;
+                     }
+                     if(!seen[fn])
+                     {
+                        seen[fn] = true;
+                        cpuIncl[fn] = Number(cpuIncl[fn] || 0) + 1;
+                     }
+                  }
+               }
                continue;
             }
             var size:Number = alloc.size;
@@ -357,12 +441,58 @@ package game.utils
                site = frames.join(" < ") || String(alloc.stack[0].name);
             }
             bySite[site] = Number(bySite[site] || 0) + size;
+            if(type.indexOf("::") < 0 && type != "Object" && type != "Function" && type != "String" && type != "Array")
+            {
+               var deep:Array = [];
+               for(var d:int = 0; alloc.stack && d < alloc.stack.length && deep.length < 8; d++)
+               {
+                  deep.push(String(alloc.stack[d].name).replace("flash.display::",""));
+               }
+               var symKey:String = type + " @ " + (deep.join(" < ") || "(no stack)");
+               bySymbolSite[symKey] = Number(bySymbolSite[symKey] || 0) + 1;
+            }
+            var shown:DisplayObject = alloc.object as DisplayObject;
+            if(shown)
+            {
+               var top:DisplayObject = shown;
+               var below:DisplayObject = null;
+               while(top.parent)
+               {
+                  below = top;
+                  top = top.parent;
+               }
+               var key:String = (top.stage ? "on stage " : "off list ") + getQualifiedClassName(top) + " \"" + top.name + "\"" + (below ? " > " + getQualifiedClassName(below) + " \"" + below.name + "\"" : "");
+               byRoot[key] = Number(byRoot[key] || 0) + size;
+               var distinct:Dictionary = rootObjects[key] || (rootObjects[key] = new Dictionary(true));
+               distinct[top] = true;
+            }
          }
          stopSampling();
          clearSamples();
          log("allocations in 0.5s: " + count + " objects, " + (total / 1048576).toFixed(1) + "MB");
          logTop("  by type", byType, total);
          logTop("  by site", bySite, total);
+         for(var rk:String in byRoot)
+         {
+            var n:int = 0;
+            for(var ro:Object in rootObjects[rk])
+            {
+               ++n;
+            }
+            byRoot[rk + " x" + n + " roots"] = byRoot[rk];
+            delete byRoot[rk];
+         }
+         logTop("  new display objects by tree root", byRoot, total);
+         var symCount:Number = 0;
+         for(var sk:String in bySymbolSite)
+         {
+            symCount += bySymbolSite[sk];
+         }
+         logTop("  art class instances by site (count)", bySymbolSite, symCount);
+         log("cpu: " + cpuCount + " stack samples");
+         logTop("  cpu by innermost frame", cpuSelf, cpuCount);
+         logTop("  cpu inclusive", cpuIncl, cpuCount);
+         logTop("  cpu stacks", cpuStacks, cpuCount);
       }
 
       private static function logTop(title:String, table:Object, total:Number) : void

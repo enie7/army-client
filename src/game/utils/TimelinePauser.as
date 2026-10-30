@@ -58,6 +58,20 @@ package game.utils
          }
       }
 
+      // Drop what was recorded for `root` without resuming it (it stays as
+      // it is), so it can be paused afresh.
+      public static function forget(root:MovieClip) : void
+      {
+         delete sPaused[root];
+      }
+
+      // Whether `mc` was playing when `root` (which holds it) was paused.
+      public static function wasPlaying(mc:MovieClip, root:MovieClip) : Boolean
+      {
+         var clips:Array = root ? sPaused[root] : null;
+         return clips != null ? clips.indexOf(mc) >= 0 : mc.isPlaying;
+      }
+
       private static function collect(mc:MovieClip, levels:int, out:Array) : void
       {
          if(mc.isPlaying)

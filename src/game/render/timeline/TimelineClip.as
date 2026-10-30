@@ -177,6 +177,86 @@ package game.render.timeline
          return inner ? this.mFrame + "(" + inner + ")" : String(this.mFrame);
       }
 
+      // Nested clips, in display order.
+      public function get childClips() : Vector.<TimelineClip>
+      {
+         var out:Vector.<TimelineClip> = new Vector.<TimelineClip>();
+         for(var i:int = 0; i < numChildren; i++)
+         {
+            var clip:TimelineClip = getChildAt(i) as TimelineClip;
+            if(clip)
+            {
+               out.push(clip);
+            }
+         }
+         return out;
+      }
+
+      // Set the text of the dynamic text field placed under `name` (like
+      // setting TextField.text); false if there is none. The field is drawn
+      // again from the original TextField with the new text.
+      public function setText(name:String, text:String) : Boolean
+      {
+         for each(var node:Node in this.mNodes)
+         {
+            if(node.name == name && node.text != null)
+            {
+               if(node.text != text)
+               {
+                  node.text = text;
+                  var drawn:Object = this.mAtlas.drawText(node.character,text);
+                  if(node.textTexture)
+                  {
+                     node.textTexture.dispose();
+                  }
+                  node.textTexture = drawn ? drawn.texture : null;
+                  node.image.visible = drawn != null;
+                  if(drawn)
+                  {
+                     node.image.texture = drawn.texture;
+                     node.image.readjustSize();
+                     node.image.x = drawn.offsetX;
+                     node.image.y = drawn.offsetY;
+                  }
+               }
+               return true;
+            }
+         }
+         return false;
+      }
+
+      public function getText(name:String) : String
+      {
+         for each(var node:Node in this.mNodes)
+         {
+            if(node.name == name && node.text != null)
+            {
+               return node.text;
+            }
+         }
+         return null;
+      }
+
+      // Like `child.scaleX = -child.scaleX` in Flash on a timeline child: the
+      // child is flipped, and from then on the timeline no longer moves it.
+      public function flipPartX(name:String) : Boolean
+      {
+         for each(var node:Node in this.mNodes)
+         {
+            if(node.name == name)
+            {
+               var m:Matrix = node.matrix.clone();
+               m.a = -m.a;
+               m.b = -m.b;
+               node.matrix = m;
+               node.scripted = true;
+               this.place(node);
+               return true;
+            }
+         }
+         return false;
+      }
+
       // One tick of the 40 fps clock: advance every nested clip, then this
       // timeline if it is playing (looping at the end, as Flash does).
       // Children this frame creates start on their frame 1 and first advance
@@ -348,7 +428,9 @@ package game.render.timeline
                // Same placement kept across a rewind: reset what the frame sets.
                node.matrix = new Matrix();
             }
-            if(op.matrix)
+            // Once code has transformed a child, the timeline leaves its
+            // transform alone (as in Flash).
+            if(op.matrix && !node.scripted)
             {
                node.matrix = op.matrix;
             }
@@ -408,6 +490,10 @@ package game.render.timeline
             holder.addChild(image);
             node.image = image;
             node.display = holder;
+            if(this.mLibrary.leaf(character).kind == "edittext")
+            {
+               node.text = this.mAtlas.authoredText(character);
+            }
          }
          this.mNodes[depth] = node;
          var at:int = 0;
@@ -433,6 +519,10 @@ package game.render.timeline
          node.display.mask = null;
          this.mDepths.splice(this.mDepths.indexOf(depth),1);
          node.display.removeFromParent(true);
+         if(node.textTexture)
+         {
+            node.textTexture.dispose();
+         }
       }
 
       // Push the node's matrix and colour to its display object.
@@ -524,9 +614,19 @@ package game.render.timeline
 import flash.geom.Matrix;
 import starling.display.DisplayObject;
 import starling.display.Image;
+import starling.textures.Texture;
 
 class Node
 {
+   // Dynamic text: the field's current text (null for other leaves), and
+   // the texture drawn for it once code changed it.
+   public var text:String;
+
+   public var textTexture:Texture;
+
+   // Transformed by code: the timeline no longer sets its matrix.
+   public var scripted:Boolean;
+
    public var clipDepth:int;
 
    public var depth:int;

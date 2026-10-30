@@ -105,7 +105,7 @@ package game.isometric.elements
          this.mTileSize = new Vector3D(1,1,1);
          super(param1,param2,param4);
          this.mContainer = new DisplayContainer(this);
-         this.mView = new FlashView(this,this.mContainer);
+         this.mView = this.createView();
          this.mGraphicsLoaded = true;
          this.mMovable = false;
          this.mRotatable = false;
@@ -181,6 +181,13 @@ package game.isometric.elements
       public function removeSprite() : void
       {
          this.mView.clearArt();
+      }
+
+      // The view for this object's art. Called from the constructor, before
+      // subclass fields are set: depend only on the class.
+      protected function createView() : ObjectView
+      {
+         return new FlashView(this,this.mContainer);
       }
 
       public function getView() : ObjectView

@@ -12,6 +12,7 @@ package
    import game.net.ErrorObject;
    import game.utils.FrameProfiler;
    import game.render.WorldRenderer;
+   import game.render.view.GpuArt;
    import flash.desktop.NativeApplication;
    import flash.events.InvokeEvent;
    import game.net.MyServer;
@@ -135,6 +136,12 @@ package
          if(param1.arguments.indexOf("--cpu-render") >= 0)
          {
             WorldRenderer.disabled = true;
+         }
+         // --flash-art keeps every world object on Flash art (static objects
+         // are otherwise drawn by the GPU timeline player).
+         if(param1.arguments.indexOf("--flash-art") >= 0)
+         {
+            GpuArt.flashOnly = true;
          }
          if(param1.arguments.indexOf("--fixed-logic") >= 0)
          {

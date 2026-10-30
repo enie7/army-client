@@ -243,10 +243,19 @@ def display_lists(sprite):
     return out
 
 
+# World art that game code instantiates by class name rather than through the
+# config (environment effects: game/environment/RiverEffect).
+CODE_SYMBOLS = [
+    'Bg_RiverTile_Shine_01', 'Bg_RiverTile_Shine_02', 'Bg_RiverTile_Shine_03',
+    'Bg_RiverTile_Shine_05', 'Bg_BadRiverTile_Bubbles_05',
+]
+
+
 def main(swf_path, config_path, out_path):
     _, body = read_swf(swf_path)
     kinds, sprites, symbols = parse(body)
     wanted = config_symbols(json.load(open(config_path, encoding='utf8')))
+    wanted = set(wanted) | set(CODE_SYMBOLS)
     roots = {name: symbols[name] for name in wanted if symbols.get(name) in sprites}
 
     # Breadth-first from the exported world symbols: every reachable sprite,

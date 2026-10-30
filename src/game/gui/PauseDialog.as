@@ -14,6 +14,12 @@ package game.gui
    import game.sound.ArmySoundManager;
    import game.states.GameState;
    import game.utils.OfflineSave;
+   import game.utils.FrameProfiler;
+   import game.render.art.StopWhenDetached;
+   import game.utils.TimelinePauser;
+   import game.render.WorldRenderer;
+   import flash.desktop.NativeApplication;
+   import flash.utils.Timer;
    
    public class PauseDialog extends PopUpWindow
    {
@@ -67,10 +73,117 @@ package game.gui
          }
       }
       
+      // --autoload=<file>: load that save and press Play once the menu first
+      // opens (for unattended performance runs); --autoquit=N quits N seconds
+      // after that.
+      public static var autoloadPath:String;
+
+      public static var autoquitSeconds:int = 0;
+
+      // --freeze-stage=N: N seconds after Play, stop every playing clip on the
+      // stage (experiment: is per-frame construction from on-stage clips?).
+      public static var freezeSeconds:int = 0;
+
       public function Activate(param1:Function) : void
       {
          mDoneCallback = param1;
          doOpeningTransition();
+         if(autoloadPath && mPauseScreenState == STATE_CONTINUE)
+         {
+            var path:String = autoloadPath;
+            autoloadPath = null;
+            var timer:Timer = new Timer(1000,1);
+            timer.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+            {
+               autoload(path);
+            });
+            timer.start();
+         }
+      }
+
+      private function autoload(path:String) : void
+      {
+         var file:File = new File(path);
+         var stream:FileStream = new FileStream();
+         stream.open(file,FileMode.READ);
+         var data:* = JSON.parse(stream.readUTFBytes(stream.bytesAvailable));
+         stream.close();
+         FrameProfiler.mark("autoload " + path);
+         this.loadProgress(data);
+         this.play();
+         FrameProfiler.mark("autoload: playing");
+         if(freezeSeconds > 0)
+         {
+            var freeze:Timer = new Timer(freezeSeconds * 1000,1);
+            freeze.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+            {
+               var stopped:int = 0;
+               var stopAll:Function = function(o:flash.display.DisplayObject):void
+               {
+                  var mc:MovieClip = o as MovieClip;
+                  if(mc && mc.isPlaying)
+                  {
+                     mc.stop();
+                     ++stopped;
+                  }
+                  var c:flash.display.DisplayObjectContainer = o as flash.display.DisplayObjectContainer;
+                  for(var i:int = 0; c && i < c.numChildren; i++)
+                  {
+                     stopAll(c.getChildAt(i));
+                  }
+               };
+               stopAll(GameState.mInstance.getMainClip().stage);
+               var world:flash.display.DisplayObject = GameState.mInstance.mScene.mContainer.parent;
+               if(world && !world.stage)
+               {
+                  stopAll(world);
+               }
+               FrameProfiler.mark("froze " + stopped + " playing clips");
+            });
+            freeze.start();
+         }
+         if(autoquitSeconds > 5)
+         {
+            var census:Timer = new Timer((autoquitSeconds - 5) * 1000,1);
+            census.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+            {
+               FrameProfiler.mark(WorldRenderer.describeWorld());
+               FrameProfiler.census(GameState.mInstance.getMainClip().stage);
+               FrameProfiler.listPlaying(GameState.mInstance.getMainClip().stage);
+               FrameProfiler.mark(StopWhenDetached.describe());
+               var scene:Object = GameState.mInstance.mScene;
+               if(scene && scene.mContainer.parent)
+               {
+                  FrameProfiler.mark("world root " + scene.mContainer.parent + (scene.mContainer.stage ? " (on stage)" : " (off stage)"));
+                  FrameProfiler.census(scene.mContainer.parent);
+               }
+            });
+            census.start();
+         }
+         if(autoquitSeconds > 0)
+         {
+            var quit:Timer = new Timer(autoquitSeconds * 1000,1);
+            quit.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+            {
+               FrameProfiler.mark("autoquit");
+               NativeApplication.nativeApplication.exit();
+            });
+            quit.start();
+         }
+      }
+
+      private function play() : void
+      {
+         if(MissionManager.isTutorialCompleted())
+         {
+            GameState.mInstance.changeState(GameState.STATE_PLAY);
+         }
+         else
+         {
+            ArmySoundManager.getInstance().stopSound(ArmySoundManager.MUSIC_HOME);
+            GameState.mInstance.mHUD.openIntroTextBox();
+         }
+         mDoneCallback((this as Object).constructor);
       }
       
       public function startSelectingFile() : void
@@ -127,16 +240,7 @@ package game.gui
                      GameState.mInstance.checkRateApp();
                   }
                }
-               if(MissionManager.isTutorialCompleted())
-               {
-                  GameState.mInstance.changeState(GameState.STATE_PLAY);
-               }
-               else
-               {
-                  ArmySoundManager.getInstance().stopSound(ArmySoundManager.MUSIC_HOME);
-                  GameState.mInstance.mHUD.openIntroTextBox();
-               }
-               mDoneCallback((this as Object).constructor);
+               this.play();
                break;
             case this.mButtonHelp.getMovieClip():
                GameState.mInstance.mHUD.openHelpScreen();

@@ -109,7 +109,10 @@ package game.gui
             {
                if(Math.abs(_loc4_) < _loc2_)
                {
-                  this.mCurrentPrc += _loc4_;
+                  // Exactly onto the target: adding the difference can miss it
+                  // by a rounding error, and the bar then never settled and
+                  // went to a frame again every frame.
+                  this.mCurrentPrc = this.mTargetPrc;
                }
                else if(_loc4_ > 0)
                {
@@ -124,7 +127,15 @@ package game.gui
             {
                this.mCurrentPrc += _loc4_ * _loc3_;
             }
-            this.mFillAnimation.gotoAndStop(int(this.mCurrentPrc * (this.mFillAnimation.totalFrames - 1) + 1));
+            // Going to a frame rebuilds the fill's children, even the frame it
+            // is on: only when the frame changes.
+            // Clamped as Flash clamps it (over 100%, e.g. energy above the cap),
+            // so the comparison below holds once it is there.
+            var frame:int = Math.max(1,Math.min(this.mFillAnimation.totalFrames,int(this.mCurrentPrc * (this.mFillAnimation.totalFrames - 1) + 1)));
+            if(frame != this.mFillAnimation.currentFrame)
+            {
+               this.mFillAnimation.gotoAndStop(frame);
+            }
          }
          this.updateText();
          if(this.mCurrentPrc == this.mTargetPrc && this.mCurrentPrc <= 1)
@@ -139,7 +150,10 @@ package game.gui
       
       public function setTargetValues(param1:Number, param2:Number, param3:Number = 0) : void
       {
-         var _loc4_:Number = param1 / param2;
+         // Nothing to fill (e.g. XP at the top level) is an empty bar. As 0 / 0
+         // it was NaN, which never equals itself: the bar never settled, and
+         // went to a frame (rebuilding the fill) every frame.
+         var _loc4_:Number = param2 > 0 ? param1 / param2 : 0;
          this.mOffsetAmount = param3;
          if(_loc4_ != this.mTargetPrc || this.mMaxAmount != param2)
          {

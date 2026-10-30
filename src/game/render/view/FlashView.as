@@ -19,11 +19,11 @@ package game.render.view
 
       private static const HINT_ATTENTION:String = "Hint_Health_Friendly_Attention";
 
-      private var mRenderable:Renderable;
+      protected var mRenderable:Renderable;
 
-      private var mContainer:DisplayObjectContainer;
+      protected var mContainer:DisplayObjectContainer;
 
-      private var mAnimations:AnimationController;
+      protected var mAnimations:AnimationController;
 
       public function FlashView(renderable:Renderable, container:DisplayObjectContainer)
       {

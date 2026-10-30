@@ -15,7 +15,14 @@ package game.render
    import flash.utils.Dictionary;
    import flash.utils.Timer;
    import flash.utils.getTimer;
+   import flash.utils.getQualifiedClassName;
+   import flash.display.MovieClip;
    import game.isometric.IsometricScene;
+   import game.isometric.elements.DisplayContainer;
+   import game.isometric.elements.Renderable;
+   import game.render.view.GpuArt;
+   import game.render.view.GpuClip;
+   import game.render.view.StarlingView;
    import game.states.GameState;
    import game.utils.FrameProfiler;
    import flash.display.PNGEncoderOptions;
@@ -27,6 +34,7 @@ package game.render
    import game.render.timeline.TimelineGallery;
    import game.render.timeline.TimelineLibrary;
    import starling.core.Starling;
+   import starling.display.DisplayObject;
    import starling.display.Image;
    import starling.display.Sprite;
    import starling.events.Event;
@@ -75,6 +83,12 @@ package game.render
       private var mWorldImages:Vector.<Image> = new Vector.<Image>();
 
       private var mEffectImages:Vector.<Image> = new Vector.<Image>();
+
+      // What each layer shows, in order: snapshot images, and the GPU art of
+      // objects drawn by the timeline player (StarlingView).
+      private var mWorldOrder:Vector.<starling.display.DisplayObject> = new Vector.<starling.display.DisplayObject>();
+
+      private var mEffectOrder:Vector.<starling.display.DisplayObject> = new Vector.<starling.display.DisplayObject>();
 
       private var mInput:flash.display.Sprite = new flash.display.Sprite();
 
@@ -275,6 +289,74 @@ package game.render
          }
       }
 
+      // Development aid: per world object class and view mode, how many
+      // objects, Flash display objects still under their containers, and
+      // MovieClips playing there and in the hidden models.
+      public static function describeWorld() : String
+      {
+         var scene:IsometricScene = GameState.mInstance ? GameState.mInstance.mScene : null;
+         if(scene == null)
+         {
+            return "no scene";
+         }
+         var rows:Object = {};
+         var container:flash.display.Sprite = scene.mContainer;
+         for(var i:int = 0; i < container.numChildren; i++)
+         {
+            var child:flash.display.DisplayObject = container.getChildAt(i);
+            var dc:DisplayContainer = child as DisplayContainer;
+            var renderable:Renderable = dc ? dc.getRenderableObject() : null;
+            var view:StarlingView = renderable ? renderable.getView() as StarlingView : null;
+            var key:String = (renderable ? getQualifiedClassName(renderable).split("::").pop() : getQualifiedClassName(child).split("::").pop()) + " [" + (view ? view.mode : (renderable ? "flashview" : "other")) + "]";
+            var row:Array = rows[key] || (rows[key] = [0,0,0,0]);
+            row[0]++;
+            var c:Array = [0,0];
+            countFlash(child,c);
+            row[1] += c[0];
+            row[2] += c[1];
+            if(view)
+            {
+               for each(var model:flash.display.DisplayObject in view.models)
+               {
+                  var m:Array = [0,0];
+                  countFlash(model,m);
+                  row[3] += m[1];
+               }
+            }
+         }
+         var out:String = "world census (objects / flash objects / playing / playing in models):";
+         for(key in rows)
+         {
+            out += "\n  " + key + ": " + rows[key].join(" / ");
+         }
+         var fx:Array = [0,0];
+         countFlash(scene.mSceneHud,fx);
+         out += "\n  scene hud (effects): " + fx.join(" / ");
+         return out;
+      }
+
+      private static function countFlash(o:flash.display.DisplayObject, c:Array) : void
+      {
+         if(o == null)
+         {
+            return;
+         }
+         c[0]++;
+         var mc:flash.display.MovieClip = o as flash.display.MovieClip;
+         if(mc && mc.isPlaying)
+         {
+            c[1]++;
+         }
+         var container:DisplayObjectContainer = o as DisplayObjectContainer;
+         if(container)
+         {
+            for(var i:int = 0; i < container.numChildren; i++)
+            {
+               countFlash(container.getChildAt(i),c);
+            }
+         }
+      }
+
       // Cache activity since the last call, for the profiler.
       public static function takeStats() : String
       {
@@ -283,7 +365,7 @@ package game.render
             return "gpu off";
          }
          var c:SnapshotCache = sInstance.mCache;
-         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn;
+         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn + " | " + GpuArt.describe();
          sInstance.mGroundDrawn = 0;
          sInstance.mPresents = 0;
          c.hits = 0;
@@ -354,6 +436,7 @@ package game.render
             this.mRoot.ground.x = camX + this.mGroundOrigin.x(t);
             this.mRoot.ground.y = camY + this.mGroundOrigin.y(t);
          }
+         GpuArt.upload();
          FrameProfiler.begin("gpu.present");
          this.mStarling.nextFrame();
          FrameProfiler.end("gpu.present");
@@ -367,9 +450,9 @@ package game.render
             var m:Motion = motion[i];
             if(m != null)
             {
-               var image:Image = layer.getChildAt(i) as Image;
-               image.x = m.x(t);
-               image.y = m.y(t);
+               var shown:starling.display.DisplayObject = layer.getChildAt(i);
+               shown.x = m.x(t);
+               shown.y = m.y(t);
             }
          }
       }
@@ -508,8 +591,8 @@ package game.render
          {
             // Back in the game's order: field bitmap, world, fog bitmap, effects.
             var tiles:Object = scene.mTilemapGraphic;
-            var field:DisplayObject = tiles.mFieldBmp;
-            var fog:DisplayObject = tiles.mFogBmp;
+            var field:flash.display.DisplayObject = tiles.mFieldBmp;
+            var fog:flash.display.DisplayObject = tiles.mFogBmp;
             root.addChildAt(scene.mContainer,field && field.parent == root ? root.getChildIndex(field) + 1 : 0);
             root.addChildAt(scene.mSceneHud,fog && fog.parent == root ? root.getChildIndex(fog) + 1 : root.getChildIndex(scene.mContainer) + 1);
          }
@@ -584,21 +667,51 @@ package game.render
             this.mScale = scale;
          }
          this.mRoot.visible = true;
-         this.mirrorLayer(scene.mContainer,scene.getFloorContainer(),this.mRoot.world,this.mWorldImages,this.mWorldMotion,scale);
-         this.mirrorLayer(scene.mSceneHud,null,this.mRoot.effects,this.mEffectImages,this.mEffectMotion,scale);
+         GpuArt.setScale(scale * Starling.contentScaleFactor);
+         GpuArt.tick();
+         this.mirrorLayer(scene.mContainer,scene.getFloorContainer(),this.mRoot.world,this.mWorldImages,this.mWorldMotion,this.mWorldOrder,scale);
+         this.mirrorLayer(scene.mSceneHud,null,this.mRoot.effects,this.mEffectImages,this.mEffectMotion,this.mEffectOrder,scale);
       }
 
-      // Mirror the children of a world-space Flash layer into `layer`, in order.
-      private function mirrorLayer(container:flash.display.Sprite, skip:DisplayObject, layer:starling.display.Sprite, images:Vector.<Image>, motions:Vector.<Motion>, scale:Number) : void
+      // Mirror the children of a world-space Flash layer into `layer`, in order:
+      // a snapshot image per child, or for objects whose art the timeline
+      // player draws, that art (plus a snapshot of whatever else is still in
+      // their Flash container, e.g. text effects).
+      private function mirrorLayer(container:flash.display.Sprite, skip:flash.display.DisplayObject, layer:starling.display.Sprite, images:Vector.<Image>, motions:Vector.<Motion>, order:Vector.<starling.display.DisplayObject>, scale:Number) : void
       {
          var used:int = 0;
+         var usedImages:int = 0;
          var n:int = container.numChildren;
          for(var i:int = 0; i < n; i++)
          {
-            var child:DisplayObject = container.getChildAt(i);
+            var child:flash.display.DisplayObject = container.getChildAt(i);
             if(child == null || child == skip || !child.visible || child.alpha <= 0)
             {
                continue;
+            }
+            var motion:Motion = this.mMotion[child];
+            if(motion == null)
+            {
+               motion = new Motion();
+               this.mMotion[child] = motion;
+            }
+            motion.capture(child.x * scale,child.y * scale,this.mCaptures);
+            var gpu:starling.display.DisplayObject = gpuArtOf(child);
+            if(gpu != null)
+            {
+               gpu.scaleX = child.scaleX * scale;
+               gpu.scaleY = child.scaleY * scale;
+               gpu.rotation = child.rotation * DEG_TO_RAD;
+               gpu.alpha = child.alpha;
+               gpu.visible = true;
+               order[used] = gpu;
+               motions[used] = motion;
+               ++used;
+               // Only the art's placeholder left in the container: done.
+               if((child as DisplayObjectContainer).numChildren <= 1)
+               {
+                  continue;
+               }
             }
             var look:Snapshot = this.mCache.get(child,scale);
             if(look == null)
@@ -606,9 +719,9 @@ package game.render
                continue;
             }
             var image:Image;
-            if(used < images.length)
+            if(usedImages < images.length)
             {
-               image = images[used];
+               image = images[usedImages];
                if(image.texture != look.texture)
                {
                   image.texture = look.texture;
@@ -619,8 +732,8 @@ package game.render
             {
                image = new Image(look.texture);
                images.push(image);
-               layer.addChild(image);
             }
+            ++usedImages;
             // The look is drawn unrotated around the object's origin; rotate
             // about that origin on the GPU.
             image.pivotX = -look.offsetX;
@@ -628,28 +741,57 @@ package game.render
             image.rotation = child.rotation * DEG_TO_RAD;
             image.alpha = child.alpha;
             image.visible = true;
-            var motion:Motion = this.mMotion[child];
-            if(motion == null)
-            {
-               motion = new Motion();
-               this.mMotion[child] = motion;
-            }
-            motion.capture(child.x * scale,child.y * scale,this.mCaptures);
-            if(used < motions.length)
-            {
-               motions[used] = motion;
-            }
-            else
-            {
-               motions.push(motion);
-            }
+            order[used] = image;
+            motions[used] = motion;
             ++used;
          }
-         for(i = used; i < images.length; i++)
+         for(i = usedImages; i < images.length; i++)
          {
             images[i].visible = false;
          }
+         order.length = used;
          motions.length = used;
+         // Put the layer's children in that order; when nothing changed this
+         // is only a comparison per child.
+         for(i = 0; i < used; i++)
+         {
+            if(i >= layer.numChildren || layer.getChildAt(i) != order[i])
+            {
+               layer.addChildAt(order[i],i);
+            }
+         }
+         // Past the end: pooled images (hidden) and the art of objects that
+         // went away or are hidden, which their views own and dispose.
+         for(i = layer.numChildren - 1; i >= used; i--)
+         {
+            var rest:starling.display.DisplayObject = layer.getChildAt(i);
+            if(rest is Image)
+            {
+               rest.visible = false;
+            }
+            else
+            {
+               layer.removeChildAt(i);
+            }
+         }
+      }
+
+      // The GPU art of a world object's container, or null if it shows Flash art.
+      private static function gpuArtOf(child:flash.display.DisplayObject) : starling.display.DisplayObject
+      {
+         var stand:GpuClip = child as GpuClip;
+         if(stand)
+         {
+            return stand.gpuNode;
+         }
+         var dc:DisplayContainer = child as DisplayContainer;
+         if(dc == null)
+         {
+            return null;
+         }
+         var renderable:Renderable = dc.getRenderableObject();
+         var view:StarlingView = renderable ? renderable.getView() as StarlingView : null;
+         return view ? view.gpuNode : null;
       }
 
       private function forwardMouse(event:MouseEvent) : void
@@ -679,6 +821,11 @@ package game.render
             // Moves only drive scrolling and hover, which use stage coordinates.
             target = this.mScene.getFloorContainer() || this.mScene.mContainer;
          }
+         if(target == null)
+         {
+            // The scene is being torn down (loading a save).
+            return;
+         }
          var local:Point = target.globalToLocal(this.mPoint);
          target.dispatchEvent(new MouseEvent(event.type,true,false,local.x,local.y,null,event.ctrlKey,event.altKey,event.shiftKey,event.buttonDown,event.delta));
          // On stage, the copy bubbles on up to the game's root listeners (which
@@ -699,7 +846,7 @@ package game.render
       {
          for(var i:int = container.numChildren - 1; i >= 0; i--)
          {
-            var child:DisplayObject = container.getChildAt(i);
+            var child:flash.display.DisplayObject = container.getChildAt(i);
             if(child == null || !child.visible)
             {
                continue;
@@ -731,7 +878,7 @@ package game.render
          return layer && layer.parent && layer.visible ? pick(layer,x,y) : null;
       }
 
-      private static function hits(o:DisplayObject, x:Number, y:Number) : Boolean
+      private static function hits(o:flash.display.DisplayObject, x:Number, y:Number) : Boolean
       {
          var s:flash.display.Sprite = o as flash.display.Sprite;
          if(s != null && s.hitArea != null)

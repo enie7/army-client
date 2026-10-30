@@ -3,6 +3,7 @@ package game.characters
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
+   import flash.display.DisplayObjectContainer;
    import game.utils.TimelinePauser;
    import flash.events.Event;
    import game.isometric.elements.Renderable;
@@ -65,6 +66,18 @@ package game.characters
       private var mFiles:Array;
       
       private var mIsPlaying:Boolean = false;
+
+      // Set by views that draw the art elsewhere (StarlingView): the clips
+      // here are only a model and must never play. Off the display list a
+      // playing clip still builds its frames, and children its timeline
+      // replaces go on playing detached, out of reach of anything that could
+      // stop them.
+      public var inert:Boolean = false;
+
+      // Per state, the art's class name (the symbol a view plays). Inert
+      // controllers make no art at all: a state is its empty wrapper (for
+      // the position, visibility and alpha game code sets) and this name.
+      private var mSymbols:Array = [];
       
       public function AnimationController(param1:Renderable)
       {
@@ -95,12 +108,19 @@ package game.characters
             _loc3_ = _loc5_.slice(0,_loc4_);
             _loc6_ = new MovieClip();
             this.mAnimations.push(_loc6_);
+            this.mSymbols.push(_loc2_);
+            if(this.inert)
+            {
+               _loc6_.stop();
+               _loc11_++;
+               continue;
+            }
             if(_loc9_.isLoaded(_loc3_))
             {
                _loc7_ = _loc9_.getSWFClass(_loc3_,_loc2_);
                if(_loc7_ != null)
                {
-                  _loc6_.addChild(new _loc7_());
+                  _loc6_.addChild(this.stopIfInert(new _loc7_()));
                }
             }
             else
@@ -124,8 +144,35 @@ package game.characters
       // New art starts playing at once; only the current state's clip is on
       // screen, so pause the others until Renderable.updateAnimation shows
       // them (see TimelinePauser).
+      private function stopIfInert(art:DisplayObject) : DisplayObject
+      {
+         if(this.inert)
+         {
+            stopTree(art);
+         }
+         return art;
+      }
+
+      private static function stopTree(o:DisplayObject) : void
+      {
+         var mc:MovieClip = o as MovieClip;
+         if(mc && mc.isPlaying)
+         {
+            mc.stop();
+         }
+         var c:DisplayObjectContainer = o as DisplayObjectContainer;
+         for(var i:int = 0; c && i < c.numChildren; i++)
+         {
+            stopTree(c.getChildAt(i));
+         }
+      }
+
       private function pauseHiddenAnimations() : void
       {
+         if(this.inert)
+         {
+            return;
+         }
          var i:int = 0;
          while(i < this.mAnimations.length)
          {
@@ -161,12 +208,16 @@ package game.characters
                   if(_loc5_ != null)
                   {
                      _loc6_ = this.mAnimations[_loc8_] as MovieClip;
-                     _loc6_.addChild(new _loc5_());
+                     _loc6_.addChild(this.stopIfInert(new _loc5_()));
                      _loc6_.visible = true;
                   }
                }
             }
             _loc8_++;
+         }
+         if(this.inert)
+         {
+            return;
          }
          this.pauseHiddenAnimations();
          if(this.mIsPlaying)
@@ -332,6 +383,23 @@ package game.characters
          return this.mAnimations[this.mCurrentAnimation];
       }
       
+      // The wrapper clip of state `index` (holding that state's art once
+      // loaded), for views that draw the art elsewhere.
+      public function getAnimationAt(index:int) : MovieClip
+      {
+         return this.mAnimations ? this.mAnimations[index] : null;
+      }
+
+      public function symbolAt(index:int) : String
+      {
+         return this.mSymbols[index];
+      }
+
+      public function get animationCount() : int
+      {
+         return this.mAnimations ? this.mAnimations.length : 0;
+      }
+
       public function getCurrentAnimationIndex() : int
       {
          return this.mCurrentAnimation;

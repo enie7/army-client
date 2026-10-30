@@ -5,6 +5,7 @@ package game.environment
    import flash.display.DisplayObject;
    import flash.display.DisplayObjectContainer;
    import game.isometric.IsometricScene;
+   import game.render.view.GpuClip;
    import game.states.GameState;
    
    public class RandomEffect
@@ -68,6 +69,10 @@ package game.environment
             if(this.mClip.parent)
             {
                this.mClip.parent.removeChild(this.mClip);
+            }
+            if(this.mClip is GpuClip)
+            {
+               GpuClip(this.mClip).dispose();
             }
             if(this.mClip is Bitmap)
             {

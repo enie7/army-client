@@ -2,11 +2,14 @@ package game.render.timeline
 {
    import flash.display.BitmapData;
    import flash.display.DisplayObject;
+   import flash.display.DisplayObjectContainer;
    import flash.display.MovieClip;
    import flash.display.StageQuality;
    import flash.geom.Matrix;
    import flash.geom.Rectangle;
+   import flash.text.TextField;
    import flash.utils.getDefinitionByName;
+   import game.utils.TimelinePauser;
    import starling.textures.SubTexture;
    import starling.textures.Texture;
 
@@ -33,9 +36,20 @@ package game.render.timeline
 
       private var mRoots:Object = {};
 
+      private var mAuthored:Object = {};
+
+      // Text leaves: the TextField found for each, kept so drawing new text
+      // needs no further walks over the art.
+      private var mTextFields:Object = {};
+
       private var mMatrix:Matrix = new Matrix();
 
       public var rasterised:int = 0;
+
+      // Development aid: path walks over Flash instances (find), text draws.
+      public static var finds:int = 0;
+
+      public static var textDraws:int = 0;
 
       // scale: screen pixels per art unit (zoom x contentScaleFactor).
       public function LeafAtlas(library:TimelineLibrary, scale:Number)
@@ -66,6 +80,7 @@ package game.render.timeline
 
       private function find(id:int) : DisplayObject
       {
+         ++finds;
          var info:Object = this.mLibrary.leaf(id);
          if(info == null)
          {
@@ -89,6 +104,9 @@ package game.render.timeline
             {
                return null;
             }
+            // Off the display list it would keep playing; only its frames
+            // are wanted.
+            stopTree(root);
             this.mRoots[path[0]] = root;
          }
          var node:DisplayObject = root;
@@ -100,6 +118,10 @@ package game.render.timeline
                return null;
             }
             mc.gotoAndStop(path[i][0]);
+            // That built the frame's children, playing; stop them before the
+            // next step can take them off the display list (where they would
+            // go on playing, and building frames, until collected).
+            stopTree(mc);
             if(path[i][1] >= mc.numChildren)
             {
                return null;
@@ -107,6 +129,20 @@ package game.render.timeline
             node = mc.getChildAt(path[i][1]);
          }
          return node;
+      }
+
+      private static function stopTree(o:DisplayObject) : void
+      {
+         var mc:MovieClip = o as MovieClip;
+         if(mc && mc.isPlaying)
+         {
+            mc.stop();
+         }
+         var c:DisplayObjectContainer = o as DisplayObjectContainer;
+         for(var i:int = 0; c && i < c.numChildren; i++)
+         {
+            stopTree(c.getChildAt(i));
+         }
       }
 
       private function rasterise(source:DisplayObject) : Leaf
@@ -151,6 +187,61 @@ package game.render.timeline
             page.fit(w + PADDING,h + PADDING,PAGE_SIZE);
          }
          return new Rectangle(page.lastX,page.lastY,this.mPages.length - 1,0);
+      }
+
+      // Dynamic text: the text a text leaf was authored with.
+      public function authoredText(id:int) : String
+      {
+         if(!(id in this.mAuthored))
+         {
+            var tf:TextField = this.textField(id);
+            this.mAuthored[id] = tf ? tf.text : "";
+         }
+         return this.mAuthored[id];
+      }
+
+      private function textField(id:int) : TextField
+      {
+         if(!(id in this.mTextFields))
+         {
+            this.mTextFields[id] = this.find(id) as TextField;
+         }
+         return this.mTextFields[id];
+      }
+
+      // Dynamic text: the text leaf drawn with other text, as its own
+      // texture {texture, offsetX, offsetY} (art units), or null if empty.
+      public function drawText(id:int, text:String) : Object
+      {
+         ++textDraws;
+         var tf:TextField = this.textField(id);
+         if(tf == null)
+         {
+            return null;
+         }
+         this.authoredText(id);
+         var old:String = tf.text;
+         tf.text = text;
+         var bounds:Rectangle = tf.getBounds(tf);
+         var out:Object = null;
+         if(bounds.width > 0 && bounds.height > 0 && text.length > 0)
+         {
+            var x0:Number = Math.floor(bounds.x * this.mScale) - 1;
+            var y0:Number = Math.floor(bounds.y * this.mScale) - 1;
+            var w:int = Math.ceil(bounds.right * this.mScale) + 1 - x0;
+            var h:int = Math.ceil(bounds.bottom * this.mScale) + 1 - y0;
+            var bmp:BitmapData = new BitmapData(w,h,true,0);
+            this.mMatrix.setTo(this.mScale,0,0,this.mScale,-x0,-y0);
+            bmp.drawWithQuality(tf,this.mMatrix,null,null,null,true,StageQuality.HIGH_16X16);
+            out = {
+               "texture":Texture.fromBitmapData(bmp,false,false,this.mScale),
+               "offsetX":x0 / this.mScale,
+               "offsetY":y0 / this.mScale
+            };
+            bmp.dispose();
+         }
+         tf.text = old;
+         return out;
       }
 
       // Upload pages that got new leaves since the last frame.
@@ -198,6 +289,7 @@ package game.render.timeline
          this.mPages.length = 0;
          this.mLeaves = {};
          this.mRoots = {};
+         this.mTextFields = {};
       }
 
    }
