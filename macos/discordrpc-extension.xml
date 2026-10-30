@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- src/DiscordRPC.ane only ships Windows-x86. The "default" platform carries
+     just the ActionScript side, whose calls no-op when no native context can be
+     created, so the game runs (without Discord presence) everywhere else. -->
+<extension xmlns="http://ns.adobe.com/air/extension/2.5">
+	<id>fi.joniaromaa.adobeair.discordrpc</id>
+	<name>Discord RPC</name>
+	<versionNumber>1.0.0</versionNumber>
+	<platforms>
+		<platform name="Windows-x86">
+			<applicationDeployment>
+				<nativeLibrary>AdobeAIR-DiscordRPC.dll</nativeLibrary>
+				<initializer>ExtensionInitializer</initializer>
+				<finalizer>ExtensionFinalizer</finalizer>
+			</applicationDeployment>
+		</platform>
+		<platform name="default">
+			<applicationDeployment/>
+		</platform>
+	</platforms>
+</extension>

@@ -187,7 +187,9 @@ package mx.rpc
          catch(e:MessagingError)
          {
             _log.warn(e.toString());
-            errorText = resourceManager.getString("rpc","cannotConnectToDestination",[mx_internal::asyncRequest.destination]);
+            // Hoisted out of the array literal: amxmlc's parser crashes on [ns::name].
+            var destination:String = this.mx_internal::asyncRequest.destination;
+            errorText = resourceManager.getString("rpc","cannotConnectToDestination",[destination]);
             fault = new Fault("InvokeFailed",e.toString(),errorText);
             new AsyncDispatcher(mx_internal::dispatchRpcEvent,[FaultEvent.createEvent(fault,token,message)],10);
          }

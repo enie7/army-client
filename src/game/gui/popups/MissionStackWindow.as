@@ -363,7 +363,7 @@
          {
             if(Boolean(_loc3_) && _loc3_.getClip() == param1.target)
             {
-               _loc4_ = this.mBuyObjectiveButtons.indexOf(_loc3_);
+               _loc4_ = this.mBuyObjectiveButtons.indexOf(_loc3_ as ResizingIconButton);
                _loc5_ = this.mCurrentMission.getObjectiveByIndex(_loc4_);
                _loc2_.externalCallUnlockObjective(_loc5_);
                break;
@@ -414,7 +414,7 @@
          {
             if(Boolean(_loc2_) && _loc2_.getClip() == param1.target)
             {
-               _loc3_ = this.mShopButtons.indexOf(_loc2_);
+               _loc3_ = this.mShopButtons.indexOf(_loc2_ as ResizingIconButton);
                _loc4_ = this.mCurrentMission.getObjectiveByIndex(_loc3_);
                _loc5_ = null;
                if(_loc4_.mParameter.ID == null)
