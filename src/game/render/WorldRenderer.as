@@ -90,6 +90,24 @@ package game.render
 
       private var mEffectOrder:Vector.<starling.display.DisplayObject> = new Vector.<starling.display.DisplayObject>();
 
+      // Screen area in layer coordinates (pixels, camera removed), with a
+      // margin for interpolated motion: art outside it is not drawn.
+      private static const CULL_MARGIN:Number = 96;
+
+      private var mViewLeft:Number = 0;
+
+      private var mViewTop:Number = 0;
+
+      private var mViewRight:Number = 0;
+
+      private var mViewBottom:Number = 0;
+
+      // Development aid: objects left out as off screen, since the last stats.
+      private var mCulled:int = 0;
+
+      // Development aid: what had to be rasterised again, by kind.
+      private var mMisses:Object = {};
+
       private var mInput:flash.display.Sprite = new flash.display.Sprite();
 
       private var mScene:IsometricScene;
@@ -332,6 +350,22 @@ package game.render
          var fx:Array = [0,0];
          countFlash(scene.mSceneHud,fx);
          out += "\n  scene hud (effects): " + fx.join(" / ");
+         var hud:Object = {};
+         for(i = 0; i < scene.mSceneHud.numChildren; i++)
+         {
+            var item:flash.display.DisplayObject = scene.mSceneHud.getChildAt(i);
+            var k:String = getQualifiedClassName(item) + (item.visible ? "" : " (hidden)");
+            var r:Array = hud[k] || (hud[k] = [0,0,0]);
+            r[0]++;
+            var cc:Array = [0,0];
+            countFlash(item,cc);
+            r[1] += cc[0];
+            r[2] += cc[1];
+         }
+         for(k in hud)
+         {
+            out += "\n    hud " + k + ": " + hud[k].join(" / ");
+         }
          return out;
       }
 
@@ -365,7 +399,23 @@ package game.render
             return "gpu off";
          }
          var c:SnapshotCache = sInstance.mCache;
-         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn + " | " + GpuArt.describe();
+         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn + " | " + GpuArt.describe() + ", culled " + sInstance.mCulled;
+         sInstance.mCulled = 0;
+         var rows:Array = [];
+         for(var k:String in sInstance.mMisses)
+         {
+            rows.push({"k":k,"n":sInstance.mMisses[k]});
+         }
+         rows.sortOn("n",Array.NUMERIC | Array.DESCENDING);
+         if(rows.length)
+         {
+            line += " | rasterised:";
+            for(var r:int = 0; r < Math.min(4,rows.length); r++)
+            {
+               line += " " + rows[r].k + " x" + rows[r].n;
+            }
+         }
+         sInstance.mMisses = {};
          sInstance.mGroundDrawn = 0;
          sInstance.mPresents = 0;
          c.hits = 0;
@@ -376,6 +426,12 @@ package game.render
       private function onRootCreated(event:starling.events.Event) : void
       {
          this.mRoot = this.mStarling.root as StarlingRoot;
+         // Stage3D sits under the Flash display list and is cleared every
+         // present: clear to the Flash stage's background colour, so whatever
+         // Flash content does not cover (e.g. beside a loading screen laid out
+         // narrower than the window) looks as it did without the GPU renderer,
+         // not black.
+         this.mStarling.stage.color = this.mStage.color;
          this.mRoot.touchable = false;
          this.mGround = new GroundChunks(this.mRoot.ground,this.mRoot.fog);
          if(presentHz > 40)
@@ -669,6 +725,12 @@ package game.render
          this.mRoot.visible = true;
          GpuArt.setScale(scale * Starling.contentScaleFactor);
          GpuArt.tick();
+         // Both layers sit at the camera: what lies off screen is left out,
+         // so Starling neither batches nor uploads it.
+         this.mViewLeft = -CULL_MARGIN - scene.mContainer.x;
+         this.mViewTop = -CULL_MARGIN - scene.mContainer.y;
+         this.mViewRight = this.mStage.stageWidth + CULL_MARGIN - scene.mContainer.x;
+         this.mViewBottom = this.mStage.stageHeight + CULL_MARGIN - scene.mContainer.y;
          this.mirrorLayer(scene.mContainer,scene.getFloorContainer(),this.mRoot.world,this.mWorldImages,this.mWorldMotion,this.mWorldOrder,scale);
          this.mirrorLayer(scene.mSceneHud,null,this.mRoot.effects,this.mEffectImages,this.mEffectMotion,this.mEffectOrder,scale);
       }
@@ -697,6 +759,15 @@ package game.render
             }
             motion.capture(child.x * scale,child.y * scale,this.mCaptures);
             var gpu:starling.display.DisplayObject = gpuArtOf(child);
+            if(gpu != null && this.offscreen(child,boundsOf(child),scale))
+            {
+               ++this.mCulled;
+               gpu = null;
+               if((child as DisplayObjectContainer).numChildren <= 1)
+               {
+                  continue;
+               }
+            }
             if(gpu != null)
             {
                gpu.scaleX = child.scaleX * scale;
@@ -707,15 +778,29 @@ package game.render
                order[used] = gpu;
                motions[used] = motion;
                ++used;
-               // Only the art's placeholder left in the container: done.
-               if((child as DisplayObjectContainer).numChildren <= 1)
+               // Only the art's placeholder left in the container (or only
+               // stand-ins, for a group): done.
+               if((child as DisplayObjectContainer).numChildren <= 1 || gpu is starling.display.Sprite && sGroups[child] == gpu)
                {
                   continue;
                }
             }
+            var missesBefore:int = this.mCache.misses;
             var look:Snapshot = this.mCache.get(child,scale);
+            if(this.mCache.misses != missesBefore)
+            {
+               var missKey:String = describeChild(child);
+               this.mMisses[missKey] = int(this.mMisses[missKey]) + 1;
+            }
             if(look == null)
             {
+               continue;
+            }
+            var px:Number = child.x * scale;
+            var py:Number = child.y * scale;
+            if(child.rotation == 0 && (px + look.offsetX > this.mViewRight || py + look.offsetY > this.mViewBottom || px + look.offsetX + look.texture.width < this.mViewLeft || py + look.offsetY + look.texture.height < this.mViewTop))
+            {
+               ++this.mCulled;
                continue;
             }
             var image:Image;
@@ -776,9 +861,103 @@ package game.render
          }
       }
 
+      // Development aid: a world layer child, as its object's class or its own
+      // class, and what else its container holds.
+      private static function describeChild(child:flash.display.DisplayObject) : String
+      {
+         var dc:DisplayContainer = child as DisplayContainer;
+         var renderable:Renderable = dc ? dc.getRenderableObject() : null;
+         var name:String = getQualifiedClassName(renderable || child).split("::").pop();
+         if(renderable == null)
+         {
+            var c:DisplayObjectContainer = child as DisplayObjectContainer;
+            name += " \"" + child.name + "\" in " + (child.parent ? child.parent.name : "?") + (c && c.numChildren ? " > " + getQualifiedClassName(c.getChildAt(0)).split("::").pop() : "") + " s" + child.scaleX.toFixed(2);
+         }
+         if(dc && dc.numChildren > 1)
+         {
+            name += "[" + getQualifiedClassName(dc.getChildAt(dc.numChildren - 1)).split("::").pop() + "]";
+         }
+         return name;
+      }
+
+      // GPU groups: plain Flash containers holding only stand-ins (GpuClip),
+      // e.g. the sea wave strip. Drawn as their clips, laid out like the
+      // stand-ins; null for other containers.
+      private static var sGroups:Dictionary = new Dictionary(true);
+
+      private static function gpuGroupOf(child:flash.display.DisplayObject) : starling.display.Sprite
+      {
+         var c:DisplayObjectContainer = child as DisplayObjectContainer;
+         if(c == null || c is DisplayContainer || c is GpuClip || c.numChildren == 0)
+         {
+            return null;
+         }
+         for(var i:int = 0; i < c.numChildren; i++)
+         {
+            if(!(c.getChildAt(i) is GpuClip))
+            {
+               return null;
+            }
+         }
+         var group:starling.display.Sprite = sGroups[c];
+         if(group == null)
+         {
+            group = new starling.display.Sprite();
+            group.touchable = false;
+            sGroups[c] = group;
+         }
+         group.removeChildren();
+         for(i = 0; i < c.numChildren; i++)
+         {
+            var stand:GpuClip = GpuClip(c.getChildAt(i));
+            var node:starling.display.DisplayObject = stand.gpuNode;
+            if(node && stand.visible)
+            {
+               node.x = stand.x;
+               node.y = stand.y;
+               node.scaleX = stand.scaleX;
+               node.scaleY = stand.scaleY;
+               node.rotation = stand.rotation * DEG_TO_RAD;
+               node.alpha = stand.alpha;
+               group.addChild(node);
+            }
+         }
+         return group;
+      }
+
+      // Whether art with `bounds` (in the container's coordinates; null when
+      // unknown) lies entirely off screen.
+      private function offscreen(child:flash.display.DisplayObject, bounds:Rectangle, scale:Number) : Boolean
+      {
+         if(bounds == null || child.rotation != 0)
+         {
+            return false;
+         }
+         var sx:Number = child.scaleX * scale;
+         var sy:Number = child.scaleY * scale;
+         var x0:Number = child.x * scale + Math.min(bounds.left * sx,bounds.right * sx);
+         var x1:Number = child.x * scale + Math.max(bounds.left * sx,bounds.right * sx);
+         var y0:Number = child.y * scale + Math.min(bounds.top * sy,bounds.bottom * sy);
+         var y1:Number = child.y * scale + Math.max(bounds.top * sy,bounds.bottom * sy);
+         return x1 < this.mViewLeft || x0 > this.mViewRight || y1 < this.mViewTop || y0 > this.mViewBottom;
+      }
+
+      private static function boundsOf(child:flash.display.DisplayObject) : Rectangle
+      {
+         var dc:DisplayContainer = child as DisplayContainer;
+         var renderable:Renderable = dc ? dc.getRenderableObject() : null;
+         var view:StarlingView = renderable ? renderable.getView() as StarlingView : null;
+         return view ? view.bounds : null;
+      }
+
       // The GPU art of a world object's container, or null if it shows Flash art.
       private static function gpuArtOf(child:flash.display.DisplayObject) : starling.display.DisplayObject
       {
+         var group:starling.display.Sprite = gpuGroupOf(child);
+         if(group)
+         {
+            return group;
+         }
          var stand:GpuClip = child as GpuClip;
          if(stand)
          {

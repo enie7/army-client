@@ -5,6 +5,7 @@ package game.render.art
    import flash.display.MovieClip;
    import flash.events.Event;
    import flash.utils.Dictionary;
+   import game.utils.FrameProfiler;
 
    // For art classes that timelines place and replace (unit hint badges):
    // when one is taken off its parent, stop it and everything in it. Flash
@@ -26,8 +27,11 @@ package game.render.art
       public static function watch(clip:MovieClip) : void
       {
          clip.addEventListener(Event.REMOVED,onRemoved,false,0,true);
-         sLive[clip] = true;
-         ++made;
+         if(FrameProfiler.ENABLED)
+         {
+            sLive[clip] = true;
+            ++made;
+         }
       }
 
       // Development aid: watched clips alive, without a parent, and of

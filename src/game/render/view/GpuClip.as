@@ -1,14 +1,16 @@
 package game.render.view
 {
-   import flash.display.Sprite;
+   import flash.display.MovieClip;
+   import flash.utils.getQualifiedClassName;
    import game.render.timeline.TimelineClip;
    import starling.display.DisplayObject;
 
    // Stand-in on the Flash side for a clip the GPU timeline player draws, for
-   // code that would put a plain MovieClip into the world (environment
-   // effects). The world renderer draws its clip where this sprite is; its
-   // frame can be read like the MovieClip's.
-   public class GpuClip extends Sprite
+   // code that would put an art MovieClip into the world (effects, icons,
+   // environment). It is an empty MovieClip, so Flash builds nothing for it;
+   // the world renderer draws its GPU clip where it is, and its frame API
+   // (frames, labels, play / stop) is the GPU clip's.
+   public class GpuClip extends MovieClip
    {
       private var mClip:TimelineClip;
 
@@ -31,26 +33,79 @@ package game.render.view
          return new GpuClip(TimelineClip.forSymbol(symbol,GpuArt.library,GpuArt.atlas));
       }
 
+      // `new cls()`, as a stand-in when the GPU player can draw that symbol.
+      public static function make(cls:Class) : MovieClip
+      {
+         return create(getQualifiedClassName(cls).replace("::",".")) || new cls() as MovieClip;
+      }
+
       public function get gpuNode() : starling.display.DisplayObject
       {
          return this.mClip;
       }
 
-      public function get currentFrame() : int
+      override public function get currentFrame() : int
       {
          return this.mClip ? this.mClip.currentFrame : 0;
       }
 
-      public function get totalFrames() : int
+      override public function get totalFrames() : int
       {
          return this.mClip ? this.mClip.totalFrames : 0;
       }
 
-      public function gotoAndPlay(frame:Object) : void
+      override public function get currentFrameLabel() : String
+      {
+         return this.mClip ? this.mClip.currentFrameLabel : null;
+      }
+
+      override public function get currentLabel() : String
+      {
+         return this.mClip ? this.mClip.currentLabel : null;
+      }
+
+      override public function get isPlaying() : Boolean
+      {
+         return this.mClip ? this.mClip.isPlaying : false;
+      }
+
+      override public function play() : void
+      {
+         if(this.mClip)
+         {
+            this.mClip.play();
+         }
+      }
+
+      override public function stop() : void
+      {
+         if(this.mClip)
+         {
+            this.mClip.stop();
+         }
+      }
+
+      override public function gotoAndPlay(frame:Object, scene:String = null) : void
       {
          if(this.mClip)
          {
             this.mClip.gotoAndPlay(frame);
+         }
+      }
+
+      override public function gotoAndStop(frame:Object, scene:String = null) : void
+      {
+         if(this.mClip)
+         {
+            this.mClip.gotoAndStop(frame);
+         }
+      }
+
+      override public function nextFrame() : void
+      {
+         if(this.mClip)
+         {
+            this.mClip.nextFrame();
          }
       }
 

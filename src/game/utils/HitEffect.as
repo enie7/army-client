@@ -1,6 +1,7 @@
 package game.utils
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    
    public class HitEffect extends Effect
    {
@@ -55,7 +56,7 @@ package game.utils
          var _loc3_:Class = _loc1_.getSWFClass(Config.SWF_EFFECTS_NAME,_loc2_);
          if(_loc3_ != null)
          {
-            mMC = new _loc3_();
+            mMC = GpuClip.make(_loc3_);
             mMC.gotoAndPlay(1);
          }
       }

@@ -43,6 +43,10 @@ package game.render.view
 
       private var mPlaceholder:Shape;
 
+      // The art's bounds in the container's coordinates (from the placeholder),
+      // for the world renderer to skip art that is off screen.
+      private var mBounds:Rectangle;
+
       // Positioned by the world renderer like the Flash container; holds the
       // converted art. Built on first use (the GPU may not be up when art
       // arrives).
@@ -134,6 +138,11 @@ package game.render.view
             this.attachAnimation();
          }
          return this.mNode;
+      }
+
+      public function get bounds() : Rectangle
+      {
+         return this.mBounds;
       }
 
       // Static art -----------------------------------------------------------
@@ -461,6 +470,7 @@ package game.render.view
          {
             mContainer.addChildAt(this.mPlaceholder,0);
          }
+         this.mBounds = this.mPlaceholder.getBounds(mContainer);
       }
 
       // Show the current state's GPU copy in the node.
@@ -859,10 +869,12 @@ package game.render.view
          {
             mContainer.addChildAt(this.mPlaceholder,0);
          }
+         this.mBounds = this.mPlaceholder.getBounds(mContainer);
       }
 
       private function removePlaceholder() : void
       {
+         this.mBounds = null;
          if(this.mPlaceholder && this.mPlaceholder.parent)
          {
             this.mPlaceholder.parent.removeChild(this.mPlaceholder);

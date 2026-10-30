@@ -1,6 +1,7 @@
 package game.battlefield
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.Bitmap;
    import flash.display.BitmapData;
    import flash.display.DisplayObject;
@@ -521,7 +522,11 @@ package game.battlefield
          {
             while(this.mWaveContainer.numChildren > 0)
             {
-               this.mWaveContainer.removeChildAt(0);
+               var wave:GpuClip = this.mWaveContainer.removeChildAt(0) as GpuClip;
+               if(wave)
+               {
+                  wave.dispose();
+               }
             }
             _loc1_ = this.mMapData.getType(this.mMapData.mGridWidth - 1,this.mMapData.mGridHeight - 1);
             if(_loc1_ == MapData.TILE_TYPE_SHORE_S_1 || _loc1_ == MapData.TILE_TYPE_SHORE_S_2)
@@ -531,7 +536,10 @@ package game.battlefield
                _loc5_ = 0;
                while(_loc4_ < _loc9_.right * this.mScene.mGridDimX)
                {
-                  _loc2_ = new _loc3_();
+                  // Played by the GPU timeline player when it can: as Flash
+                  // clips these animated waves were built afresh on every
+                  // map update, and the whole strip rasterised every frame.
+                  _loc2_ = GpuClip.make(_loc3_);
                   _loc2_.x = _loc4_ - _loc9_.left * this.mScene.mGridDimY;
                   this.mWaveContainer.addChild(_loc2_);
                   _loc4_ += this.mScene.mGridDimX * 2;

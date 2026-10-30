@@ -201,10 +201,64 @@ Left for later milestones:
   it (loot rewards from WalkingAction); under a GPU view that becomes a
   position.
 
+## Status (2026-10-30)
+
+M3-M6 landed together rather than one object type at a time: every world
+object goes through `StarlingView`, which falls back to Flash for art it
+cannot convert (`--flash-art` forces Flash everywhere for comparison).
+
+- Static art (buildings, decorations, debris, props) keeps its Flash
+  instance as a stopped model; parts code touches (`Flagpole`,
+  `City_Name_Sign`, `Animation`) are copied to the GPU clips every frame.
+- Animations (units, installations) keep no Flash art at all: an inert
+  `AnimationController` holds an empty wrapper per state (position,
+  visibility, alpha) and the symbol name; flips, labels, restarts and hints
+  are done on the GPU clips.
+- Effects and world-space extras (hit / explosion effects, paratrooper,
+  harvest and redeploy animations, status icons, fire missions and their
+  debris, river shine, sea waves) are made as `GpuClip` stand-ins: empty
+  MovieClips with the frame API of their GPU clip. The mirror draws
+  containers holding only stand-ins as groups. Left on Flash: the enemy
+  activation icon and the tutorial highlight (code reaches into or adds to
+  their art), text effects, loot and loading bars (snapshotted).
+- The mirror skips art that lies off screen, so Starling neither batches
+  nor uploads it.
+- `timelines.json` holds every exported sprite of the release SWF (1445
+  symbols, ~3.4MB), since code instantiates many by class name.
+
+What the time actually went to, found with the CPU / allocation sampler
+(`run-debug.sh --alloc-sample`, `--autoload`, `--autoquit`): not the world
+art's own drawing, but Flash building timeline frames off screen.
+
+| Cause | Fix |
+|---|---|
+| Hidden Flash copies of every unit's state art (and their hint badges) kept being rebuilt; heap 1.2-1.6GB | Inert controllers make no art |
+| River shine clips: a large construction per spawn and every frame | GPU stand-ins |
+| `BigHudBar` never settled (0/0 = NaN, rounding, over 100%) and rebuilt its fill every frame | Settle exactly, clamp, seek only on change |
+| Detached hint badges kept playing | Replaced `hint_health_*` classes stop themselves when removed |
+| Sea waves re-rasterised by the mirror every frame | GPU stand-ins, drawn as a group |
+
+Heavy base (`mystory`): about 1-4 fps before, 39 fps now (the 40 fps cap),
+heap about 600-750MB.
+
+Still open:
+
+- M7: drop the mirror for the world, fixed 40 Hz logic, presents at the
+  display rate with interpolation (the game is capped at 40 fps now).
+- Retina: the atlas is rasterised at 1x; a HiDPI window needs
+  `requestedDisplayResolution` and the atlas at 2x.
+- The atlas is never evicted.
+- Snapshot-mirrored overlays that animate their scale (loot pop-ups, action
+  delay icons) are rasterised again every frame while they animate.
+- The Flash comparison paths (`--flash-art`, `--cpu-render`) keep the old
+  leaks; they are for comparison only.
+
 ## Testing
 
-- Saves: `armyattack_2` (light), the expanded base (heavy). Load first, then
-  Play (Play decides tutorial mode from the loaded state).
+- Saves: `armyattack_2` (light), the expanded base (heavy), `mystory`
+  (heavy). Load first, then Play (Play decides tutorial mode from the loaded
+  state), or `--autoload=<save> --autoquit=N` to do both unattended and
+  write a world census to the profile log before quitting.
 - `macos/build.sh` (add `PROFILE=1` for traces); `--profile` for the
   release-runtime profiler; `macos/run-debug.sh [--alloc-sample=N]` for the
   debug launcher; `--cpu-render` for the original renderer.

@@ -1,6 +1,7 @@
 package game.gameElements
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.MovieClip;
    import flash.events.Event;
    import game.battlefield.MapData;
@@ -58,7 +59,7 @@ package game.gameElements
             if(FeatureTuner.USE_FIRE_CALL_EFFECTS)
             {
                _loc5_ = _loc3_.getSWFClass(_loc4_,param1.getIconGraphics());
-               this.mAnim = new _loc5_();
+               this.mAnim = GpuClip.make(_loc5_);
                addChild(this.mAnim);
             }
          }
@@ -124,7 +125,7 @@ package game.gameElements
          if(FeatureTuner.USE_FIRE_CALL_EFFECTS)
          {
             _loc3_ = _loc2_.getSWFClass(this.mItem.getIconGraphicsFile(),this.mItem.getIconGraphics());
-            this.mAnim = new _loc3_();
+            this.mAnim = GpuClip.make(_loc3_);
             addChild(this.mAnim);
          }
          if(this.mStarted)
@@ -261,17 +262,17 @@ package game.gameElements
                   {
                      if(!_loc6_.mObject && !_loc6_.mCharacter)
                      {
-                        (_loc9_ = new MovieLoop(new _loc1_(),_loc6_.mPosI * _loc2_ - _loc3_,_loc6_.mPosJ * _loc2_ - _loc4_,GameState.mInstance.mScene.mContainer,1,0)).mRemoveInTheEnd = false;
+                        (_loc9_ = new MovieLoop(GpuClip.make(_loc1_),_loc6_.mPosI * _loc2_ - _loc3_,_loc6_.mPosJ * _loc2_ - _loc4_,GameState.mInstance.mScene.mContainer,1,0)).mRemoveInTheEnd = false;
                         this.mDebrises.push(_loc9_);
                      }
                      else if(_loc6_.mObject && (_loc6_.mObject is DecorationObject && (_loc6_.mObject as DecorationObject).getHealth() == 0 && !(_loc6_.mObject.mItem as DecorationItem).mLeaveRuins) || _loc6_.mObject is EnemyInstallationObject && (_loc6_.mObject as EnemyInstallationObject).getHealth() == 0 || _loc6_.mObject is HFEPlotObject && (_loc6_.mObject as HFEPlotObject).getHealth() == 0)
                      {
-                        (_loc9_ = new MovieLoop(new _loc1_(),_loc6_.mPosI * _loc2_ - _loc3_,_loc6_.mPosJ * _loc2_ - _loc4_,GameState.mInstance.mScene.mContainer,1,0)).mRemoveInTheEnd = false;
+                        (_loc9_ = new MovieLoop(GpuClip.make(_loc1_),_loc6_.mPosI * _loc2_ - _loc3_,_loc6_.mPosJ * _loc2_ - _loc4_,GameState.mInstance.mScene.mContainer,1,0)).mRemoveInTheEnd = false;
                         this.mDebrises.push(_loc9_);
                      }
                      else if(Boolean(_loc6_.mCharacter) && (!(_loc6_.mCharacter is PlayerUnit) || _loc6_.mCharacter.getHealth() > 0))
                      {
-                        (_loc9_ = new MovieLoop(new _loc1_(),_loc6_.mPosI * _loc2_ - _loc3_,_loc6_.mPosJ * _loc2_ - _loc4_,GameState.mInstance.mScene.mContainer,1,0)).mRemoveInTheEnd = false;
+                        (_loc9_ = new MovieLoop(GpuClip.make(_loc1_),_loc6_.mPosI * _loc2_ - _loc3_,_loc6_.mPosJ * _loc2_ - _loc4_,GameState.mInstance.mScene.mContainer,1,0)).mRemoveInTheEnd = false;
                         this.mDebrises.push(_loc9_);
                      }
                   }

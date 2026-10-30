@@ -1,6 +1,7 @@
 ﻿package game.actions
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.MovieClip;
    import flash.events.Event;
    import game.characters.PlayerUnit;
@@ -78,7 +79,7 @@
       private function addHarvestAnimaion() : void
       {
          var _loc1_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,"redeploy_pickup");
-         this.mHarvestAnimation = new _loc1_();
+         this.mHarvestAnimation = GpuClip.make(_loc1_);
          this.mHarvestAnimation.addEventListener(Event.ENTER_FRAME,this.checkHarvestFrame);
          this.mHarvestAnimation.x = mTarget.mX;
          this.mHarvestAnimation.y = mTarget.mY;

@@ -3,6 +3,7 @@ package game.render.timeline
    import flash.geom.Matrix;
    import starling.display.DisplayObject;
    import starling.display.Image;
+   import starling.display.Mesh;
    import starling.display.Sprite;
    import starling.filters.BlurFilter;
    import starling.filters.FilterChain;
@@ -364,8 +365,20 @@ package game.render.timeline
 
       // A placement with a clip depth masks the depths above it, up to and
       // including the clip depth (SWF semantics).
+      // Development aid (--no-masks): draw masked content unmasked.
+      public static var masksOff:Boolean = false;
+
+
+      // Development aid (--show-masks, with --no-masks): draw mask shapes as
+      // content, to see what they rasterised to.
+      public static var showMasks:Boolean = false;
+
       private function updateMasks() : void
       {
+         if(masksOff)
+         {
+            return;
+         }
          if(!this.mMasksDirty)
          {
             return;
@@ -475,20 +488,33 @@ package game.render.timeline
          }
          else
          {
-            var leaf:Leaf = this.mAtlas.get(character);
-            if(leaf == null)
-            {
-               return null;
-            }
             // Leaves sit in a holder so the timeline matrix can be set on the
             // holder while the image keeps its offset from the leaf origin.
             var holder:Sprite = new Sprite();
-            var image:Image = new Image(this.mAtlas.textureOf(leaf));
-            image.x = leaf.offsetX;
-            image.y = leaf.offsetY;
-            image.style = mask || this.mAsMask ? new MaskStyle() : new ColorTransformStyle();
-            holder.addChild(image);
-            node.image = image;
+            if(mask || this.mAsMask)
+            {
+               // Masks are geometry (see LeafAtlas.maskMesh).
+               var shape:Mesh = this.mAtlas.maskMesh(character);
+               if(shape == null)
+               {
+                  return null;
+               }
+               holder.addChild(shape);
+            }
+            else
+            {
+               var leaf:Leaf = this.mAtlas.get(character);
+               if(leaf == null)
+               {
+                  return null;
+               }
+               var image:Image = new Image(this.mAtlas.textureOf(leaf));
+               image.x = leaf.offsetX;
+               image.y = leaf.offsetY;
+               image.style = new ColorTransformStyle();
+               holder.addChild(image);
+               node.image = image;
+            }
             node.display = holder;
             if(this.mLibrary.leaf(character).kind == "edittext")
             {
@@ -531,7 +557,7 @@ package game.render.timeline
          node.display.transformationMatrix = node.matrix;
          var c:Array = node.color;
          // Masks are never drawn as content, only into the stencil.
-         node.display.alpha = node.clipDepth > 0 ? 0 : (c ? Math.max(0,Math.min(1,c[3])) : 1);
+         node.display.alpha = node.clipDepth > 0 && !showMasks ? 0 : (c ? Math.max(0,Math.min(1,c[3])) : 1);
          // Flash composes colour transforms child first: for a child (Mc, Oc)
          // under (Mp, Op), x * Mc + Oc then * Mp + Op, so M = Mc * Mp and
          // O = Oc * Mp + Op.
@@ -550,9 +576,9 @@ package game.render.timeline
                style.setOffsets(or,og,ob);
             }
          }
-         else
+         else if(node.display is TimelineClip)
          {
-            (node.display as TimelineClip).setTint(r,g,b,or,og,ob);
+            TimelineClip(node.display).setTint(r,g,b,or,og,ob);
          }
       }
 

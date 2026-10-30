@@ -1,6 +1,7 @@
 package game.gameElements
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
    import flash.events.MouseEvent;
@@ -123,12 +124,12 @@ package game.gameElements
          if(FeatureTuner.USE_HARVEST_READY_ICON_EFFECT)
          {
             _loc7_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,"icon_status_finished");
-            this.mProgressCompletedIcon = new _loc7_();
+            this.mProgressCompletedIcon = GpuClip.make(_loc7_);
          }
          else
          {
             _loc8_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,"icon_status_finished1");
-            this.mProgressCompletedIcon = new _loc8_();
+            this.mProgressCompletedIcon = GpuClip.make(_loc8_);
          }
          this.mProgressCompletedIcon.mouseEnabled = false;
          this.mProgressCompletedIcon.mouseChildren = false;

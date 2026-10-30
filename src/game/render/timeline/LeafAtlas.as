@@ -4,12 +4,17 @@ package game.render.timeline
    import flash.display.DisplayObject;
    import flash.display.DisplayObjectContainer;
    import flash.display.MovieClip;
+   import flash.display.Shape;
    import flash.display.StageQuality;
    import flash.geom.Matrix;
    import flash.geom.Rectangle;
    import flash.text.TextField;
    import flash.utils.getDefinitionByName;
    import game.utils.TimelinePauser;
+   import starling.display.Mesh;
+   import starling.rendering.IndexData;
+   import starling.rendering.VertexData;
+   import starling.styles.MeshStyle;
    import starling.textures.SubTexture;
    import starling.textures.Texture;
 
@@ -38,6 +43,9 @@ package game.render.timeline
 
       private var mAuthored:Object = {};
 
+      // Mask shape id -> {vertices, indices}, or null if it has no geometry.
+      private var mMaskMeshes:Object = {};
+
       // Text leaves: the TextField found for each, kept so drawing new text
       // needs no further walks over the art.
       private var mTextFields:Object = {};
@@ -65,6 +73,7 @@ package game.render.timeline
       }
 
       // The leaf's texture, or null when it draws nothing / cannot be found.
+      // The leaf's texture, or null when it draws nothing / cannot be found.
       public function get(id:int) : Leaf
       {
          if(id in this.mLeaves)
@@ -76,6 +85,40 @@ package game.render.timeline
          leaf = source ? this.rasterise(source) : null;
          this.mLeaves[id] = leaf;
          return leaf;
+      }
+
+      // A mask shape, as geometry: Stage3D stencil masks take geometry, and
+      // the runtime draws a shape the timeline uses as a mask as nothing, so
+      // the shape comes from the SWF as rectangles in art units
+      // (macos/tools/maskshapes.py). Null if the shape has none.
+      public function maskMesh(id:int) : Mesh
+      {
+         if(!(id in this.mMaskMeshes))
+         {
+            var info:Object = this.mLibrary.leaf(id);
+            var rects:Array = info ? info.mask : null;
+            var mesh:Object = null;
+            if(rects && rects.length)
+            {
+               var vertices:VertexData = new VertexData(MeshStyle.VERTEX_FORMAT,rects.length * 4);
+               var indices:IndexData = new IndexData(rects.length * 6);
+               for(var i:int = 0; i < rects.length; i++)
+               {
+                  var r:Array = rects[i];
+                  var v:int = i * 4;
+                  vertices.setPoint(v,"position",r[0],r[1]);
+                  vertices.setPoint(v + 1,"position",r[0] + r[2],r[1]);
+                  vertices.setPoint(v + 2,"position",r[0],r[1] + r[3]);
+                  vertices.setPoint(v + 3,"position",r[0] + r[2],r[1] + r[3]);
+                  indices.addQuad(v,v + 1,v + 2,v + 3);
+               }
+               vertices.colorize("color",0xffffff,1);
+               mesh = {"vertices":vertices,"indices":indices};
+            }
+            this.mMaskMeshes[id] = mesh;
+         }
+         var m:Object = this.mMaskMeshes[id];
+         return m ? new Mesh(VertexData(m.vertices).clone(),IndexData(m.indices).clone()) : null;
       }
 
       private function find(id:int) : DisplayObject

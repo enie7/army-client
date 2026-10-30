@@ -84,6 +84,10 @@ package game.gui
       // stage (experiment: is per-frame construction from on-stage clips?).
       public static var freezeSeconds:int = 0;
 
+      // --autokey: after Play, hold the left arrow for 2s (a synthetic key on
+      // the stage) and log the camera before and after.
+      public static var autokey:Boolean = false;
+
       public function Activate(param1:Function) : void
       {
          mDoneCallback = param1;
@@ -112,6 +116,27 @@ package game.gui
          this.loadProgress(data);
          this.play();
          FrameProfiler.mark("autoload: playing");
+         if(autokey)
+         {
+            var keyTimer:Timer = new Timer(10000,1);
+            keyTimer.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+            {
+               var stage:Object = GameState.mInstance.getMainClip().stage;
+               var cam:Object = GameState.mInstance.mScene.mCamera;
+               FrameProfiler.mark("autokey: left down, camera " + cam.getCameraX() + "," + cam.getCameraY() + " focus " + stage.focus);
+               stage.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN,true,false,0,37));
+               var up:Timer = new Timer(2000,1);
+               up.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+               {
+                  var sc:Object = GameState.mInstance.mScene;
+                  FrameProfiler.mark("autokey: held: left " + sc.mLeftPressed + " mouseScrolling " + sc.mMouseScrolling + " anyKey " + sc.mAnyScrollKeyPressed + " target " + cam.getTargetX() + "," + cam.getTargetY() + " bounds " + cam.getBounds());
+                  stage.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_UP,true,false,0,37));
+                  FrameProfiler.mark("autokey: left up, camera " + cam.getCameraX() + "," + cam.getCameraY());
+               });
+               up.start();
+            });
+            keyTimer.start();
+         }
          if(freezeSeconds > 0)
          {
             var freeze:Timer = new Timer(freezeSeconds * 1000,1);

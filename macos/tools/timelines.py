@@ -22,6 +22,7 @@ from collections import deque
 
 from artsurvey import GROUND_FIELDS, config_symbols
 from swfabc import doabc_payload, frame_stops, iter_tags, read_swf
+import maskshapes
 
 SPRITE = 39
 LEAF_KINDS = {2: 'shape', 22: 'shape', 32: 'shape', 83: 'shape', 46: 'morph', 84: 'morph',
@@ -217,7 +218,9 @@ def parse(body):
                     frames[-1].append({'d': struct.unpack('<H', body[o2:o2 + 2])[0], 'rm': 1})
                 elif c2 == 5:
                     frames[-1].append({'d': struct.unpack('<H', body[o2 + 2:o2 + 4])[0], 'rm': 1})
-            frames = frames[:count]
+            # A sprite always has at least one frame: some declare a frame count
+            # of 0 yet place children (with no ShowFrame), which Flash shows.
+            frames = frames[:max(count, 1)]
             while len(frames) < count:
                 frames.append([])
             sprites[sid] = {'frames': frames, 'labels': labels}
@@ -255,7 +258,10 @@ def main(swf_path, config_path, out_path):
     _, body = read_swf(swf_path)
     kinds, sprites, symbols = parse(body)
     wanted = config_symbols(json.load(open(config_path, encoding='utf8')))
-    wanted = set(wanted) | set(CODE_SYMBOLS)
+    # Plus every other exported sprite: game code instantiates many by class
+    # name (effects, icons, environment), and any of them may end up drawn by
+    # the GPU player (GpuClip).
+    wanted = set(wanted) | set(CODE_SYMBOLS) | {n for n, i in symbols.items() if i in sprites and '.' not in n}
     roots = {name: symbols[name] for name in wanted if symbols.get(name) in sprites}
 
     # Breadth-first from the exported world symbols: every reachable sprite,
@@ -286,14 +292,39 @@ def main(swf_path, config_path, out_path):
             out_sprites[str(sid)]['stops'] = s['stops']
     leaves = {str(cid): {'kind': kinds.get(cid, 'unknown'), 'path': p}
               for cid, p in paths.items() if kinds.get(cid) != 'sprite'}
+    # Shapes drawn as (part of) masks: placed with a clip depth, or inside a
+    # sprite that is. The runtime draws those as nothing, so their geometry
+    # comes from the SWF (maskshapes.py).
+    in_mask = set()
+
+    def mark(cid):
+        if cid in in_mask:
+            return
+        in_mask.add(cid)
+        if cid in sprites:
+            for frame in sprites[cid]['frames']:
+                for op in frame:
+                    if 'c' in op:
+                        mark(op['c'])
+
+    for s in sprites.values():
+        for frame in s['frames']:
+            for op in frame:
+                if 'c' in op and 'clip' in op:
+                    mark(op['c'])
+    for code, off, ln, _, _ in iter_tags(body):
+        if code in (2, 22, 32, 83):
+            cid = struct.unpack('<H', body[off:off + 2])[0]
+            if cid in in_mask and str(cid) in leaves:
+                leaves[str(cid)]['mask'] = maskshapes.rects(maskshapes.segments(body, off, code))
     data = {'version': 1, 'symbols': {n: s for n, s in sorted(roots.items())},
             'sprites': out_sprites, 'leaves': leaves}
     with open(out_path, 'w') as f:
         json.dump(data, f, separators=(',', ':'))
     ops = sum(len(fr) for s in out_sprites.values() for fr in s['frames'])
-    print('%s: %d symbols, %d sprites, %d frames, %d placement ops, %d leaves, %d with stop() frames' % (
+    print('%s: %d symbols, %d sprites, %d frames, %d placement ops, %d leaves (%d mask shapes), %d with stop() frames' % (
         out_path, len(roots), len(out_sprites), sum(len(s['frames']) for s in out_sprites.values()), ops, len(leaves),
-        sum('stops' in s for s in out_sprites.values())))
+        sum('mask' in l for l in leaves.values()), sum('stops' in s for s in out_sprites.values())))
 
 
 if __name__ == '__main__':

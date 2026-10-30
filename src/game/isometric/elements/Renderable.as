@@ -1,6 +1,7 @@
 package game.isometric.elements
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.DisplayObject;
    import flash.display.Graphics;
    import flash.display.MovieClip;
@@ -692,7 +693,7 @@ package game.isometric.elements
             if(!this.mLowHealthIcon)
             {
                _loc2_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,"icon_status_low_health");
-               this.mLowHealthIcon = new _loc2_();
+               this.mLowHealthIcon = GpuClip.make(_loc2_);
                this.mLowHealthIcon.visible = false;
                this.mLowHealthIcon.mouseChildren = false;
                this.mLowHealthIcon.mouseEnabled = false;

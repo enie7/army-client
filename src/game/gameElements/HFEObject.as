@@ -1,5 +1,6 @@
 ﻿package game.gameElements {
 	import com.dchoc.graphics.DCResourceManager;
+	import game.render.view.GpuClip;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -226,7 +227,7 @@
 			var _loc1_: Class = null;
 			if (FeatureTuner.USE_HARVEST_ANIMATION && GameState.mInstance.isAnimationsOn()) {
 				_loc1_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME, HFEItem(mItem).mHarvestAnimation);
-				this.mHarvestAnimation = new _loc1_();
+				this.mHarvestAnimation = GpuClip.make(_loc1_);
 				this.mHarvestAnimation.addEventListener(Event.ENTER_FRAME, this.checkHarvestFrame);
 				this.mHarvestAnimation.x = mX;
 				this.mHarvestAnimation.y = mY;

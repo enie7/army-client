@@ -1,6 +1,7 @@
 package game.isometric
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.DisplayObject;
    import flash.display.DisplayObjectContainer;
    import flash.display.MovieClip;
@@ -1765,7 +1766,7 @@ package game.isometric
          if(this.mParatrooperLocation)
          {
             _loc1_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,this.mParatrooperAnimationName);
-            this.mParatrooperAnimation = new _loc1_();
+            this.mParatrooperAnimation = GpuClip.make(_loc1_);
             this.mParatrooperAnimation.addEventListener(Event.ENTER_FRAME,this.checkParatrooperFrame);
             this.mParatrooperAnimation.x = this.getCenterPointXOfCell(this.mParatrooperLocation);
             this.mParatrooperAnimation.y = this.getCenterPointYOfCell(this.mParatrooperLocation);
@@ -3458,6 +3459,11 @@ package game.isometric
          var _loc2_:Renderable = null;
          var _loc3_:int = 0;
          var _loc4_:int = 0;
+         // Ease the camera towards its target first. Nothing else did, so
+         // whatever pans by setting a target (arrow keys, setTargetTo
+         // transitions) never moved it; only mouse dragging, which places the
+         // camera directly, did.
+         this.mCamera.update(param1);
          var _loc5_:int = this.mContainer.scaleX * -this.mCamera.getCameraX() + this.mGame.getStageWidth() / 2;
          var _loc6_:int = this.mContainer.scaleY * -this.mCamera.getCameraY() + this.mGame.getStageHeight() / 2;
          if(this.mContainer.x != _loc5_)

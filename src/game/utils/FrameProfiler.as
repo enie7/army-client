@@ -28,6 +28,7 @@ package game.utils
    import flash.utils.getQualifiedClassName;
    import flash.utils.getTimer;
    import game.render.WorldRenderer;
+   import game.render.timeline.TimelineClip;
    import game.gui.PauseDialog;
    import game.isometric.GridCell;
    import game.isometric.characters.IsometricCharacter;
@@ -157,6 +158,18 @@ package game.utils
             if(arg.indexOf("--autoquit=") == 0)
             {
                PauseDialog.autoquitSeconds = int(arg.substr(11));
+            }
+            if(arg == "--show-masks")
+            {
+               TimelineClip.showMasks = true;
+            }
+            if(arg == "--no-masks")
+            {
+               TimelineClip.masksOff = true;
+            }
+            if(arg == "--autokey")
+            {
+               PauseDialog.autokey = true;
             }
             if(arg == "--gallery-hold")
             {
