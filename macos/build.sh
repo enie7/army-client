@@ -24,9 +24,12 @@ mkdir -p $OUT
 $AIR_SDK/bin/acompc -source-path $HERE/stubs -include-sources $HERE/stubs \
   -output $OUT/stubs.swc > $OUT/stubs.log 2>&1 || { cat $OUT/stubs.log; exit 1; }
 
-# 2. Compile the game code.
+# 2. Compile the game code. Timeline classes (src/*_fla) are only referenced
+#    from the SWF's symbol table, never from code, so include them by name.
+SYMBOL_CLASSES=$(cd $SRC && find . -path './*_fla/*.as' | sed 's|^\./||; s|\.as$||; s|/|.|g' | sort | paste -sd, -)
 $AIR_SDK/bin/amxmlc \
   -source-path+=$SRC \
+  -includes=$SYMBOL_CLASSES \
   -external-library-path+=$OUT/stubs.swc \
   -external-library-path+=$SRC/DiscordRPC.ane \
   -define=CONFIG::FLASH_AUTHORING,false \

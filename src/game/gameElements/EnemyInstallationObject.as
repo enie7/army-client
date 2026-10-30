@@ -290,14 +290,17 @@ package game.gameElements
          var _loc2_:Object = null;
          var _loc3_:int = 0;
          var _loc4_:int = 0;
-         // mPermanentDestroyArray is not declared on this class; dynamic lookup as in the 23.2 build.
-         if(Object(this).mPermanentDestroyArray)
+         // 23.2 read this.mPermanentDestroyArray, which installations never had
+         // (EnemyUnit copies it from its item), so every call threw #1069 and
+         // cut enemy installation attacks short. Read it from the item.
+         var _loc5_:Array = EnemyInstallationItem(mItem).getPermanentDestroyArray();
+         if(_loc5_)
          {
-            _loc3_ = int(Object(this).mPermanentDestroyArray.length);
+            _loc3_ = int(_loc5_.length);
             _loc4_ = 0;
             while(_loc4_ < _loc3_)
             {
-               _loc2_ = Object(this).mPermanentDestroyArray[_loc4_] as Object;
+               _loc2_ = _loc5_[_loc4_] as Object;
                if(param1.mId == _loc2_.ID)
                {
                   if(param1.mType == _loc2_.Type)

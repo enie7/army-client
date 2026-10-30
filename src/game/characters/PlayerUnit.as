@@ -152,8 +152,7 @@ package game.characters
          this.mSelectLongSounds = ArmySoundManager.SC_EMPTY;
          mAttackSoundsSecondary = ArmySoundManager.SC_ENM_ATTACK_SECONDARY;
          var _loc1_:String = mItem.mId;
-         // TYPE_SNIPER2 is never declared; dynamic lookup as in the 23.2 build.
-         if(_loc1_ == PlayerUnit.TYPE_INFANTRY || _loc1_ == PlayerUnit.TYPE_ELITE_INFANTRY || _loc1_ == PlayerUnit.TYPE_FLAME_FORCE || _loc1_ == PlayerUnit.TYPE_SNIPER || _loc1_ == PlayerUnit.TYPE_ELITE_ROCKETEER || _loc1_ == PlayerUnit.TYPE_SOLDIER || _loc1_ == Object(PlayerUnit).TYPE_SNIPER2)
+         if(_loc1_ == PlayerUnit.TYPE_INFANTRY || _loc1_ == PlayerUnit.TYPE_ELITE_INFANTRY || _loc1_ == PlayerUnit.TYPE_FLAME_FORCE || _loc1_ == PlayerUnit.TYPE_SNIPER || _loc1_ == PlayerUnit.TYPE_ELITE_ROCKETEER || _loc1_ == PlayerUnit.TYPE_SOLDIER)
          {
             mMoveSounds = ArmySoundManager.SC_GENERAL_INFANTRY_MOVING;
             this.mSelectSounds = ArmySoundManager.SC_FRN_INF_SELECT_SHORT;

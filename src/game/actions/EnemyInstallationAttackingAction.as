@@ -6,6 +6,7 @@ package game.actions
    import game.gameElements.Missile;
    import game.gameElements.Projectile;
    import game.isometric.GridCell;
+   import game.items.EnemyInstallationItem;
    import game.net.ServiceIDs;
    import game.states.GameState;
    import game.utils.EffectController;
@@ -44,10 +45,9 @@ package game.actions
       protected function addProjectile(param1:Number, param2:Number) : void
       {
          var _loc3_:Class = null;
-         // mProjectileClassStr is only declared on EnemyUnitItem; dynamic lookup as in the 23.2 build.
-         if(Object((mActor as EnemyInstallationObject).mItem).mProjectileClassStr)
+         if(EnemyInstallationItem((mActor as EnemyInstallationObject).mItem).mProjectileClassStr)
          {
-            _loc3_ = this.getProjectileClass(Object((mActor as EnemyInstallationObject).mItem).mProjectileClassStr);
+            _loc3_ = this.getProjectileClass(EnemyInstallationItem((mActor as EnemyInstallationObject).mItem).mProjectileClassStr);
             if(_loc3_)
             {
                if(this.mProjectile)

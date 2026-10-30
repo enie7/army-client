@@ -54,13 +54,21 @@ package game.environment
             }
             _loc5_ = GameState.mInstance.mMapData;
             _loc6_ = _loc5_.getNeighbourUp(_loc3_);
+            // 23.2 cut mBadClips down to one clip, so slots 1-3 can be empty; the
+            // release threw "Instantiation attempted on a non-constructor" there
+            // on every attempt. Skip the effect instead.
+            var clipClass:Class = null;
             if(!_loc6_ || _loc6_.mType != MapData.TILE_TYPE_RIVER)
             {
-               mClip = new _loc4_[2 + _loc3_.mPosJ % 2]();
+               clipClass = _loc4_[2 + _loc3_.mPosJ % 2];
             }
             else if(_loc3_.mPosJ < mScene.mSizeY - 2)
             {
-               mClip = new _loc4_[_loc3_.mPosJ % 2]();
+               clipClass = _loc4_[_loc3_.mPosJ % 2];
+            }
+            if(clipClass)
+            {
+               mClip = new clipClass();
             }
          }
          if(mClip)
