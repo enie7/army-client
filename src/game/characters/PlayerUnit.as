@@ -545,6 +545,7 @@ package game.characters
                if(param1 != _loc3_.visible)
                {
                   _loc3_.visible = param1;
+                  hintsChanged();
                }
             }
             _loc5_++;

@@ -1069,6 +1069,14 @@ package game.characters
          super.updateHintHealth();
       }
       
+      // Each animation state has its own clip with its own icon, so a state
+      // change has to apply the icon state again.
+      override protected function updateAnimation(param1:Boolean, param2:Boolean) : void
+      {
+         super.updateAnimation(param1,param2);
+         this.mActivationIconVisible = -1;
+      }
+      
       public function showActivationIcon(param1:Boolean) : void
       {
          var _loc2_:MovieClip = null;
@@ -1081,7 +1089,10 @@ package game.characters
          }
          if(this.mActivationIconVisible == -1 || this.mActivationIconVisible == 1 != param1)
          {
-            this.mActivationIconVisible = param1 ? 1 : 0;
+            // Remember the state only once the icon was there to set: right
+            // after a unit appears its state clips may not have their art yet
+            // (see IsometricCharacter.updateHintHealth).
+            this.mActivationIconVisible = -1;
             _loc2_ = mAnimationController.getCurrentAnimation();
             _loc3_ = 0;
             while(_loc3_ < _loc2_.numChildren)
@@ -1090,9 +1101,11 @@ package game.characters
                _loc5_ = _loc4_.getChildByName("Hint_Health_Friendly_Attention") as MovieClip;
                if(_loc5_)
                {
+                  this.mActivationIconVisible = param1 ? 1 : 0;
                   if(param1 != _loc5_.visible)
                   {
                      _loc5_.visible = param1;
+                     hintsChanged();
                   }
                }
                _loc3_++;

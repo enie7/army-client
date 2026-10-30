@@ -457,7 +457,33 @@ package game.missions
             _loc4_ = 0;
             while(_loc4_ < _loc8_.length)
             {
-               mCompletedMissionsGlobal[_loc4_] = _loc8_[_loc4_];
+               var entry:* = _loc8_[_loc4_];
+               if(entry is String)
+               {
+                  // Server format: IDs of missions completed earlier.
+                  mCompletedMissionsGlobal.push(entry);
+               }
+               else
+               {
+                  // Offline save format (OfflineSave.generateMissionJson):
+                  // {mission_id} of missions whose objectives are done but
+                  // whose reward was not collected yet. 23.2 copied these
+                  // objects into mCompletedMissionsGlobal, which is searched
+                  // by ID, so they were lost on load; a tutorial mission saved
+                  // in this state left the tutorial unfinishable (its prompt
+                  // kept returning and map scrolling stayed locked). Restore
+                  // them as completed, with their reward queued, as
+                  // checkCompletedMissions would.
+                  _loc3_ = getMission(entry.mission_id);
+                  if(_loc3_)
+                  {
+                     _loc3_.mState = Mission.STATE_COMPLETED;
+                     if(mCompletedMissions.indexOf(_loc3_) < 0)
+                     {
+                        mCompletedMissions.push(_loc3_);
+                     }
+                  }
+               }
                _loc4_++;
             }
          }

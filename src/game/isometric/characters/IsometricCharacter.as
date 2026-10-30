@@ -1,5 +1,8 @@
 ﻿package game.isometric.characters {
 	import flash.display.MovieClip;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.DisplayObject;
+	import flash.utils.getQualifiedClassName;
 	import flash.text.TextField;
 	import flash.geom.Point;
 	import game.battlefield.MapData;
@@ -114,6 +117,12 @@
 		private var mUpdateHintHealth: Boolean;
 
 		private var mUpdateHintPower: Boolean;
+
+		// The attention hint (low-health / about-to-attack warning) is a
+		// timeline animation whose keyframes recreate the value fields, which
+		// then show the art's "99/99 x99" again. While it is shown, the values
+		// are re-applied every update.
+		private var mAttentionShown: Boolean;
 
 		private var mSafetyTimer: int;
 
@@ -367,31 +376,104 @@
 			if (!mAnimationController) {
 				return;
 			}
-			this.mUpdateHintHealth = false;
+			// Only done once a hint was found: a unit's state clips get their art
+			// lazily, so right after it appears there may be nothing to update
+			// yet. 23.2 cleared the flag regardless, leaving the art's "99"
+			// placeholder showing until the unit changed state.
+			var found: Boolean = false;
+			var attention: Boolean = false;
+			var health: String = String(this.getHealth()) + "/" + String(this.mMaxHealth);
 			var _loc2_: MovieClip = mAnimationController.getCurrentAnimation();
 			var _loc3_: int = 0;
 			while (_loc3_ < _loc2_.numChildren) {
+				// Hidden hints are updated too: showHealthWarning and
+				// showActivationIcon swap which one is visible later, and 23.2
+				// skipped the hidden one, so it appeared with the art's "99".
 				if (_loc5_ = (_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip).getChildByName("Hint_Health_Friendly") as MovieClip) {
-					if (_loc5_.visible) {
-						_loc6_ = _loc5_.getChildByName("Hint_Health_Friendly") as MovieClip;
-						var textfield_health: TextField = _loc6_.getChildByName("Text_Value") as TextField;
-						textfield_health.text = String(this.getHealth()) + "/" + String(this.mMaxHealth)
-
-					}
+					found = true;
+					_loc6_ = _loc5_.getChildByName("Hint_Health_Friendly") as MovieClip;
+					setText(_loc6_.getChildByName("Text_Value") as TextField, health);
 				}
 				if (_loc5_ = (_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip).getChildByName("Hint_Health_Friendly_Attention") as MovieClip) {
-					if (_loc5_.visible) {
-						_loc6_ = _loc5_.getChildByName("Hint_Friendly") as MovieClip;
-						if (_loc6_) {
-							_loc7_ = _loc6_.getChildByName("Hint_Health_Friendly") as MovieClip;
-							var textfield_health: TextField = _loc7_.getChildByName("Text_Value") as TextField;
-							textfield_health.text = String(this.getHealth()) + "/" + String(this.mMaxHealth)
+					found = true;
+					attention = attention || _loc5_.visible;
+					// Enemy art names this inner clip "Hint_Enemy"; 23.2 only looked for
+					// "Hint_Friendly", so enemies' attack warning kept the art's "99/99 x99".
+					_loc6_ = (_loc5_.getChildByName("Hint_Friendly") || _loc5_.getChildByName("Hint_Enemy")) as MovieClip;
+					if (_loc6_) {
+						_loc7_ = _loc6_.getChildByName("Hint_Health_Friendly") as MovieClip;
+						if (_loc7_) {
+							setText(_loc7_.getChildByName("Text_Value") as TextField, health);
 						}
-
 					}
 				}
 				_loc3_++;
 			}
+			this.mUpdateHintHealth = !found;
+			this.mAttentionShown = attention;
+		}
+
+		// Development aid (FrameProfiler, Shift+I): state of this unit and of
+		// the hint fields in the animation clip it is showing.
+		public function describeForDebug(): String {
+			var out: String = getQualifiedClassName(this) + " id=" + (mItem ? mItem.mId : "?") + " state=" + this.mState +
+				" hp=" + this.getHealth() + "/" + this.mMaxHealth + " power=" + this.getPower() +
+				" pendingHint(health=" + this.mUpdateHintHealth + ",power=" + this.mUpdateHintPower + ")";
+			if (!mAnimationController) {
+				return out + " (no animation controller)";
+			}
+			var clip: MovieClip = mAnimationController.getCurrentAnimation();
+			out += " anim=" + getQualifiedClassName(clip) + " children=" + clip.numChildren;
+			var describe: Function = function (o: DisplayObject, path: String): void {
+				var tf: TextField = o as TextField;
+				if (tf && (tf.name == "Text_Value" || tf.name == "Text_Power_Value")) {
+					out += "\n      " + path + " = \"" + tf.text + "\"" + (isShown(tf) ? "" : " (hidden)");
+				}
+				var mc: MovieClip = o as MovieClip;
+				if (mc && mc.name == "Badge_Fire_Power") {
+					out += "\n      " + path + " frame " + mc.currentFrame + "/" + mc.totalFrames + (isShown(mc) ? "" : " (hidden)");
+				}
+				var c: DisplayObjectContainer = o as DisplayObjectContainer;
+				if (c) {
+					for (var i: int = 0; i < c.numChildren; i++) {
+						var child: DisplayObject = c.getChildAt(i);
+						if (child) {
+							describe(child, path + "/" + child.name);
+						}
+					}
+				}
+			};
+			var isShown: Function = function (o: DisplayObject): Boolean {
+				for (var n: DisplayObject = o; n && n != clip; n = n.parent) {
+					if (!n.visible) {
+						return false;
+					}
+				}
+				return true;
+			};
+			describe(clip, "");
+			return out;
+		}
+
+		// Writes only when the value differs: these run every update while a
+		// warning is shown, and unchanged fields should stay untouched.
+		private static function setText(field: TextField, value: String): void {
+			if (field && field.text != value) {
+				field.text = value;
+			}
+		}
+
+		private static function setBadge(badge: MovieClip, power: int): void {
+			if (badge && (badge.currentFrame != power || badge.isPlaying)) {
+				badge.gotoAndStop(power);
+			}
+		}
+
+		// The set of visible hints changed (see EnemyUnit.showActivationIcon,
+		// PlayerUnit.showHealthWarning): apply the values again.
+		protected function hintsChanged(): void {
+			this.mUpdateHintHealth = true;
+			this.mUpdateHintPower = true;
 		}
 
 		protected function updateHintPower(): void {
@@ -402,27 +484,31 @@
 			if (!mAnimationController) {
 				return;
 			}
-			this.mUpdateHintPower = false;
+			// See updateHintHealth: keep trying until the hint exists.
+			var found: Boolean = false;
 			var _loc2_: MovieClip = mAnimationController.getCurrentAnimation();
 			var _loc3_: int = 0;
 			while (_loc3_ < _loc2_.numChildren) {
 				if (_loc5_ = (_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip).getChildByName("Hint_Health_Friendly") as MovieClip) {
+					found = true;
 					_loc6_ = _loc5_.getChildByName("Badge_Fire_Power") as MovieClip;
-					_loc6_.gotoAndStop(this.getPower())
-					var textfield_power: TextField = _loc5_.getChildByName("Text_Power_Value") as TextField;
-					textfield_power.text = "x" + String(this.getPower());
+					setBadge(_loc6_, this.getPower());
+					setText(_loc5_.getChildByName("Text_Power_Value") as TextField, "x" + String(this.getPower()));
 				}
 				if (_loc5_ = (_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip).getChildByName("Hint_Health_Friendly_Attention") as MovieClip) {
-					_loc6_ = _loc5_.getChildByName("Hint_Friendly") as MovieClip;
+					found = true;
+					// Enemy art names this inner clip "Hint_Enemy"; 23.2 only looked for
+					// "Hint_Friendly", so enemies' attack warning kept the art's "99/99 x99".
+					_loc6_ = (_loc5_.getChildByName("Hint_Friendly") || _loc5_.getChildByName("Hint_Enemy")) as MovieClip;
 					if (_loc6_) {
 						_loc7_ = _loc6_.getChildByName("Badge_Fire_Power") as MovieClip;
-						_loc7_.gotoAndStop(this.getPower())
-						var textfield_power: TextField = _loc6_.getChildByName("Text_Power_Value") as TextField;
-						textfield_power.text = "x" + String(this.getPower());
+						setBadge(_loc7_, this.getPower());
+						setText(_loc6_.getChildByName("Text_Power_Value") as TextField, "x" + String(this.getPower()));
 					}
 				}
 				_loc3_++;
 			}
+			this.mUpdateHintPower = !found;
 		}
 
 		public function getHealth(): int {
@@ -508,10 +594,10 @@
 		public function update(param1: int): void {
 			var _loc2_: TextEffect = null;
 			var _loc3_: MovieClip = null;
-			if (this.mUpdateHintHealth) {
+			if (this.mUpdateHintHealth || this.mAttentionShown) {
 				this.updateHintHealth();
 			}
-			if (this.mUpdateHintPower) {
+			if (this.mUpdateHintPower || this.mAttentionShown) {
 				this.updateHintPower();
 			}
 			if (this.mState == STATE_DYING) {
