@@ -3519,6 +3519,13 @@ package game.isometric
          }
       }
       
+      // Development aid (FrameProfiler, Shift+I): the conditions that gate
+      // drag-scrolling in mouseMove.
+      public function describeScrollState() : String
+      {
+         return "scroll gates: tutorialCompleted=" + MissionManager.isTutorialCompleted() + " zoomActivated=" + this.mZoomActivated + " mouseScrolling=" + this.mMouseScrolling + " mouseDisabled=" + this.mMouseDisabled + " camera=" + this.mCamera.getCameraX() + "," + this.mCamera.getCameraY() + " bounds=" + this.mCamera.getBounds() + " openArea=" + mMinAreaX + "," + mMinAreaY + "-" + mMaxAreaX + "," + mMaxAreaY + " zoom=" + this.mContainer.scaleX + " stage=" + this.mGame.getStageWidth() + "x" + this.mGame.getStageHeight();
+      }
+      
       // Display container of the floor hit area; the GPU renderer forwards
       // world mouse input to it.
       public function getFloorContainer() : Sprite

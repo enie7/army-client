@@ -81,19 +81,49 @@ package
          this.gameState.reactToFullscreen();
       }
       
+      // By default game logic runs once per frame with the measured delta, as
+      // the game always did: much of it polls timeline frames (e.g. popups
+      // close when their outro reaches its last frame), so it must see every
+      // frame. --fixed-logic instead runs fixed 1/40 s steps, with time not yet
+      // simulated carried over; frames that get no step miss those checks (a
+      // tutorial prompt then never closes), so it is opt-in until the world no
+      // longer depends on Flash timelines. After a long stall the rest is
+      // simulated in one step, as the game always did.
+      private static const LOGIC_STEP_MS:int = 25;
+
+      private static const MAX_STEPS_PER_FRAME:int = 4;
+
+      private static var sVariableLogic:Boolean = true;
+
       private function onEnterFrame(param1:Event) : void
       {
-         var _loc2_:int = getTimer() - this.mGameTime;
          FrameProfiler.frame(stage);
-         if(_loc2_ > 0)
+         var behind:int = getTimer() - this.mGameTime;
+         var steps:int = 0;
+         FrameProfiler.begin("logic");
+         if(sVariableLogic)
          {
-            FrameProfiler.begin("logic");
-            this.logicUpdate(_loc2_);
-            FrameProfiler.end("logic");
+            if(behind > 0)
+            {
+               this.logicUpdate(behind);
+               steps = 1;
+            }
+            behind = 0;
          }
+         while(behind >= LOGIC_STEP_MS && steps < MAX_STEPS_PER_FRAME)
+         {
+            this.logicUpdate(LOGIC_STEP_MS);
+            behind -= LOGIC_STEP_MS;
+            ++steps;
+         }
+         if(behind >= LOGIC_STEP_MS)
+         {
+            this.logicUpdate(behind - behind % LOGIC_STEP_MS);
+         }
+         FrameProfiler.end("logic");
          WorldRenderer.init(stage);
          FrameProfiler.begin("gpu");
-         WorldRenderer.update();
+         WorldRenderer.update(this.mGameTime,steps > 0);
          FrameProfiler.end("gpu");
          FrameProfiler.enterFrameDone();
       }
@@ -105,6 +135,18 @@ package
          if(param1.arguments.indexOf("--cpu-render") >= 0)
          {
             WorldRenderer.disabled = true;
+         }
+         if(param1.arguments.indexOf("--fixed-logic") >= 0)
+         {
+            sVariableLogic = false;
+         }
+         // --render-hz=N: presentation rate of the GPU world (40 = once per Flash frame, no interpolation).
+         for each(var arg:String in param1.arguments)
+         {
+            if(arg.indexOf("--render-hz=") == 0)
+            {
+               WorldRenderer.presentHz = int(arg.substr(12));
+            }
          }
       }
       

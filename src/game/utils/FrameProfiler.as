@@ -21,6 +21,9 @@ package game.utils
    import flash.utils.getQualifiedClassName;
    import flash.utils.getTimer;
    import game.render.WorldRenderer;
+   import game.isometric.GridCell;
+   import game.isometric.characters.IsometricCharacter;
+   import game.states.GameState;
 
    // Development aid: per-frame timing of named sections, summarised with
    // trace() and to <app storage>/profile.log every few seconds. Active in a
@@ -181,6 +184,11 @@ package game.utils
             log("off-stage world " + (WorldRenderer.offstage ? "on" : "off"));
             return;
          }
+         if(ENABLED && shiftKey && keyCode == Keyboard.I)
+         {
+            inspectUnderMouse();
+            return;
+         }
          if(ENABLED && shiftKey && keyCode == Keyboard.C && root != null)
          {
             census(root);
@@ -248,6 +256,24 @@ package game.utils
                }
             }
          }
+      }
+
+      // Log the unit on the cell under the mouse (Shift+I).
+      private static function inspectUnderMouse() : void
+      {
+         var game:GameState = GameState.mInstance;
+         if(game && game.mScene)
+         {
+            log("inspect " + game.mScene.describeScrollState());
+         }
+         var cell:GridCell = game && game.mScene ? game.mScene.getTileUnderMouse() : null;
+         if(cell == null)
+         {
+            log("inspect: no cell under the mouse");
+            return;
+         }
+         var unit:IsometricCharacter = cell.mCharacter as IsometricCharacter;
+         log("inspect cell " + cell.mPosI + "," + cell.mPosJ + ": " + (unit ? unit.describeForDebug() : "no unit"));
       }
 
       private static function layerName(index:int) : String

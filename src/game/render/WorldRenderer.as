@@ -11,6 +11,10 @@ package game.render
    import flash.events.MouseEvent;
    import flash.geom.Point;
    import flash.geom.Rectangle;
+   import flash.events.TimerEvent;
+   import flash.utils.Dictionary;
+   import flash.utils.Timer;
+   import flash.utils.getTimer;
    import game.isometric.IsometricScene;
    import game.states.GameState;
    import game.utils.FrameProfiler;
@@ -78,6 +82,41 @@ package game.render
 
       private var mPoint:Point = new Point();
 
+      // Presentation rate. Above 40 (the game's frame and logic rate), extra
+      // frames are presented between Flash frames from a pacing timer, with
+      // positions interpolated between the last two logic states; animation
+      // frames keep the 40 fps rhythm they were drawn for. Set by --render-hz.
+      public static var presentHz:int = 60;
+
+      // Interpolation runs this far behind the newest logic state, so there is
+      // always a pair of states to blend between: one logic step.
+      private static const INTERP_DELAY_MS:int = 25;
+
+      private var mPacer:Timer;
+
+      private var mLastPresent:int = 0;
+
+      private var mPresents:int = 0;
+
+      private var mPrevTime:Number = 0;
+
+      private var mCurTime:Number = 0;
+
+      private var mCaptures:int = 0;
+
+      // Per mirrored Flash object: its previous and current position.
+      private var mMotion:Dictionary = new Dictionary(true);
+
+      private var mWorldMotion:Vector.<Motion> = new Vector.<Motion>();
+
+      private var mEffectMotion:Vector.<Motion> = new Vector.<Motion>();
+
+      private var mCamera:Motion = new Motion();
+
+      private var mGroundOrigin:Motion = new Motion();
+
+      private var mHasWorld:Boolean = false;
+
       public function WorldRenderer(stage:Stage)
       {
          super();
@@ -104,12 +143,14 @@ package game.render
          }
       }
 
-      // Call once per frame, after the game logic has run.
-      public static function update() : void
+      // Call once per frame, after the game logic has run. simTime: game
+      // time of the state now in the Flash display list; stepped: whether
+      // logic advanced this frame.
+      public static function update(simTime:Number, stepped:Boolean) : void
       {
          if(sInstance != null)
          {
-            sInstance.render();
+            sInstance.render(simTime,stepped);
          }
       }
 
@@ -126,8 +167,9 @@ package game.render
             return "gpu off";
          }
          var c:SnapshotCache = sInstance.mCache;
-         var line:String = "gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn;
+         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn;
          sInstance.mGroundDrawn = 0;
+         sInstance.mPresents = 0;
          c.hits = 0;
          c.misses = 0;
          return line;
@@ -138,6 +180,69 @@ package game.render
          this.mRoot = this.mStarling.root as StarlingRoot;
          this.mRoot.touchable = false;
          this.mGround = new GroundChunks(this.mRoot.ground,this.mRoot.fog);
+         if(presentHz > 40)
+         {
+            // Timers fire between Flash frames; a short one lets presents
+            // land on a steady presentHz grid.
+            this.mPacer = new Timer(4);
+            this.mPacer.addEventListener(TimerEvent.TIMER,this.onPacer);
+            this.mPacer.start();
+         }
+      }
+
+      private function onPacer(event:TimerEvent) : void
+      {
+         if(getTimer() - this.mLastPresent >= 1000 / presentHz - 1)
+         {
+            this.present();
+         }
+      }
+
+      // Place everything at its interpolated position and draw a frame.
+      private function present() : void
+      {
+         if(this.mRoot == null || this.mFailed)
+         {
+            return;
+         }
+         this.mLastPresent = getTimer();
+         ++this.mPresents;
+         if(this.mHasWorld)
+         {
+            var span:Number = this.mCurTime - this.mPrevTime;
+            var t:Number = span > 0 ? (this.mLastPresent - INTERP_DELAY_MS - this.mPrevTime) / span : 1;
+            t = t < 0 ? 0 : (t > 1 ? 1 : t);
+            if(this.mPacer == null)
+            {
+               t = 1;
+            }
+            this.placeLayer(this.mRoot.world,this.mWorldMotion,t);
+            this.placeLayer(this.mRoot.effects,this.mEffectMotion,t);
+            var camX:Number = this.mCamera.x(t);
+            var camY:Number = this.mCamera.y(t);
+            this.mRoot.world.x = this.mRoot.effects.x = this.mRoot.fog.x = camX;
+            this.mRoot.world.y = this.mRoot.effects.y = this.mRoot.fog.y = camY;
+            this.mRoot.ground.x = camX + this.mGroundOrigin.x(t);
+            this.mRoot.ground.y = camY + this.mGroundOrigin.y(t);
+         }
+         FrameProfiler.begin("gpu.present");
+         this.mStarling.nextFrame();
+         FrameProfiler.end("gpu.present");
+      }
+
+      private function placeLayer(layer:starling.display.Sprite, motion:Vector.<Motion>, t:Number) : void
+      {
+         var n:int = motion.length;
+         for(var i:int = 0; i < n && i < layer.numChildren; i++)
+         {
+            var m:Motion = motion[i];
+            if(m != null)
+            {
+               var image:Image = layer.getChildAt(i) as Image;
+               image.x = m.x(t);
+               image.y = m.y(t);
+            }
+         }
       }
 
       private function onFatalError(event:starling.events.Event) : void
@@ -164,23 +269,35 @@ package game.render
          this.mInput.graphics.endFill();
       }
 
-      private function render() : void
+      private function render(simTime:Number, stepped:Boolean) : void
       {
          if(this.mRoot == null || this.mFailed)
          {
             return;
          }
+         if(stepped)
+         {
+            this.mPrevTime = this.mCurTime;
+            this.mCurTime = simTime;
+            ++this.mCaptures;
+         }
          var game:GameState = GameState.mInstance;
          var scene:IsometricScene = game ? game.mScene : null;
          if(scene != this.mScene)
          {
-            this.detach();
+            // Switch first: loading a save destroys the old scene (its
+            // containers are nulled), and if releasing it failed the renderer
+            // must not stay attached to it, or input would keep going to the
+            // dead scene and the map could no longer be scrolled.
+            var old:IsometricScene = this.mScene;
             this.mScene = scene;
+            this.release(old);
          }
          if(scene == null || scene.mContainer.parent == null && !this.mOffstage)
          {
             this.hideWorld();
-            this.mStarling.nextFrame();
+            this.mHasWorld = false;
+            this.present();
             return;
          }
          this.mCache.nextFrame();
@@ -190,12 +307,18 @@ package game.render
          FrameProfiler.end("gpu.world");
          FrameProfiler.begin("gpu.ground");
          var tiles:Object = scene.mTilemapGraphic;
-         this.mGround.update(tiles,scene.mContainer.x,scene.mContainer.y,tiles.mFieldBmp ? tiles.mFieldBmp.x : 0,tiles.mFieldBmp ? tiles.mFieldBmp.y : 0,this.mStage.stageWidth,this.mStage.stageHeight,scene.mContainer.scaleX);
+         var shakeX:Number = tiles.mFieldBmp ? tiles.mFieldBmp.x : 0;
+         var shakeY:Number = tiles.mFieldBmp ? tiles.mFieldBmp.y : 0;
+         this.mGround.update(tiles,scene.mContainer.x,scene.mContainer.y,shakeX,shakeY,this.mStage.stageWidth,this.mStage.stageHeight,scene.mContainer.scaleX);
          this.mGroundDrawn += this.mGround.drawn;
          FrameProfiler.end("gpu.ground");
-         FrameProfiler.begin("gpu.present");
-         this.mStarling.nextFrame();
-         FrameProfiler.end("gpu.present");
+         this.mCamera.capture(scene.mContainer.x,scene.mContainer.y,this.mCaptures);
+         this.mGroundOrigin.capture(shakeX,shakeY,this.mCaptures);
+         this.mHasWorld = true;
+         if(this.mPacer == null)
+         {
+            this.present();
+         }
       }
 
       // Hide the Flash world layers and put the input layer where they were.
@@ -265,18 +388,27 @@ package game.render
          trace("[profile] world containers " + (on ? "off" : "on") + " stage");
       }
 
-      // Return the world to the Flash renderer.
+      // Return the current scene's world to the Flash renderer.
       private function detach() : void
       {
-         if(this.mScene != null && this.mOffstage && GameState.mInstance)
+         this.release(this.mScene);
+      }
+
+      // Drop the GPU copy of `scene` and give its layers back to Flash; a
+      // scene that was destroyed meanwhile has nothing left to give back.
+      private function release(scene:IsometricScene) : void
+      {
+         var alive:Boolean = scene != null && scene.mContainer != null && scene.mSceneHud != null;
+         if(alive && this.mOffstage && GameState.mInstance)
          {
-            this.setOffstage(GameState.mInstance.mRootNode,this.mScene,false);
+            this.setOffstage(GameState.mInstance.mRootNode,scene,false);
          }
-         if(this.mScene != null)
+         this.mOffstage = false;
+         if(alive)
          {
-            this.mScene.mContainer.visible = true;
-            this.mScene.mSceneHud.visible = true;
-            var tiles:Object = this.mScene.mTilemapGraphic;
+            scene.mContainer.visible = true;
+            scene.mSceneHud.visible = true;
+            var tiles:Object = scene.mTilemapGraphic;
             if(tiles)
             {
                tiles.mGpuGround = false;
@@ -323,15 +455,13 @@ package game.render
             this.mScale = scale;
          }
          this.mRoot.visible = true;
-         this.mirrorLayer(scene.mContainer,scene.getFloorContainer(),this.mRoot.world,this.mWorldImages,scale);
-         this.mirrorLayer(scene.mSceneHud,null,this.mRoot.effects,this.mEffectImages,scale);
+         this.mirrorLayer(scene.mContainer,scene.getFloorContainer(),this.mRoot.world,this.mWorldImages,this.mWorldMotion,scale);
+         this.mirrorLayer(scene.mSceneHud,null,this.mRoot.effects,this.mEffectImages,this.mEffectMotion,scale);
       }
 
       // Mirror the children of a world-space Flash layer into `layer`, in order.
-      private function mirrorLayer(container:flash.display.Sprite, skip:DisplayObject, layer:starling.display.Sprite, images:Vector.<Image>, scale:Number) : void
+      private function mirrorLayer(container:flash.display.Sprite, skip:DisplayObject, layer:starling.display.Sprite, images:Vector.<Image>, motions:Vector.<Motion>, scale:Number) : void
       {
-         layer.x = container.x;
-         layer.y = container.y;
          var used:int = 0;
          var n:int = container.numChildren;
          for(var i:int = 0; i < n; i++)
@@ -366,17 +496,31 @@ package game.render
             // about that origin on the GPU.
             image.pivotX = -look.offsetX;
             image.pivotY = -look.offsetY;
-            image.x = child.x * scale;
-            image.y = child.y * scale;
             image.rotation = child.rotation * DEG_TO_RAD;
             image.alpha = child.alpha;
             image.visible = true;
+            var motion:Motion = this.mMotion[child];
+            if(motion == null)
+            {
+               motion = new Motion();
+               this.mMotion[child] = motion;
+            }
+            motion.capture(child.x * scale,child.y * scale,this.mCaptures);
+            if(used < motions.length)
+            {
+               motions[used] = motion;
+            }
+            else
+            {
+               motions.push(motion);
+            }
             ++used;
          }
          for(i = used; i < images.length; i++)
          {
             images[i].visible = false;
          }
+         motions.length = used;
       }
 
       private function forwardMouse(event:MouseEvent) : void
@@ -467,5 +611,64 @@ package game.render
          }
          return o.hitTestPoint(x,y,true);
       }
+   }
+}
+
+// Previous and current position of one mirrored thing (an object, the camera),
+// as of the last two logic states, for interpolated presents.
+class Motion
+{
+   private static const SNAP_DISTANCE:Number = 300;
+
+   private var mPrevX:Number = 0;
+
+   private var mPrevY:Number = 0;
+
+   private var mCurX:Number = 0;
+
+   private var mCurY:Number = 0;
+
+   private var mCapture:int = -2;
+
+   public function Motion()
+   {
+      super();
+   }
+
+   // capture: id of the logic state being recorded. Recording the same state
+   // again (a Flash frame without a logic step) only refreshes it; skipping
+   // one (the object was hidden) starts it afresh, without sliding.
+   public function capture(x:Number, y:Number, capture:int) : void
+   {
+      if(capture == this.mCapture + 1)
+      {
+         this.mPrevX = this.mCurX;
+         this.mPrevY = this.mCurY;
+      }
+      else if(capture != this.mCapture)
+      {
+         this.mPrevX = x;
+         this.mPrevY = y;
+      }
+      this.mCurX = x;
+      this.mCurY = y;
+      this.mCapture = capture;
+      var dx:Number = this.mCurX - this.mPrevX;
+      var dy:Number = this.mCurY - this.mPrevY;
+      if(dx * dx + dy * dy > SNAP_DISTANCE * SNAP_DISTANCE)
+      {
+         this.mPrevX = x;
+         this.mPrevY = y;
+      }
+   }
+
+   public function x(t:Number) : Number
+   {
+      return this.mPrevX + (this.mCurX - this.mPrevX) * t;
+   }
+
+   public function y(t:Number) : Number
+   {
+      return this.mPrevY + (this.mCurY - this.mPrevY) * t;
    }
 }
