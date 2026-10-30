@@ -11,6 +11,8 @@ package game.magicBox
    public class MagicBoxTracker
    {
       
+      private static var mCRMMetrics:CRMAirMagicBox;
+      
       private static const DEBUG_TRACKER:Boolean = false;
       
       public static const GROUP_LEVEL:String = "Level";
@@ -107,8 +109,6 @@ package game.magicBox
       
       private static const CRM_KEY:String = "E4CB8DFE1C6E829175C2D6BF0C";
       
-      private static var mCRMMetrics:CRMAirMagicBox;
-      
       private static const GAME_CURRENCY:String = "GameCurrency";
       
       private static const PREMIUM_CURRENCY:String = "PaidCurrency";
@@ -116,7 +116,6 @@ package game.magicBox
       private static const REAL_CURRENCY:String = "RealCurrency";
       
       private static const SUPPLY_RESOURCE:String = "SupplyResource";
-       
       
       public function MagicBoxTracker()
       {
@@ -125,12 +124,12 @@ package game.magicBox
       
       public static function generateEvent(param1:String, param2:String, param3:String, param4:Object = null) : void
       {
-         var app_uid:int = 0;
-         var level:int = 0;
-         var group:String = param1;
-         var event:String = param2;
-         var label:String = param3;
-         var params:Object = param4;
+         var _loc5_:int = 0;
+         var _loc6_:int = 0;
+         var _loc7_:String = param1;
+         var _loc8_:String = param2;
+         var _loc9_:String = param3;
+         var _loc10_:Object = param4;
          try
          {
             if(GameState.mInstance.mServer.isServerCommError() || GameState.mInstance.mServer.isConnectionError())
@@ -139,66 +138,66 @@ package game.magicBox
             }
             if(!Config.USE_MAGIC_BOX_LIB)
             {
-               if(params == null)
+               if(_loc10_ == null)
                {
-                  params = paramsObj(null,null,null,null,label);
-                  if(event == TYPE_SESSION_STARTED)
+                  _loc10_ = paramsObj(null,null,null,null,_loc9_);
+                  if(_loc8_ == TYPE_SESSION_STARTED)
                   {
-                     params["app_friends"] = 0;
-                     params["app_neighbors"] = 0;
-                     params["friends"] = 0;
+                     _loc10_["app_friends"] = 0;
+                     _loc10_["app_neighbors"] = 0;
+                     _loc10_["friends"] = 0;
                   }
                }
                else
                {
-                  params["app_id"] = PROJECT_ID;
-                  params["env"] = ENV_ID;
-                  params["app_uid"] = MD5.hash(Config.smUserId);
-                  params["p_uid"] = MD5.hash(Config.smUserId);
-                  params["p_id"] = P_ID;
-                  params["ts"] = Math.round(new Date().time / 1000);
-                  params["sig"] = genarateSig(params);
-                  if(label)
+                  _loc10_["app_id"] = PROJECT_ID;
+                  _loc10_["env"] = ENV_ID;
+                  _loc10_["app_uid"] = MD5.hash(Config.smUserId);
+                  _loc10_["p_uid"] = MD5.hash(Config.smUserId);
+                  _loc10_["p_id"] = P_ID;
+                  _loc10_["ts"] = Math.round(new Date().time / 1000);
+                  _loc10_["sig"] = genarateSig(_loc10_);
+                  if(_loc9_)
                   {
-                     params["user_action"] = label;
+                     _loc10_["user_action"] = _loc9_;
                   }
                }
                if(DEBUG_TRACKER)
                {
-                  printObject(params);
+                  printObject(_loc10_);
                }
-               wcrmInternalTrackEvent(group,event,label,params);
+               wcrmInternalTrackEvent(_loc7_,_loc8_,_loc9_,_loc10_);
             }
             else
             {
-               app_uid = parseInt(Config.smUserId);
-               level = GameState.mInstance.mPlayerProfile.mLevel;
+               _loc5_ = parseInt(Config.smUserId);
+               _loc6_ = GameState.mInstance.mPlayerProfile.mLevel;
                if(mCRMMetrics == null)
                {
                   mCRMMetrics = new CRMAirMagicBox();
-                  mCRMMetrics.init(PLATFORM.ANDROID,ENV_ID,P_ID,PROJECT_ID,app_uid,null);
+                  mCRMMetrics.init(PLATFORM.ANDROID,ENV_ID,P_ID,PROJECT_ID,_loc5_,null);
                }
-               switch(group)
+               switch(_loc7_)
                {
                   case GROUP_LEVEL:
-                     if(event == TYPE_SESSION_STARTED)
+                     if(_loc8_ == TYPE_SESSION_STARTED)
                      {
                         mCRMMetrics.wcrmTrackSessionStarted();
                      }
-                     else if(event == TYPE_LEVEL_REACHED)
+                     else if(_loc8_ == TYPE_LEVEL_REACHED)
                      {
-                        mCRMMetrics.wcrmTrackLevelUp(level);
+                        mCRMMetrics.wcrmTrackLevelUp(_loc6_);
                      }
                      else
                      {
-                        mCRMMetrics.wcrmCustomEvent(group,event,label,params);
+                        mCRMMetrics.wcrmCustomEvent(_loc7_,_loc8_,_loc9_,_loc10_);
                      }
                      break;
                   case GROUP_ECONOMY:
-                     mCRMMetrics.wcrmTrackEconomy(event,label,params.product,params.product_detail,params.game_currency_delta,params.game_currency_balance,params.paid_currency_delta,params.game_currency_balance,params.real_currency_delta);
+                     mCRMMetrics.wcrmTrackEconomy(_loc8_,_loc9_,_loc10_.product,_loc10_.product_detail,_loc10_.game_currency_delta,_loc10_.game_currency_balance,_loc10_.paid_currency_delta,_loc10_.game_currency_balance,_loc10_.real_currency_delta);
                      break;
                   default:
-                     mCRMMetrics.wcrmCustomEvent(group,event,label,params);
+                     mCRMMetrics.wcrmCustomEvent(_loc7_,_loc8_,_loc9_,_loc10_);
                }
             }
          }
@@ -209,41 +208,41 @@ package game.magicBox
       
       private static function wcrmInternalTrackEvent(param1:String, param2:String, param3:String, param4:Object) : void
       {
-         var loader:URLLoader = null;
-         var data:String = null;
-         var key:String = null;
-         var request:URLRequest = null;
-         var group:String = param1;
-         var event:String = param2;
-         var label:String = param3;
-         var params:Object = param4;
+         var _loc5_:URLLoader = null;
+         var _loc6_:String = null;
+         var _loc7_:String = null;
+         var _loc8_:URLRequest = null;
+         var _loc9_:String = param1;
+         var _loc10_:String = param2;
+         var _loc11_:String = param3;
+         var _loc12_:Object = param4;
          try
          {
             if(!(GameState.mInstance.mServer.isServerCommError() || GameState.mInstance.mServer.isConnectionError()) && !Config.OFFLINE_MODE)
             {
-               loader = new URLLoader();
-               data = "";
-               if(params == null)
+               _loc5_ = new URLLoader();
+               _loc6_ = "";
+               if(_loc12_ == null)
                {
                   return;
                }
-               for(key in params)
+               for(_loc7_ in _loc12_)
                {
-                  data += "&" + key + "=" + params[key];
+                  _loc6_ += "&" + _loc7_ + "=" + _loc12_[_loc7_];
                }
-               if(data == "")
+               if(_loc6_ == "")
                {
                   return;
                }
-               data = data.slice(1,data.length);
-               request = new URLRequest(wcrmGetServer() + "/event/track?" + data + "&group=" + group + "&event=" + event + "&type=" + event + "&level=" + GameState.mInstance.mPlayerProfile.mLevel);
+               _loc6_ = _loc6_.slice(1,_loc6_.length);
+               _loc8_ = new URLRequest(wcrmGetServer() + "/event/track?" + _loc6_ + "&group=" + _loc9_ + "&event=" + _loc10_ + "&type=" + _loc10_ + "&level=" + GameState.mInstance.mPlayerProfile.mLevel);
                if(DEBUG_TRACKER)
                {
                }
                try
                {
-                  loader.addEventListener(IOErrorEvent.IO_ERROR,onError);
-                  loader.load(request);
+                  _loc5_.addEventListener(IOErrorEvent.IO_ERROR,onError);
+                  _loc5_.load(_loc8_);
                }
                catch(error:IOErrorEvent)
                {
@@ -270,9 +269,9 @@ package game.magicBox
       
       public static function generateErrorEvent(param1:ErrorObject) : void
       {
-         var o:Object = null;
-         var paramsCrm:Object = null;
-         var errorObject:ErrorObject = param1;
+         var _loc2_:Object = null;
+         var _loc3_:Object = null;
+         var _loc4_:ErrorObject = param1;
          try
          {
             if(GameState.mInstance.mServer.isServerCommError() || GameState.mInstance.mServer.isConnectionError())
@@ -281,18 +280,18 @@ package game.magicBox
             }
             if(!Config.USE_MAGIC_BOX_LIB)
             {
-               if(errorObject == null)
+               if(_loc4_ == null)
                {
                   if(DEBUG_TRACKER)
                   {
                   }
-                  errorObject = getErrorObject("",TYPE_ERR_NA);
+                  _loc4_ = getErrorObject("",TYPE_ERR_NA);
                }
-               o = paramsObj(null,errorObject.getCode(),errorObject.getMessage(),"FV:" + errorObject.getFlashVersion() + "_VMV:" + errorObject.getVMVersion());
-               generateEvent(MagicBoxTracker.GROUP_GAME_ERROR,errorObject.getType(),errorObject.getService(),o);
-               if(errorObject.getMessage().length > 0)
+               _loc2_ = paramsObj(null,_loc4_.getCode(),_loc4_.getMessage(),"FV:" + _loc4_.getFlashVersion() + "_VMV:" + _loc4_.getVMVersion());
+               generateEvent(MagicBoxTracker.GROUP_GAME_ERROR,_loc4_.getType(),_loc4_.getService(),_loc2_);
+               if(_loc4_.getMessage().length > 0)
                {
-                  GameState.mInstance.mServer.serverCallReportClientError(errorObject);
+                  GameState.mInstance.mServer.serverCallReportClientError(_loc4_);
                }
                if(DEBUG_TRACKER)
                {
@@ -300,10 +299,10 @@ package game.magicBox
             }
             else
             {
-               paramsCrm = paramsObj(null,errorObject.getCode(),errorObject.getMessage(),"FV:" + errorObject.getFlashVersion() + "_VMV:" + errorObject.getVMVersion());
+               _loc3_ = paramsObj(null,_loc4_.getCode(),_loc4_.getMessage(),"FV:" + _loc4_.getFlashVersion() + "_VMV:" + _loc4_.getVMVersion());
                if(!mCRMMetrics)
                {
-                  mCRMMetrics.wcrmCustomEvent(GROUP_GAME_ERROR,errorObject.getType(),errorObject.getService(),paramsCrm);
+                  mCRMMetrics.wcrmCustomEvent(GROUP_GAME_ERROR,_loc4_.getType(),_loc4_.getService(),_loc3_);
                }
             }
          }
@@ -314,56 +313,57 @@ package game.magicBox
       
       public static function getErrorObject(param1:String, param2:String, param3:String = null, param4:String = null) : ErrorObject
       {
-         var _loc5_:ErrorObject;
-         (_loc5_ = new ErrorObject()).setError(param1,param2,param3,param4);
+         var _loc5_:ErrorObject = null;
+         _loc5_ = new ErrorObject();
+         _loc5_.setError(param1,param2,param3,param4);
          return _loc5_;
       }
       
       public static function paramsObj(param1:String = null, param2:String = null, param3:String = null, param4:String = null, param5:String = null) : Object
       {
-         var product:String = param1;
-         var product_detail:String = param2;
-         var p1:String = param3;
-         var p2:String = param4;
-         var label:String = param5;
-         var params:Object = new Object();
+         var _loc6_:String = param1;
+         var _loc7_:String = param2;
+         var _loc8_:String = param3;
+         var _loc9_:String = param4;
+         var _loc10_:String = param5;
+         var _loc11_:Object = new Object();
          try
          {
             if(GameState.mInstance.mServer.isServerCommError() || GameState.mInstance.mServer.isConnectionError())
             {
-               return params;
+               return _loc11_;
             }
-            if(product)
+            if(_loc6_)
             {
-               params["product"] = product;
+               _loc11_["product"] = _loc6_;
             }
             else
             {
-               params["product"] = "Default";
+               _loc11_["product"] = "Default";
             }
-            if(product_detail)
+            if(_loc7_)
             {
-               params["product_detail"] = product_detail;
+               _loc11_["product_detail"] = _loc7_;
             }
-            if(p1)
+            if(_loc8_)
             {
-               params["p1"] = p1;
+               _loc11_["p1"] = _loc8_;
             }
-            if(p2)
+            if(_loc9_)
             {
-               params["p2"] = p2;
+               _loc11_["p2"] = _loc9_;
             }
-            params["app_id"] = PROJECT_ID;
-            params["env"] = ENV_ID;
-            params["app_uid"] = MD5.hash(Config.smUserId);
-            params["p_uid"] = MD5.hash(Config.smUserId);
-            params["p_id"] = P_ID;
-            params["ts"] = Math.round(new Date().time / 1000);
-            if(label)
+            _loc11_["app_id"] = PROJECT_ID;
+            _loc11_["env"] = ENV_ID;
+            _loc11_["app_uid"] = MD5.hash(Config.smUserId);
+            _loc11_["p_uid"] = MD5.hash(Config.smUserId);
+            _loc11_["p_id"] = P_ID;
+            _loc11_["ts"] = Math.round(new Date().time / 1000);
+            if(_loc10_)
             {
-               params["user_action"] = label;
+               _loc11_["user_action"] = _loc10_;
             }
-            params["sig"] = genarateSig(params);
+            _loc11_["sig"] = genarateSig(_loc11_);
             if(GameState.mInstance)
             {
                if(GameState.mInstance.mPlayerProfile)
@@ -372,28 +372,28 @@ package game.magicBox
                   {
                      if(GameState.mInstance.mPlayerProfile.mInventory.getAreas())
                      {
-                        params["p3"] = "" + GameState.mInstance.mPlayerProfile.mInventory.getAreas().length / 2;
+                        _loc11_["p3"] = "" + GameState.mInstance.mPlayerProfile.mInventory.getAreas().length / 2;
                      }
                   }
                }
             }
-            return params;
+            return _loc11_;
          }
          catch(err:Error)
          {
          }
-         return params;
+         return _loc11_;
       }
       
       private static function genarateSig(param1:Object) : String
       {
-         var _loc3_:String = null;
-         var _loc2_:String = "";
-         for(_loc3_ in param1)
+         var _loc2_:String = null;
+         var _loc3_:String = "";
+         for(_loc2_ in param1)
          {
-            _loc2_ += "" + _loc3_ + param1[_loc3_];
+            _loc3_ += "" + _loc2_ + param1[_loc2_];
          }
-         return MD5.hash(_loc2_ + CRM_KEY);
+         return MD5.hash(_loc3_ + CRM_KEY);
       }
       
       private static function printObject(param1:Object) : void
@@ -469,3 +469,4 @@ package game.magicBox
       }
    }
 }
+

@@ -14,7 +14,6 @@ package game.actions
    
    public class AcceptHelpSuppressEnemyInstallationAction extends Action
    {
-       
       
       private var mNeighborActionID:String;
       
@@ -66,12 +65,13 @@ package game.actions
       
       override public function start() : void
       {
+         var _loc1_:EnemyInstallationObject = null;
          if(mSkipped)
          {
             return;
          }
-         var _loc1_:EnemyInstallationObject = mTarget as EnemyInstallationObject;
-         if(_loc1_ == null || !_loc1_.isAlive() || _loc1_.mCurrentAction || _loc1_.getHealth() == 0)
+         _loc1_ = mTarget as EnemyInstallationObject;
+         if(Boolean(_loc1_ == null || !_loc1_.isAlive()) || Boolean(_loc1_.mCurrentAction) || _loc1_.getHealth() == 0)
          {
             mSkipped = true;
             return;
@@ -87,40 +87,42 @@ package game.actions
       
       private function execute() : void
       {
-         var _loc13_:Item = null;
-         var _loc1_:GameState = GameState.mInstance;
-         var _loc2_:IsometricScene = _loc1_.mScene;
-         var _loc3_:GamePlayerProfile = _loc1_.mPlayerProfile;
-         var _loc4_:EnemyInstallationObject = mTarget as EnemyInstallationObject;
-         var _loc5_:int = int(GameState.mConfig.AllyAction.SabotageEnemyInstallation.Damage);
-         var _loc6_:* = _loc4_.getHealth() - _loc5_ <= 0;
-         var _loc7_:EnemyInstallationItem;
-         var _loc8_:int = (_loc7_ = _loc4_.mItem as EnemyInstallationItem).mHitRewardXP;
-         var _loc9_:int = _loc7_.mHitRewardMoney;
-         var _loc10_:int = _loc7_.mHitRewardSupplies;
-         var _loc11_:int = _loc7_.mHitRewardEnergy;
-         if(_loc6_)
+         var _loc8_:EnemyInstallationItem = null;
+         var _loc15_:GridCell = null;
+         var _loc1_:Item = null;
+         var _loc2_:GameState = GameState.mInstance;
+         var _loc3_:IsometricScene = _loc2_.mScene;
+         var _loc4_:GamePlayerProfile = _loc2_.mPlayerProfile;
+         var _loc5_:EnemyInstallationObject = mTarget as EnemyInstallationObject;
+         var _loc6_:int = int(GameState.mConfig.AllyAction.SabotageEnemyInstallation.Damage);
+         var _loc7_:* = _loc5_.getHealth() - _loc6_ <= 0;
+         _loc8_ = _loc5_.mItem as EnemyInstallationItem;
+         var _loc9_:int = _loc8_.mHitRewardXP;
+         var _loc10_:int = _loc8_.mHitRewardMoney;
+         var _loc11_:int = _loc8_.mHitRewardSupplies;
+         var _loc12_:int = _loc8_.mHitRewardEnergy;
+         if(_loc7_)
          {
-            _loc8_ += _loc7_.mKillRewardXP;
-            _loc9_ += _loc7_.mKillRewardMoney;
-            _loc10_ += _loc7_.mKillRewardSupplies;
-            _loc11_ += _loc7_.mKillRewardEnergy;
+            _loc9_ += _loc8_.mKillRewardXP;
+            _loc10_ += _loc8_.mKillRewardMoney;
+            _loc11_ += _loc8_.mKillRewardSupplies;
+            _loc12_ += _loc8_.mKillRewardEnergy;
          }
-         _loc3_.increaseEnergyRewardCounter(_loc11_);
-         var _loc12_:int = _loc3_.getBonusEnergy();
-         _loc2_.addLootReward(ItemManager.getItem("XP","Resource"),_loc8_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Money","Resource"),_loc9_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc10_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc12_,_loc4_.getContainer());
-         var _loc14_:int = _loc3_.mRewardDropsCounter;
-         if(_loc6_)
+         _loc4_.increaseEnergyRewardCounter(_loc12_);
+         var _loc13_:int = _loc4_.getBonusEnergy();
+         _loc3_.addLootReward(ItemManager.getItem("XP","Resource"),_loc9_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Money","Resource"),_loc10_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc11_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc13_,_loc5_.getContainer());
+         var _loc14_:int = _loc4_.mRewardDropsCounter;
+         if(_loc7_)
          {
-            _loc13_ = _loc7_.getRandomItemDrop();
-            _loc2_.addLootReward(_loc13_,1,_loc4_.getContainer());
+            _loc1_ = _loc8_.getRandomItemDrop();
+            _loc3_.addLootReward(_loc1_,1,_loc5_.getContainer());
          }
-         _loc4_.handleSuppress();
-         var _loc15_:GridCell;
-         if(!(_loc15_ = mTarget.getCell()))
+         _loc5_.handleSuppress();
+         _loc15_ = mTarget.getCell();
+         if(!_loc15_)
          {
             skip();
             return;
@@ -129,23 +131,23 @@ package game.actions
             "neighbor_action_id":this.mNeighborActionID,
             "coord_x":_loc15_.mPosI,
             "coord_y":_loc15_.mPosJ,
-            "item_hit_points":_loc5_,
-            "reward_xp":_loc8_,
-            "reward_money":_loc9_,
-            "reward_supplies":_loc10_,
-            "reward_energy":_loc11_
+            "item_hit_points":_loc6_,
+            "reward_xp":_loc9_,
+            "reward_money":_loc10_,
+            "reward_supplies":_loc11_,
+            "reward_energy":_loc12_
          };
-         if(_loc6_)
+         if(_loc7_)
          {
-            _loc16_.reward_drop_seed_term = _loc3_.mRewardDropSeedTerm;
+            _loc16_.reward_drop_seed_term = _loc4_.mRewardDropSeedTerm;
             _loc16_.reward_drops_counter = _loc14_;
          }
-         if(_loc13_)
+         if(_loc1_)
          {
-            _loc16_.reward_item_type = ItemManager.getTableNameForItem(_loc13_);
-            _loc16_.reward_item_id = _loc13_.mId;
+            _loc16_.reward_item_type = ItemManager.getTableNameForItem(_loc1_);
+            _loc16_.reward_item_id = _loc1_.mId;
          }
-         if(_loc6_ && (mTarget as EnemyInstallationObject).mLastAttackDamage > 0)
+         if(Boolean(_loc7_) && (mTarget as EnemyInstallationObject).mLastAttackDamage > 0)
          {
             GameState.mInstance.queueAction(new LastAttackAction(mTarget as EnemyInstallationObject,ServiceIDs.ACCEPT_HELP_SUPPRESS_ENEMY_INSTALLATION,_loc16_),true);
             if(Config.DEBUG_MODE)
@@ -162,3 +164,4 @@ package game.actions
       }
    }
 }
+

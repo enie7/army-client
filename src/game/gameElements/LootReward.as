@@ -19,6 +19,10 @@ package game.gameElements
    public class LootReward extends Sprite
    {
       
+      public static var smActivatedCounter:int;
+      
+      private static var smSoundPlayed:Boolean;
+      
       private static const TIME_ON_SCREEN:Number = 2.5;
       
       private static const XP_TIME_ON_SCREEN:Number = 1.5;
@@ -28,11 +32,6 @@ package game.gameElements
       private static const XP_TIME_TO_FLY_OFF_SCREEN:Number = 0.5;
       
       private static var smCounter:int = 0;
-      
-      public static var smActivatedCounter:int;
-      
-      private static var smSoundPlayed:Boolean;
-       
       
       private var mMaxTimeOnScreen:Number;
       
@@ -68,9 +67,9 @@ package game.gameElements
       
       public function LootReward(param1:Item, param2:int, param3:Rectangle)
       {
-         var _loc6_:int = 0;
-         var _loc7_:IsometricScene = null;
-         var _loc8_:Point = null;
+         var _loc4_:int = 0;
+         var _loc5_:IsometricScene = null;
+         var _loc6_:Point = null;
          super();
          this.mItem = param1;
          IconLoader.addIcon(this,param1,this.iconLoaded);
@@ -78,77 +77,77 @@ package game.gameElements
          this.mAnimHeightFactor = 350 + Math.random() * 200;
          this.mOffset = new Point(Math.random() * 40 + 40,Math.random() * 10 + 40);
          this.mAnimTimeFactor = 0.6 + Math.random() * 0.4;
-         var _loc4_:GameHUD = GameState.mInstance.mHUD;
+         var _loc7_:GameHUD = GameState.mInstance.mHUD;
          this.mDestLoc = new Point();
-         var _loc5_:GamePlayerProfile = GameState.mInstance.mPlayerProfile;
-         _loc6_ = 1;
+         var _loc8_:GamePlayerProfile = GameState.mInstance.mPlayerProfile;
+         _loc4_ = 1;
          this.mMaxTimeOnScreen = TIME_ON_SCREEN;
          this.mMaxTimeToFlyOffScreen = TIME_TO_FLY_OFF_SCREEN;
          if(this.mItem.mId == "XP")
          {
             this.mAnimHeightFactor = 350;
             this.mAnimTimeFactor = 0.6;
-            _loc6_ = Math.random() * 11 - 5;
-            if(_loc4_)
+            _loc4_ = Math.random() * 11 - 5;
+            if(_loc7_)
             {
-               this.mDestLoc = _loc4_.getXpBarLocation();
+               this.mDestLoc = _loc7_.getXpBarLocation();
             }
             if(param2 > 0)
             {
-               _loc5_.addXp(this.mAmount);
+               _loc8_.addXp(this.mAmount);
             }
             this.mMaxTimeOnScreen = XP_TIME_ON_SCREEN;
             this.mMaxTimeToFlyOffScreen = XP_TIME_TO_FLY_OFF_SCREEN;
          }
          else if(this.mItem.mId == "SocialXP")
          {
-            if(_loc4_)
+            if(_loc7_)
             {
-               this.mDestLoc = _loc4_.getXpBarLocation();
+               this.mDestLoc = _loc7_.getXpBarLocation();
             }
             if(param2 > 0)
             {
-               _loc5_.addSocialXp(this.mAmount);
+               _loc8_.addSocialXp(this.mAmount);
             }
          }
          else if(this.mItem.mId == "BadAssXP")
          {
-            if(_loc4_)
+            if(_loc7_)
             {
-               this.mDestLoc = _loc4_.getXpBarLocation();
+               this.mDestLoc = _loc7_.getXpBarLocation();
             }
             if(param2 > 0)
             {
-               _loc5_.addBaddassXp(this.mAmount);
+               _loc8_.addBaddassXp(this.mAmount);
             }
          }
          else if(this.mItem.mId == "Energy")
          {
-            if(_loc4_)
+            if(_loc7_)
             {
-               this.mDestLoc = _loc4_.getEnergyBarLocation();
+               this.mDestLoc = _loc7_.getEnergyBarLocation();
             }
             if(param2 > 0)
             {
-               _loc5_.addEnergy(this.mAmount);
+               _loc8_.addEnergy(this.mAmount);
             }
          }
          else if(this.mItem.mId == "Money" || this.mItem.mId == "Supplies" || this.mItem.mId == "Material")
          {
-            if(_loc4_)
+            if(_loc7_)
             {
-               this.mDestLoc = _loc4_.getResourcesBarLocation();
+               this.mDestLoc = _loc7_.getResourcesBarLocation();
             }
          }
          this.mBaseLoc = new Point((param3.left + param3.right) / 2,(param3.top + param3.bottom) / 2);
          if(param2 < 0)
          {
-            _loc7_ = GameState.mInstance.mScene;
-            _loc8_ = new Point(this.mDestLoc.x - _loc7_.mContainer.x,this.mDestLoc.y - _loc7_.mContainer.y);
+            _loc5_ = GameState.mInstance.mScene;
+            _loc6_ = new Point(this.mDestLoc.x - _loc5_.mContainer.x,this.mDestLoc.y - _loc5_.mContainer.y);
             this.mDestLoc = this.mBaseLoc;
-            this.mBaseLoc = _loc8_;
-            this.mBaseLoc.x /= _loc7_.mContainer.scaleX;
-            this.mBaseLoc.y /= _loc7_.mContainer.scaleY;
+            this.mBaseLoc = _loc6_;
+            this.mBaseLoc.x /= _loc5_.mContainer.scaleX;
+            this.mBaseLoc.y /= _loc5_.mContainer.scaleY;
             this.mBaseLoc.x += 3 + Math.random() * -6;
             this.mBaseLoc.y += 3 + Math.random() * -6;
             this.mLifeTime = this.mMaxTimeOnScreen - this.mMaxTimeToFlyOffScreen;
@@ -164,7 +163,7 @@ package game.gameElements
          }
          if(smCounter % 2 == 0)
          {
-            this.mOffset.x *= -_loc6_;
+            this.mOffset.x *= -_loc4_;
          }
          ++smCounter;
          if(smCounter > 1000)
@@ -231,30 +230,30 @@ package game.gameElements
       
       public function Update(param1:int) : void
       {
-         var _loc5_:Number = NaN;
+         var _loc2_:Number = NaN;
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
+         var _loc5_:IsometricScene = null;
          var _loc6_:Number = NaN;
-         var _loc7_:Number = NaN;
-         var _loc8_:IsometricScene = null;
-         var _loc9_:Number = NaN;
-         var _loc10_:int = 0;
-         var _loc11_:int = 0;
-         var _loc2_:Number = 1.2 - this.mLifeTime / this.mMaxTimeOnScreen;
-         this.mLifeTime += param1 * _loc2_ / 1000;
+         var _loc7_:int = 0;
+         var _loc8_:int = 0;
+         var _loc9_:Number = 1.2 - this.mLifeTime / this.mMaxTimeOnScreen;
+         this.mLifeTime += param1 * _loc9_ / 1000;
          if(this.mItem.mId == "XP")
          {
-            _loc7_ = 1 - this.mLifeTime / this.mMaxTimeOnScreen;
+            _loc4_ = 1 - this.mLifeTime / this.mMaxTimeOnScreen;
             if(this.mGraphics)
             {
-               this.mGraphics.scaleX = _loc7_;
-               this.mGraphics.scaleY = _loc7_;
+               this.mGraphics.scaleX = _loc4_;
+               this.mGraphics.scaleY = _loc4_;
             }
          }
-         var _loc3_:Number = this.mLifeTime * this.mAnimTimeFactor;
-         _loc3_ = Math.min(1,_loc3_);
-         var _loc4_:Number = 3 * _loc3_;
-         while(_loc4_ > 1)
+         var _loc10_:Number = this.mLifeTime * this.mAnimTimeFactor;
+         _loc10_ = Math.min(1,_loc10_);
+         var _loc11_:Number = 3 * _loc10_;
+         while(_loc11_ > 1)
          {
-            _loc4_--;
+            _loc11_--;
          }
          if(!this.mClicked && this.mLifeTime + this.mMaxTimeToFlyOffScreen > this.mMaxTimeOnScreen)
          {
@@ -269,27 +268,27 @@ package game.gameElements
                {
                }
             }
-            _loc8_ = GameState.mInstance.mScene;
+            _loc5_ = GameState.mInstance.mScene;
             if(this.mAmount > 0)
             {
-               _loc10_ = (this.mDestLoc.x - _loc8_.mContainer.x) / _loc8_.mContainer.scaleX;
-               _loc11_ = (this.mDestLoc.y - _loc8_.mContainer.y) / _loc8_.mContainer.scaleY;
-               _loc5_ = _loc10_ - this.mBaseLoc.x;
-               _loc6_ = _loc11_ - this.mBaseLoc.y;
+               _loc7_ = (this.mDestLoc.x - _loc5_.mContainer.x) / _loc5_.mContainer.scaleX;
+               _loc8_ = (this.mDestLoc.y - _loc5_.mContainer.y) / _loc5_.mContainer.scaleY;
+               _loc2_ = _loc7_ - this.mBaseLoc.x;
+               _loc3_ = _loc8_ - this.mBaseLoc.y;
             }
             else
             {
-               _loc5_ = this.mDestLoc.x - this.mBaseLoc.x;
-               _loc6_ = this.mDestLoc.y - this.mBaseLoc.y;
+               _loc2_ = this.mDestLoc.x - this.mBaseLoc.x;
+               _loc3_ = this.mDestLoc.y - this.mBaseLoc.y;
             }
-            _loc9_ = (this.mLifeTime - this.mMaxTimeOnScreen + this.mMaxTimeToFlyOffScreen) / this.mMaxTimeToFlyOffScreen;
-            x = this.mBaseLoc.x + _loc9_ * _loc5_;
-            y = this.mBaseLoc.y + _loc9_ * _loc6_;
+            _loc6_ = (this.mLifeTime - this.mMaxTimeOnScreen + this.mMaxTimeToFlyOffScreen) / this.mMaxTimeToFlyOffScreen;
+            x = this.mBaseLoc.x + _loc6_ * _loc2_;
+            y = this.mBaseLoc.y + _loc6_ * _loc3_;
             if(this.mItem.mId != "XP")
             {
-               if(Math.abs(_loc5_) < 1)
+               if(Math.abs(_loc2_) < 1)
                {
-                  if(Math.abs(_loc6_) < 1)
+                  if(Math.abs(_loc3_) < 1)
                   {
                      this.mLifeTime = this.mMaxTimeOnScreen + 1;
                   }
@@ -298,16 +297,16 @@ package game.gameElements
          }
          else
          {
-            _loc5_ = _loc3_ * this.mOffset.x;
-            _loc6_ = (_loc4_ * _loc4_ - _loc4_) * this.mAnimHeightFactor / (4 * _loc3_ + 1) + _loc3_ * this.mOffset.y;
-            x = this.mBaseLoc.x + _loc5_;
+            _loc2_ = _loc10_ * this.mOffset.x;
+            _loc3_ = (_loc11_ * _loc11_ - _loc11_) * this.mAnimHeightFactor / (4 * _loc10_ + 1) + _loc10_ * this.mOffset.y;
+            x = this.mBaseLoc.x + _loc2_;
             if(this.mItem.mId == "XP")
             {
-               y = this.mBaseLoc.y - _loc6_;
+               y = this.mBaseLoc.y - _loc3_;
             }
             else
             {
-               y = this.mBaseLoc.y + _loc6_;
+               y = this.mBaseLoc.y + _loc3_;
             }
          }
       }
@@ -433,3 +432,4 @@ package game.gameElements
       }
    }
 }
+

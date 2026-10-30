@@ -1,4 +1,4 @@
-﻿package game.items
+package game.items
 {
    import game.states.GameState;
    
@@ -10,7 +10,6 @@
       private static var mItemListByTableName:Array;
       
       private static var mTableNameForItem:Array;
-       
       
       public function ItemManager()
       {
@@ -52,37 +51,39 @@
          addItems("FireMission",createFireMissionItem);
          addItems("PowerUp",createPowerUpItem);
          addItems("Timers",createTimerItem);
-		 addItems("WaterPack",createWaterPackItem);
+         addItems("WaterPack",createWaterPackItem);
+         addItems("Bundle",createBundleItem);
       }
       
       private static function addItems(param1:String, param2:Function) : void
       {
-         var _loc4_:Object = null;
-         var _loc5_:Item = null;
-         var _loc6_:String = null;
-         var _loc3_:Object = GameState.mConfig[param1];
-         if(!_loc3_)
+         var _loc3_:Object = null;
+         var _loc4_:Item = null;
+         var _loc5_:String = null;
+         var _loc6_:Object = GameState.mConfig[param1];
+         if(!_loc6_)
          {
             return;
          }
-         for each(_loc4_ in _loc3_)
+         for each(_loc3_ in _loc6_)
          {
-            if(_loc4_.hasOwnProperty("RewardXp"))
+            if(_loc3_.hasOwnProperty("RewardXp"))
             {
-               _loc4_.RewardXP = _loc4_.RewardXp;
+               _loc3_.RewardXP = _loc3_.RewardXp;
             }
-            else if(_loc4_.hasOwnProperty("RewardXP"))
+            else if(_loc3_.hasOwnProperty("RewardXP"))
             {
-               _loc4_.RewardXp = _loc4_.RewardXP;
+               _loc3_.RewardXp = _loc3_.RewardXP;
             }
-            (_loc5_ = param2(_loc4_)).initGraphics(_loc4_);
-            _loc6_ = _loc5_.mType + "_" + _loc5_.mId;
-            mItemList[_loc6_] = _loc5_;
-            mTableNameForItem[_loc6_] = param1;
-            _loc6_ = param1 + "_" + _loc5_.mId;
-            mItemListByTableName[_loc6_] = _loc5_;
+            _loc4_ = param2(_loc3_);
+            _loc4_.initGraphics(_loc3_);
+            _loc5_ = _loc4_.mType + "_" + _loc4_.mId;
+            mItemList[_loc5_] = _loc4_;
+            mTableNameForItem[_loc5_] = param1;
+            _loc5_ = param1 + "_" + _loc4_.mId;
+            mItemListByTableName[_loc5_] = _loc4_;
          }
-         mItemList[_loc6_] = _loc5_;
+         mItemList[_loc5_] = _loc4_;
          param2 = null;
       }
       
@@ -154,7 +155,7 @@
       {
          return new ResourceBuildingItem(param1);
       }
-  
+      
       private static function createHospitalBuildingItem(param1:Object) : Item
       {
          return new HospitalItem(param1);
@@ -214,6 +215,11 @@
          return new WaterPackItem(param1);
       }
       
+      private static function createBundleItem(param1:Object) : Item
+      {
+         return new BundleItem(param1);
+      }
+      
       private static function createSupplyPackItem(param1:Object) : Item
       {
          return new SupplyPackItem(param1);
@@ -249,3 +255,4 @@
       }
    }
 }
+

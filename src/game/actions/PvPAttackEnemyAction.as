@@ -12,7 +12,6 @@ package game.actions
    
    public class PvPAttackEnemyAction extends AttackEnemyAction
    {
-       
       
       public function PvPAttackEnemyAction(param1:Array, param2:PlayerInstallationObject, param3:PvPEnemyUnit, param4:Boolean = true)
       {
@@ -22,12 +21,12 @@ package game.actions
       override public function start() : void
       {
          var _loc1_:Boolean = false;
-         var _loc2_:int = 0;
+         var _loc2_:* = 0;
          if(mSkipped)
          {
             return;
          }
-         if(mTarget == null || !mTarget.isAlive() || (mTarget as PvPEnemyUnit).mCurrentAction || GameState.mInstance.mPvPMatch.mActionsLeft == 0)
+         if(Boolean(mTarget == null || !mTarget.isAlive()) || Boolean((mTarget as PvPEnemyUnit).mCurrentAction) || GameState.mInstance.mPvPMatch.mActionsLeft == 0)
          {
             skip();
             return;
@@ -70,10 +69,10 @@ package game.actions
       
       override protected function execute() : void
       {
-         var _loc7_:Item = null;
-         var _loc9_:Boolean = false;
-         var _loc1_:PvPEnemyUnit = mTarget as PvPEnemyUnit;
-         if(!_loc1_ || !_loc1_.isAlive())
+         var _loc1_:Item = null;
+         var _loc2_:Boolean = false;
+         var _loc3_:PvPEnemyUnit = mTarget as PvPEnemyUnit;
+         if(!_loc3_ || !_loc3_.isAlive())
          {
             Utils.LogError("PvPAttackEnemyAction: Enemy not found");
             mNewState = STATE_OVER;
@@ -85,35 +84,36 @@ package game.actions
             mNewState = STATE_OVER;
             return;
          }
-         var _loc2_:GameState = GameState.mInstance;
-         var _loc3_:IsometricScene = _loc2_.mScene;
-         var _loc4_:GamePlayerProfile = _loc2_.mPlayerProfile;
-         var _loc5_:Boolean = _loc1_.getHealth() > 0 && _loc1_.getHealth() - getCombinedDamage() <= 0;
-         var _loc6_:int = _loc1_.mHitRewardBadassXP;
-         if(_loc5_)
+         var _loc4_:GameState = GameState.mInstance;
+         var _loc5_:IsometricScene = _loc4_.mScene;
+         var _loc6_:GamePlayerProfile = _loc4_.mPlayerProfile;
+         var _loc7_:Boolean = _loc3_.getHealth() > 0 && _loc3_.getHealth() - getCombinedDamage() <= 0;
+         var _loc8_:int = _loc3_.mHitRewardBadassXP;
+         if(_loc7_)
          {
-            _loc6_ += _loc1_.mKillRewardBadassXP;
+            _loc8_ += _loc3_.mKillRewardBadassXP;
          }
-         _loc3_.addLootReward(ItemManager.getItem("BadAssXP","Resource"),_loc6_,_loc1_.getContainer());
-         _loc2_.mPvPMatch.addIngameBaddassXp(_loc6_);
-         if(_loc5_)
+         _loc5_.addLootReward(ItemManager.getItem("BadAssXP","Resource"),_loc8_,_loc3_.getContainer());
+         _loc4_.mPvPMatch.addIngameBaddassXp(_loc8_);
+         if(_loc7_)
          {
-            _loc7_ = (_loc1_.mItem as TargetItem).getRandomItemDrop();
-            _loc3_.addLootReward(_loc7_,1,_loc1_.getContainer());
-            _loc2_.mPvPMatch.addIngameCollectible(_loc7_);
+            _loc1_ = (_loc3_.mItem as TargetItem).getRandomItemDrop();
+            _loc5_.addLootReward(_loc1_,1,_loc3_.getContainer());
+            _loc4_.mPvPMatch.addIngameCollectible(_loc1_);
          }
-         var _loc8_:int = getCombinedDamage();
+         var _loc9_:int = getCombinedDamage();
          if(!mActor && Boolean(mCharacterActors))
          {
-            _loc9_ = false;
+            _loc2_ = false;
          }
          else
          {
-            _loc9_ = true;
+            _loc2_ = true;
          }
-         _loc1_.reduceHealth(_loc8_);
+         _loc3_.reduceHealth(_loc9_);
          mNewState = STATE_OVER;
-         _loc2_.playerMoveMade();
+         _loc4_.playerMoveMade();
       }
    }
 }
+

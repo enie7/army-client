@@ -6,7 +6,6 @@ package game.items
    
    public class TargetItem extends MapItem
    {
-       
       
       public var mHitRewardXP:int;
       
@@ -36,7 +35,9 @@ package game.items
       
       private var mCollectibleProbabilities:Array;
       
-      private var mRandom:RandomGenerator;
+      private var mRandom:RandomGenerator = new RandomGenerator();
+      
+      public var mPermanentDestroyArray:Array;
       
       public function TargetItem(param1:Object)
       {
@@ -50,7 +51,6 @@ package game.items
          var _loc9_:String = null;
          var _loc10_:int = 0;
          var _loc11_:int = 0;
-         this.mRandom = new RandomGenerator();
          super(param1);
          this.mHitRewardXP = param1.HitRewardXP;
          this.mHitRewardMoney = param1.HitRewardMoney;
@@ -63,6 +63,19 @@ package game.items
          this.mKillRewardMaterial = param1.HitRewardMaterial;
          this.mKillRewardEnergy = param1.KillRewardEnergy;
          this.mKillRewardUnit = param1.KillRewardUnit;
+         this.mPermanentDestroyArray = null;
+         if(param1.PermanentDestroyArray)
+         {
+            if(param1.PermanentDestroyArray is Array)
+            {
+               this.mPermanentDestroyArray = param1.PermanentDestroyArray;
+            }
+            else
+            {
+               this.mPermanentDestroyArray = new Array();
+               this.mPermanentDestroyArray.push(param1.PermanentDestroyArray);
+            }
+         }
          if(param1.Item0 != null)
          {
             this.mCollectibleItems = new Array();
@@ -82,19 +95,21 @@ package game.items
                   }
                   else
                   {
-                     (_loc5_ = new Array()).push(_loc4_);
+                     _loc5_ = new Array();
+                     _loc5_.push(_loc4_);
                   }
                   this.mCollectibleLevels[_loc2_] = new Array();
                   this.mCollectibleProbabilities[_loc2_] = new Array();
                   _loc6_ = 0;
                   while(_loc6_ < _loc5_.length)
                   {
-                     _loc8_ = (_loc7_ = String(_loc5_[_loc6_])).split(":");
+                     _loc7_ = String(_loc5_[_loc6_]);
+                     _loc8_ = _loc7_.split(":");
                      _loc9_ = JsonParser.trim(_loc8_[0] as String);
-                     _loc10_ = parseInt(_loc9_.slice(_loc9_.indexOf("L") + 1));
+                     _loc10_ = int(parseInt(_loc9_.slice(_loc9_.indexOf("L") + 1)));
                      (this.mCollectibleLevels[_loc2_] as Array).push(_loc10_);
                      _loc9_ = JsonParser.trim(_loc8_[1] as String);
-                     _loc11_ = parseInt(_loc9_.slice(0,_loc9_.indexOf("%")));
+                     _loc11_ = int(parseInt(_loc9_.slice(0,_loc9_.indexOf("%"))));
                      (this.mCollectibleProbabilities[_loc2_] as Array).push(_loc11_);
                      _loc6_++;
                   }
@@ -106,30 +121,35 @@ package game.items
       
       public function getRandomItemDrop() : Item
       {
-         var _loc6_:int = 0;
-         var _loc7_:Object = null;
+         var _loc1_:int = 0;
+         var _loc2_:Object = null;
          if(this.mCollectibleItems == null)
          {
             return null;
          }
-         var _loc1_:GamePlayerProfile = GameState.mInstance.mPlayerProfile;
-         var _loc2_:int = _loc1_.mLevel;
-         var _loc3_:int = this.mRandom.d100(_loc1_.mRewardDropSeedTerm,_loc1_.getRewardDropsCounter());
-         var _loc4_:int = 0;
-         var _loc5_:int = 0;
-         while(_loc5_ < this.mCollectibleItems.length)
+         var _loc3_:GamePlayerProfile = GameState.mInstance.mPlayerProfile;
+         var _loc4_:int = _loc3_.mLevel;
+         var _loc5_:int = this.mRandom.d100(_loc3_.mRewardDropSeedTerm,_loc3_.getRewardDropsCounter());
+         var _loc6_:int = 0;
+         var _loc7_:int = 0;
+         while(_loc7_ < this.mCollectibleItems.length)
          {
-            _loc6_ = this.getItemProbabilityForLevel(_loc5_,_loc2_);
-            _loc4_ += _loc6_;
-            if(_loc3_ < _loc4_)
+            _loc1_ = this.getItemProbabilityForLevel(_loc7_,_loc4_);
+            _loc6_ += _loc1_;
+            if(_loc5_ < _loc6_)
             {
-               _loc7_ = this.mCollectibleItems[_loc5_];
-               MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_GAIN_ITEM,MagicBoxTracker.PS_RANDOM_ITEM + "_" + _loc7_.ID,MagicBoxTracker.paramsObj(_loc7_.Type,_loc7_.ID));
-               return ItemManager.getItem(_loc7_.ID,_loc7_.Type);
+               _loc2_ = this.mCollectibleItems[_loc7_];
+               MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_GAIN_ITEM,MagicBoxTracker.PS_RANDOM_ITEM + "_" + _loc2_.ID,MagicBoxTracker.paramsObj(_loc2_.Type,_loc2_.ID));
+               return ItemManager.getItem(_loc2_.ID,_loc2_.Type);
             }
-            _loc5_++;
+            _loc7_++;
          }
          return null;
+      }
+      
+      public function getPermanentDestroyArray() : Array
+      {
+         return this.mPermanentDestroyArray;
       }
       
       private function getItemProbabilityForLevel(param1:int, param2:int) : int
@@ -148,3 +168,4 @@ package game.items
       }
    }
 }
+

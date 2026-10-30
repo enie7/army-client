@@ -15,7 +15,6 @@ package game.actions
    
    public class AcceptHelpSuppressEnemyUnitAction extends Action
    {
-       
       
       private var mNeighborActionID:String;
       
@@ -67,12 +66,13 @@ package game.actions
       
       override public function start() : void
       {
+         var _loc1_:EnemyInstallationObject = null;
          if(mSkipped)
          {
             return;
          }
-         var _loc1_:EnemyInstallationObject = mTarget as EnemyInstallationObject;
-         if(_loc1_ == null || !_loc1_.isAlive() || _loc1_.mCurrentAction || _loc1_.getHealth() == 0)
+         _loc1_ = mTarget as EnemyInstallationObject;
+         if(Boolean(_loc1_ == null || !_loc1_.isAlive()) || Boolean(_loc1_.mCurrentAction) || _loc1_.getHealth() == 0)
          {
             mSkipped = true;
             return;
@@ -88,39 +88,40 @@ package game.actions
       
       private function execute() : void
       {
-         var _loc12_:Item = null;
-         var _loc1_:GameState = GameState.mInstance;
-         var _loc2_:IsometricScene = _loc1_.mScene;
-         var _loc3_:GamePlayerProfile = _loc1_.mPlayerProfile;
-         var _loc4_:EnemyUnit = mTarget as EnemyUnit;
-         var _loc5_:int = int(GameState.mConfig.AllyAction.SuppressEnemyUnit.Damage);
-         var _loc6_:* = _loc4_.getHealth() - _loc5_ <= 0;
-         var _loc7_:int = _loc4_.mHitRewardXP;
-         var _loc8_:int = _loc4_.mHitRewardMoney;
-         var _loc9_:int = _loc4_.mHitRewardSupplies;
-         var _loc10_:int = _loc4_.mHitRewardEnergy;
-         if(_loc6_)
+         var _loc14_:GridCell = null;
+         var _loc1_:Item = null;
+         var _loc2_:GameState = GameState.mInstance;
+         var _loc3_:IsometricScene = _loc2_.mScene;
+         var _loc4_:GamePlayerProfile = _loc2_.mPlayerProfile;
+         var _loc5_:EnemyUnit = mTarget as EnemyUnit;
+         var _loc6_:int = int(GameState.mConfig.AllyAction.SuppressEnemyUnit.Damage);
+         var _loc7_:* = _loc5_.getHealth() - _loc6_ <= 0;
+         var _loc8_:int = _loc5_.mHitRewardXP;
+         var _loc9_:int = _loc5_.mHitRewardMoney;
+         var _loc10_:int = _loc5_.mHitRewardSupplies;
+         var _loc11_:int = _loc5_.mHitRewardEnergy;
+         if(_loc7_)
          {
-            _loc7_ += _loc4_.mKillRewardXP;
-            _loc8_ += _loc4_.mKillRewardMoney;
-            _loc9_ += _loc4_.mKillRewardSupplies;
-            _loc10_ += _loc4_.mKillRewardEnergy;
+            _loc8_ += _loc5_.mKillRewardXP;
+            _loc9_ += _loc5_.mKillRewardMoney;
+            _loc10_ += _loc5_.mKillRewardSupplies;
+            _loc11_ += _loc5_.mKillRewardEnergy;
          }
-         _loc3_.increaseEnergyRewardCounter(_loc10_);
-         var _loc11_:int = _loc3_.getBonusEnergy();
-         _loc2_.addLootReward(ItemManager.getItem("XP","Resource"),_loc7_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Money","Resource"),_loc8_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc9_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc11_,_loc4_.getContainer());
-         var _loc13_:int = _loc3_.mRewardDropsCounter;
-         if(_loc6_)
+         _loc4_.increaseEnergyRewardCounter(_loc11_);
+         var _loc12_:int = _loc4_.getBonusEnergy();
+         _loc3_.addLootReward(ItemManager.getItem("XP","Resource"),_loc8_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Money","Resource"),_loc9_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc10_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc12_,_loc5_.getContainer());
+         var _loc13_:int = _loc4_.mRewardDropsCounter;
+         if(_loc7_)
          {
-            _loc12_ = (_loc4_.mItem as TargetItem).getRandomItemDrop();
-            _loc2_.addLootReward(_loc12_,1,mTarget.getContainer());
+            _loc1_ = (_loc5_.mItem as TargetItem).getRandomItemDrop();
+            _loc3_.addLootReward(_loc1_,1,mTarget.getContainer());
          }
-         _loc4_.handleSuppress();
-         var _loc14_:GridCell;
-         if(!(_loc14_ = _loc4_.getCell()))
+         _loc5_.handleSuppress();
+         _loc14_ = _loc5_.getCell();
+         if(!_loc14_)
          {
             skip();
             return;
@@ -129,21 +130,21 @@ package game.actions
             "neighbor_action_id":this.mNeighborActionID,
             "coord_x":_loc14_.mPosI,
             "coord_y":_loc14_.mPosJ,
-            "item_hit_points":_loc5_,
-            "reward_xp":_loc7_,
-            "reward_money":_loc8_,
-            "reward_supplies":_loc9_,
-            "reward_energy":_loc10_
+            "item_hit_points":_loc6_,
+            "reward_xp":_loc8_,
+            "reward_money":_loc9_,
+            "reward_supplies":_loc10_,
+            "reward_energy":_loc11_
          };
-         if(_loc6_)
+         if(_loc7_)
          {
-            _loc15_.reward_drop_seed_term = _loc3_.mRewardDropSeedTerm;
+            _loc15_.reward_drop_seed_term = _loc4_.mRewardDropSeedTerm;
             _loc15_.reward_drops_counter = _loc13_;
          }
-         if(_loc12_)
+         if(_loc1_)
          {
-            _loc15_.reward_item_type = ItemManager.getTableNameForItem(_loc12_);
-            _loc15_.reward_item_id = _loc12_.mId;
+            _loc15_.reward_item_type = ItemManager.getTableNameForItem(_loc1_);
+            _loc15_.reward_item_id = _loc1_.mId;
          }
          GameState.mInstance.mServer.serverCallServiceWithParameters(ServiceIDs.ACCEPT_HELP_SUPPRESS_ENEMY,_loc15_,false);
          if(Config.DEBUG_MODE)
@@ -152,3 +153,4 @@ package game.actions
       }
    }
 }
+

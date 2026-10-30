@@ -50,7 +50,6 @@ package game.characters
       public static const INSTALLATION_ANIMATION_ACTION:int = 5;
       
       public static const INSTALLATION_ANIMATION_NOACTION:int = 6;
-       
       
       protected var mOwner:Renderable;
       
@@ -74,78 +73,82 @@ package game.characters
       
       public function loadAnimations(param1:Array) : void
       {
+         var _loc2_:String = null;
          var _loc3_:String = null;
-         var _loc4_:String = null;
-         var _loc5_:int = 0;
-         var _loc6_:String = null;
-         var _loc9_:MovieClip = null;
-         var _loc10_:Class = null;
-         var _loc11_:String = null;
-         var _loc2_:DCResourceManager = DCResourceManager.getInstance();
+         var _loc4_:int = 0;
+         var _loc5_:String = null;
+         var _loc6_:MovieClip = null;
+         var _loc7_:Class = null;
+         var _loc8_:String = null;
+         var _loc9_:DCResourceManager = DCResourceManager.getInstance();
          this.mAnimations = new Array();
          this.mFiles = param1;
          this.mLoadingCallbackEventTypes = new Object();
-         var _loc7_:int = int(param1.length);
-         var _loc8_:int = 0;
-         while(_loc8_ < _loc7_)
+         var _loc10_:int = int(param1.length);
+         var _loc11_:int = 0;
+         while(_loc11_ < _loc10_)
          {
-            _loc5_ = (_loc6_ = param1[_loc8_] as String).lastIndexOf("/");
-            _loc3_ = _loc6_.slice(_loc5_ + 1);
-            _loc4_ = _loc6_.slice(0,_loc5_);
-            _loc9_ = new MovieClip();
-            this.mAnimations.push(_loc9_);
-            if(_loc2_.isLoaded(_loc4_))
+            _loc5_ = param1[_loc11_] as String;
+            _loc4_ = _loc5_.lastIndexOf("/");
+            _loc2_ = _loc5_.slice(_loc4_ + 1);
+            _loc3_ = _loc5_.slice(0,_loc4_);
+            _loc6_ = new MovieClip();
+            this.mAnimations.push(_loc6_);
+            if(_loc9_.isLoaded(_loc3_))
             {
-               if((_loc10_ = _loc2_.getSWFClass(_loc4_,_loc3_)) != null)
+               _loc7_ = _loc9_.getSWFClass(_loc3_,_loc2_);
+               if(_loc7_ != null)
                {
-                  _loc9_.addChild(new _loc10_());
+                  _loc6_.addChild(new _loc7_());
                }
             }
             else
             {
-               _loc11_ = _loc4_ + DCResourceManager.EVENT_COMPLETE_SINGLE_FILE;
-               this.mLoadingCallbackEventTypes[_loc11_] = _loc11_;
-               _loc9_.visible = false;
-               _loc9_.gotoAndStop(1);
-               _loc2_.addEventListener(_loc11_,this.LoadingFinished);
-               if(!_loc2_.isAddedToLoadingList(_loc4_))
+               _loc8_ = _loc3_ + DCResourceManager.EVENT_COMPLETE_SINGLE_FILE;
+               this.mLoadingCallbackEventTypes[_loc8_] = _loc8_;
+               _loc6_.visible = false;
+               _loc6_.gotoAndStop(1);
+               _loc9_.addEventListener(_loc8_,this.LoadingFinished);
+               if(!_loc9_.isAddedToLoadingList(_loc3_))
                {
-                  _loc2_.load(Config.DIR_DATA + _loc4_ + ".swf",_loc4_,null,false,false);
+                  _loc9_.load(Config.DIR_DATA + _loc3_ + ".swf",_loc3_,null,false,false);
                }
             }
-            _loc8_++;
+            _loc11_++;
          }
          this.mCurrentAnimation = 0;
       }
       
       public function LoadingFinished(param1:Event) : void
       {
+         var _loc2_:String = null;
          var _loc3_:String = null;
-         var _loc4_:String = null;
-         var _loc5_:int = 0;
-         var _loc7_:Class = null;
-         var _loc8_:MovieClip = null;
-         var _loc2_:DCResourceManager = DCResourceManager.getInstance();
-         _loc2_.removeEventListener(param1.type,this.LoadingFinished);
+         var _loc4_:int = 0;
+         var _loc5_:Class = null;
+         var _loc6_:MovieClip = null;
+         var _loc7_:DCResourceManager = DCResourceManager.getInstance();
+         _loc7_.removeEventListener(param1.type,this.LoadingFinished);
          this.mLoadingCallbackEventTypes[param1.type] = null;
-         var _loc6_:int = 0;
-         while(_loc6_ < this.mFiles.length)
+         var _loc8_:int = 0;
+         while(_loc8_ < this.mFiles.length)
          {
-            _loc5_ = (this.mFiles[_loc6_] as String).lastIndexOf("/");
-            _loc3_ = (this.mFiles[_loc6_] as String).slice(_loc5_ + 1);
-            _loc4_ = (this.mFiles[_loc6_] as String).slice(0,_loc5_);
-            if(_loc2_.isLoaded(_loc4_))
+            _loc4_ = (this.mFiles[_loc8_] as String).lastIndexOf("/");
+            _loc2_ = (this.mFiles[_loc8_] as String).slice(_loc4_ + 1);
+            _loc3_ = (this.mFiles[_loc8_] as String).slice(0,_loc4_);
+            if(_loc7_.isLoaded(_loc3_))
             {
-               if((this.mAnimations[_loc6_] as MovieClip).numChildren == 0)
+               if((this.mAnimations[_loc8_] as MovieClip).numChildren == 0)
                {
-                  if((_loc7_ = _loc2_.getSWFClass(_loc4_,_loc3_)) != null)
+                  _loc5_ = _loc7_.getSWFClass(_loc3_,_loc2_);
+                  if(_loc5_ != null)
                   {
-                     (_loc8_ = this.mAnimations[_loc6_] as MovieClip).addChild(new _loc7_());
-                     _loc8_.visible = true;
+                     _loc6_ = this.mAnimations[_loc8_] as MovieClip;
+                     _loc6_.addChild(new _loc5_());
+                     _loc6_.visible = true;
                   }
                }
             }
-            _loc6_++;
+            _loc8_++;
          }
          if(this.mIsPlaying)
          {
@@ -226,7 +229,8 @@ package game.characters
                            _loc7_ = 0;
                            while(_loc7_ < _loc6_.numChildren)
                            {
-                              if(_loc8_ = _loc6_.getChildAt(_loc7_) as MovieClip)
+                              _loc8_ = _loc6_.getChildAt(_loc7_) as MovieClip;
+                              if(_loc8_)
                               {
                                  if(_loc8_.name == "Unit_Container")
                                  {
@@ -266,7 +270,8 @@ package game.characters
                            _loc11_ = 0;
                            while(_loc11_ < _loc6_.numChildren)
                            {
-                              if(_loc8_ = _loc6_.getChildAt(_loc11_) as MovieClip)
+                              _loc8_ = _loc6_.getChildAt(_loc11_) as MovieClip;
+                              if(_loc8_)
                               {
                                  if(_loc8_.name == "Unit_Container")
                                  {
@@ -320,59 +325,60 @@ package game.characters
       
       public function getCurrentAnimationFrameLabel() : String
       {
-         var _loc2_:int = 0;
-         var _loc3_:MovieClip = null;
-         var _loc4_:int = 0;
-         var _loc5_:MovieClip = null;
-         var _loc6_:int = 0;
-         var _loc7_:MovieClip = null;
-         var _loc1_:String = (this.mAnimations[this.mCurrentAnimation] as MovieClip).currentFrameLabel;
-         if(!_loc1_)
+         var _loc1_:int = 0;
+         var _loc2_:MovieClip = null;
+         var _loc3_:int = 0;
+         var _loc4_:MovieClip = null;
+         var _loc5_:int = 0;
+         var _loc6_:MovieClip = null;
+         var _loc7_:String = (this.mAnimations[this.mCurrentAnimation] as MovieClip).currentFrameLabel;
+         if(!_loc7_)
          {
-            _loc2_ = 0;
-            while(_loc2_ < (this.mAnimations[this.mCurrentAnimation] as MovieClip).numChildren)
+            _loc1_ = 0;
+            for(; _loc1_ < (this.mAnimations[this.mCurrentAnimation] as MovieClip).numChildren; _loc1_++)
             {
-               _loc3_ = (this.mAnimations[this.mCurrentAnimation] as MovieClip).getChildAt(_loc2_) as MovieClip;
-               if(_loc3_)
+               _loc2_ = (this.mAnimations[this.mCurrentAnimation] as MovieClip).getChildAt(_loc1_) as MovieClip;
+               if(_loc2_)
                {
-                  _loc1_ = _loc3_.currentFrameLabel;
-                  if(_loc1_)
+                  _loc7_ = _loc2_.currentFrameLabel;
+                  if(_loc7_)
                   {
                      break;
                   }
-                  _loc4_ = 0;
-                  while(_loc4_ < _loc3_.numChildren)
+                  _loc3_ = 0;
+                  while(_loc3_ < _loc2_.numChildren)
                   {
-                     if(_loc5_ = _loc3_.getChildAt(_loc4_) as MovieClip)
+                     _loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip;
+                     if(_loc4_)
                      {
-                        _loc1_ = _loc5_.currentFrameLabel;
-                        if(_loc1_)
+                        _loc7_ = _loc4_.currentFrameLabel;
+                        if(_loc7_)
                         {
-                           break;
+                           return _loc7_;
                         }
-                        _loc6_ = 0;
-                        while(_loc6_ < _loc5_.numChildren)
+                        _loc5_ = 0;
+                        while(_loc5_ < _loc4_.numChildren)
                         {
-                           if(_loc7_ = _loc5_.getChildAt(_loc6_) as MovieClip)
+                           _loc6_ = _loc4_.getChildAt(_loc5_) as MovieClip;
+                           if(_loc6_)
                            {
-                              _loc1_ = _loc7_.currentFrameLabel;
-                              if(_loc1_)
+                              _loc7_ = _loc6_.currentFrameLabel;
+                              if(_loc7_)
                               {
-                                 return _loc1_;
+                                 return _loc7_;
                               }
                            }
-                           _loc6_++;
+                           _loc5_++;
                         }
                      }
-                     _loc4_++;
+                     _loc3_++;
                   }
                }
-               _loc2_++;
             }
          }
-         if(_loc1_)
+         if(_loc7_)
          {
-            return _loc1_;
+            return _loc7_;
          }
          return "";
       }
@@ -403,79 +409,83 @@ package game.characters
       
       public function playCurrentAnimation() : void
       {
-         var _loc2_:MovieClip = null;
-         var _loc3_:int = 0;
-         var _loc4_:MovieClip = null;
-         var _loc5_:int = 0;
-         var _loc6_:MovieClip = null;
+         var _loc1_:MovieClip = null;
+         var _loc2_:int = 0;
+         var _loc3_:MovieClip = null;
+         var _loc4_:int = 0;
+         var _loc5_:MovieClip = null;
          this.mIsPlaying = true;
          (this.mAnimations[this.mCurrentAnimation] as MovieClip).gotoAndPlay(1);
-         var _loc1_:int = 0;
-         while(_loc1_ < (this.mAnimations[this.mCurrentAnimation] as MovieClip).numChildren)
+         var _loc6_:int = 0;
+         while(_loc6_ < (this.mAnimations[this.mCurrentAnimation] as MovieClip).numChildren)
          {
-            _loc2_ = (this.mAnimations[this.mCurrentAnimation] as MovieClip).getChildAt(_loc1_) as MovieClip;
-            if(_loc2_)
+            _loc1_ = (this.mAnimations[this.mCurrentAnimation] as MovieClip).getChildAt(_loc6_) as MovieClip;
+            if(_loc1_)
             {
-               _loc2_.gotoAndPlay(1);
-               _loc3_ = 0;
-               while(_loc3_ < _loc2_.numChildren)
+               _loc1_.gotoAndPlay(1);
+               _loc2_ = 0;
+               while(_loc2_ < _loc1_.numChildren)
                {
-                  if(_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip)
+                  _loc3_ = _loc1_.getChildAt(_loc2_) as MovieClip;
+                  if(_loc3_)
                   {
-                     _loc4_.gotoAndPlay(1);
-                     _loc5_ = 0;
-                     while(_loc5_ < _loc4_.numChildren)
+                     _loc3_.gotoAndPlay(1);
+                     _loc4_ = 0;
+                     while(_loc4_ < _loc3_.numChildren)
                      {
-                        if(_loc6_ = _loc4_.getChildAt(_loc5_) as MovieClip)
+                        _loc5_ = _loc3_.getChildAt(_loc4_) as MovieClip;
+                        if(_loc5_)
                         {
-                           _loc6_.gotoAndPlay(1);
+                           _loc5_.gotoAndPlay(1);
                         }
-                        _loc5_++;
+                        _loc4_++;
                      }
                   }
-                  _loc3_++;
+                  _loc2_++;
                }
             }
-            _loc1_++;
+            _loc6_++;
          }
       }
       
       public function stopCurrentAnimation() : void
       {
-         var _loc2_:MovieClip = null;
-         var _loc3_:int = 0;
-         var _loc4_:MovieClip = null;
-         var _loc5_:int = 0;
-         var _loc6_:MovieClip = null;
+         var _loc1_:MovieClip = null;
+         var _loc2_:int = 0;
+         var _loc3_:MovieClip = null;
+         var _loc4_:int = 0;
+         var _loc5_:MovieClip = null;
          this.mIsPlaying = false;
          (this.mAnimations[this.mCurrentAnimation] as MovieClip).gotoAndStop(1);
-         var _loc1_:int = 0;
-         while(_loc1_ < (this.mAnimations[this.mCurrentAnimation] as MovieClip).numChildren)
+         var _loc6_:int = 0;
+         while(_loc6_ < (this.mAnimations[this.mCurrentAnimation] as MovieClip).numChildren)
          {
-            _loc2_ = (this.mAnimations[this.mCurrentAnimation] as MovieClip).getChildAt(_loc1_) as MovieClip;
-            if(_loc2_)
+            _loc1_ = (this.mAnimations[this.mCurrentAnimation] as MovieClip).getChildAt(_loc6_) as MovieClip;
+            if(_loc1_)
             {
-               _loc2_.gotoAndStop(1);
-               _loc3_ = 0;
-               while(_loc3_ < _loc2_.numChildren)
+               _loc1_.gotoAndStop(1);
+               _loc2_ = 0;
+               while(_loc2_ < _loc1_.numChildren)
                {
-                  if(_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip)
+                  _loc3_ = _loc1_.getChildAt(_loc2_) as MovieClip;
+                  if(_loc3_)
                   {
-                     _loc4_.gotoAndStop(1);
-                     _loc5_ = 0;
-                     while(_loc5_ < _loc4_.numChildren)
+                     _loc3_.gotoAndStop(1);
+                     _loc4_ = 0;
+                     while(_loc4_ < _loc3_.numChildren)
                      {
-                        if(_loc6_ = _loc4_.getChildAt(_loc5_) as MovieClip)
+                        _loc5_ = _loc3_.getChildAt(_loc4_) as MovieClip;
+                        if(_loc5_)
                         {
-                           _loc6_.gotoAndStop(1);
+                           _loc5_.gotoAndStop(1);
                         }
-                        _loc5_++;
+                        _loc4_++;
                      }
                   }
-                  _loc3_++;
+                  _loc2_++;
                }
             }
-            _loc1_++;
+            _loc6_++;
          }
       }
       
@@ -527,3 +537,4 @@ package game.characters
       }
    }
 }
+

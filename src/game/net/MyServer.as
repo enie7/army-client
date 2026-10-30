@@ -14,7 +14,6 @@ package game.net
       private static const RETRY_TIMEOUT:int = 10000;
       
       public static const MAP_RESOURCE_COST_NAMES:Object = {"Water":"cost_water"};
-       
       
       private var mGame:GameState;
       
@@ -24,11 +23,11 @@ package game.net
       
       private var mToken:String;
       
-      private var mUnsentCallBuffer:Vector.<ServerCall>;
+      private var mUnsentCallBuffer:Vector.<ServerCall> = new Vector.<ServerCall>();
       
-      private var mActiveCallBuffer:Vector.<ServerCall>;
+      private var mActiveCallBuffer:Vector.<ServerCall> = new Vector.<ServerCall>();
       
-      private var mCompletedCallBuffer:Vector.<ServerCall>;
+      private var mCompletedCallBuffer:Vector.<ServerCall> = new Vector.<ServerCall>();
       
       private var mActiveCallTime:int;
       
@@ -44,9 +43,6 @@ package game.net
       
       public function MyServer(param1:GameState)
       {
-         this.mUnsentCallBuffer = new Vector.<ServerCall>();
-         this.mActiveCallBuffer = new Vector.<ServerCall>();
-         this.mCompletedCallBuffer = new Vector.<ServerCall>();
          super();
          this.mGame = param1;
          this.mErrorObject = new ErrorObject();
@@ -109,7 +105,7 @@ package game.net
             "message":param1.getMessage() + " service:" + param1.getService()
          };
          var _loc3_:ServerCall = new ServerCall(ServiceIDs.REPORT_CLIENT_ERROR,_loc2_,this,false);
-         if(!this.serverConnection)
+         if(this.serverConnection)
          {
          }
       }
@@ -121,7 +117,7 @@ package game.net
          {
             return;
          }
-         if(this.mRetryState && !this.mRetried && this.mActiveCallBuffer.length == 1 && RETRY_TIMEOUT > 0 && getTimer() - this.mRetryCallTime > RETRY_TIMEOUT)
+         if(Boolean(this.mRetryState && !this.mRetried && this.mActiveCallBuffer.length == 1) && Boolean(RETRY_TIMEOUT > 0) && getTimer() - this.mRetryCallTime > RETRY_TIMEOUT)
          {
             this.serverConnection.callService(this.mActiveCallBuffer[0]);
             this.serverConnection.resetErrorObject();
@@ -144,7 +140,7 @@ package game.net
             {
             }
          }
-         if(TIMEOUT > 0 && this.mActiveCallBuffer.length > 0 && getTimer() - this.mActiveCallTime > TIMEOUT)
+         if(Boolean(TIMEOUT > 0) && Boolean(this.mActiveCallBuffer.length > 0) && getTimer() - this.mActiveCallTime > TIMEOUT)
          {
             this.mRetryState = false;
             if(Config.DEBUG_MODE)
@@ -174,6 +170,7 @@ package game.net
       
       public function dataReceived(param1:int, param2:String, param3:Object, param4:Object, param5:Object = null) : void
       {
+         var _loc6_:ServerCall = null;
          if(Config.DEBUG_MODE)
          {
          }
@@ -191,8 +188,8 @@ package game.net
                param1 = ServerConnection.RESPONSE_CODE_OK;
             }
          }
-         var _loc6_:ServerCall;
-         if((_loc6_ = this.fetchCallFromBuffer(param2,this.mActiveCallBuffer)) != null)
+         _loc6_ = this.fetchCallFromBuffer(param2,this.mActiveCallBuffer);
+         if(_loc6_ != null)
          {
             if(_loc6_.mIsBlocking)
             {
@@ -262,3 +259,4 @@ package game.net
       }
    }
 }
+

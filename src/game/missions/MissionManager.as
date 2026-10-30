@@ -1,7 +1,6 @@
-﻿package game.missions
+package game.missions
 {
    import com.dchoc.utils.Cookie;
-   import game.magicBox.FlurryEvents;
    import game.magicBox.MagicBoxTracker;
    import game.net.ServerCall;
    import game.net.ServiceIDs;
@@ -25,12 +24,11 @@
       
       public static var mInventoryNeedtoOpen:Boolean;
       
-      public static var smIsModalMissionActive:int = -1;
-      
       private static var mCompletedCOsWithMissions:Array;
       
       private static var smNodes:Array;
-       
+      
+      public static var smIsModalMissionActive:int = -1;
       
       public function MissionManager()
       {
@@ -39,39 +37,35 @@
       
       public static function initialize() : void
       {
-         var _loc7_:* = undefined;
-         var _loc4_:* = null;
-         var _loc1_:* = GameState.mConfig.Mission;
+         var _loc1_:* = undefined;
+         var _loc2_:* = null;
+         var _loc3_:* = GameState.mConfig.Mission;
          mMissions = new Array();
          mOrderedMissions = new Array();
          mCompletedMissions = new Array();
          mCompletedCOsWithMissions = new Array();
          mCompletedMissionsGlobal = new Array();
-         var _loc2_:int = 0;
-         var _loc3_:int = 0;
-         for(_loc4_ in _loc1_)
+         var _loc4_:int = 0;
+         var _loc5_:int = 0;
+         for(_loc2_ in _loc3_)
          {
-			//trace(GameState.mInstance.mCurrentMapId)
-            //if((_loc1_[_loc4_] as Object).MapId == GameState.mInstance.mCurrentMapId)
-            //{
-			   //trace((_loc1_[_loc4_] as Object).ID)
-			   //trace((_loc1_[_loc4_] as Object).MapId)
-               mMissions[_loc3_] = new Mission(_loc1_[_loc4_]);
-               mOrderedMissions[_loc7_ = _loc2_++] = mMissions[_loc3_];
-               _loc3_++;
-            //}
+            mMissions[_loc5_] = new Mission(_loc3_[_loc2_]);
+            var _loc6_:*;
+            mOrderedMissions[_loc6_ = _loc1_ = _loc4_++] = mMissions[_loc5_];
+            _loc5_++;
          }
          mOrderedMissions.sort(sortMissions);
       }
-  
-	  public static function clearAllMissions(): void {
-		mMissions = new Array();
-		mOrderedMissions = new Array();
-		mCompletedMissions = new Array();
-		mCompletedCOsWithMissions = new Array();
-		mCompletedMissionsGlobal = new Array();
-		smNodes = new Array;
-	  }
+      
+      public static function clearAllMissions() : void
+      {
+         mMissions = new Array();
+         mOrderedMissions = new Array();
+         mCompletedMissions = new Array();
+         mCompletedCOsWithMissions = new Array();
+         mCompletedMissionsGlobal = new Array();
+         smNodes = new Array();
+      }
       
       private static function sortMissions(param1:Mission, param2:Mission) : int
       {
@@ -113,48 +107,49 @@
          }
          for each(_loc1_ in mMissions)
          {
-			if (_loc1_.mMapId == GameState.mInstance.mCurrentMapId){
-            if(modalMissionActive())
+            if(_loc1_.mMapId == GameState.mInstance.mCurrentMapId)
             {
-               smFindNewMissionsPending = true;
-               return;
-            }
-            _loc3_ = false;
-            if(_loc1_.mState == Mission.STATE_INACTIVE)
-            {
-               if(_loc1_.mObsolete)
+               if(modalMissionActive())
                {
-                  _loc1_.mState = Mission.STATE_REWARDS_COLLECTED;
                   smFindNewMissionsPending = true;
                   return;
                }
-               for each(_loc4_ in _loc1_.mRequiredMissions)
+               _loc3_ = false;
+               if(_loc1_.mState == Mission.STATE_INACTIVE)
                {
-                  if(!isCollected(_loc4_))
+                  if(_loc1_.mObsolete)
                   {
-                     _loc3_ = true;
-                     break;
+                     _loc1_.mState = Mission.STATE_REWARDS_COLLECTED;
+                     smFindNewMissionsPending = true;
+                     return;
                   }
-               }
-               if(!_loc3_)
-               {
-                  _loc1_.activate();
-                  if(smIsModalMissionActive == 0)
+                  for each(_loc4_ in _loc1_.mRequiredMissions)
                   {
-                     smIsModalMissionActive = -1;
+                     if(!isCollected(_loc4_))
+                     {
+                        _loc3_ = true;
+                        break;
+                     }
                   }
-                  GameState.mInstance.mUpdateMissionButtonsPending = true;
-                  GameState.mInstance.mServer.serverCallServiceWithParameters(ServiceIDs.ACCEPT_MISSION,{
-                     "mission_id":_loc1_.mId,
-                     "map_id":_loc1_.mMapId
-                  },false);
-                  if(Config.DEBUG_MODE)
+                  if(!_loc3_)
                   {
+                     _loc1_.activate();
+                     if(smIsModalMissionActive == 0)
+                     {
+                        smIsModalMissionActive = -1;
+                     }
+                     GameState.mInstance.mUpdateMissionButtonsPending = true;
+                     GameState.mInstance.mServer.serverCallServiceWithParameters(ServiceIDs.ACCEPT_MISSION,{
+                        "mission_id":_loc1_.mId,
+                        "map_id":_loc1_.mMapId
+                     },false);
+                     if(Config.DEBUG_MODE)
+                     {
+                     }
+                     MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_LEVEL,MagicBoxTracker.TYPE_MISSION_ACCEPTED,_loc1_.mId);
                   }
-                  MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_LEVEL,MagicBoxTracker.TYPE_MISSION_ACCEPTED,_loc1_.mId);
                }
             }
-	}
          }
          smFindNewMissionsPending = false;
          checkCompletedMissions();
@@ -254,45 +249,28 @@
       
       public static function getMission(param1:String) : Mission
       {
-		 var index:int = getMissionIndexFromID(param1);
-		 if(index == -1) {
-			return null 
-		 } else {
-			return mMissions[index] as Mission;
-		 }
+         var _loc2_:int = getMissionIndexFromID(param1);
+         if(_loc2_ == -1)
+         {
+            return null;
+         }
+         return mMissions[_loc2_] as Mission;
       }
       
       public static function getMissionIndexFromID(param1:String) : int
       {
-         //var _loc4_:* = null;
-         //var _loc2_:* = GameState.mConfig.Mission;
-         //var _loc3_:int = 0;
-         //for(_loc4_ in _loc2_)
-         //{
-         //   if(param1 == _loc4_)
-         //   {
-		 //	   trace("---Returned: " + _loc3_);
-         //      return _loc3_;
-         //   }
-         //   _loc3_++;
-         //}
-	     //trace("---Returned: 0");
-         //return 0;
-		  
-		 // FIXED TO SUPPORT MISSIONS FROM MULTIPLE MAPS
-		  
-		 var _loc1_:*;
-		 var _loc2_:Mission;
-		 var map_id:String = GameState.mInstance.mCurrentMapId;
-		 for (_loc1_ in mMissions)
-	     {
-			 _loc2_ = mMissions[_loc1_] as Mission;
-			 if (_loc2_.mId == param1) // && _loc2_.mMapId == map_id
-			 {
-				 return _loc1_;
-			 }
-		 }
-	     return -1;
+         var _loc2_:* = undefined;
+         var _loc3_:Mission = null;
+         var _loc4_:String = GameState.mInstance.mCurrentMapId;
+         for(_loc2_ in mMissions)
+         {
+            _loc3_ = mMissions[_loc2_] as Mission;
+            if(_loc3_.mId == param1)
+            {
+               return _loc2_;
+            }
+         }
+         return -1;
       }
       
       private static function isCollected(param1:*) : Boolean
@@ -301,12 +279,11 @@
          if(param1)
          {
             _loc2_ = getMission(param1.ID);
-			if (_loc2_)
-		    {
-				return _loc2_.mState == Mission.STATE_REWARDS_COLLECTED;
-			} else {
-				return false // ducktape fix
-			}
+            if(_loc2_)
+            {
+               return _loc2_.mState == Mission.STATE_REWARDS_COLLECTED;
+            }
+            return false;
          }
          return true;
       }
@@ -340,22 +317,22 @@
       
       public static function isTutorialCompleted() : Boolean
       {
-         var _loc2_:Boolean = false;
-         var _loc1_:String = String(GameState.mConfig.PlayerStartValues.Default.TutorialEndMission.ID);
-         _loc2_ = Cookie.readCookieVariable(Config.COOKIE_SESSION_NAME,Config.COOKIE_SESSION_NAME_TUTOTRIAL_INDEX);
-         if(_loc2_)
+         var _loc1_:Boolean = false;
+         var _loc2_:String = String(GameState.mConfig.PlayerStartValues.Default.TutorialEndMission.ID);
+         _loc1_ = Cookie.readCookieVariable(Config.COOKIE_SESSION_NAME,Config.COOKIE_SESSION_NAME_TUTOTRIAL_INDEX);
+         if(_loc1_)
          {
-            return _loc2_;
+            return _loc1_;
          }
-         if(!_loc2_)
+         if(!_loc1_)
          {
-            _loc2_ = mCompletedMissionsGlobal.indexOf(_loc1_) >= 0 || Boolean(mMissions[getMissionIndexFromID(_loc1_)]) && (mMissions[getMissionIndexFromID(_loc1_)] as Mission).mState == Mission.STATE_REWARDS_COLLECTED;
-            if(_loc2_)
+            _loc1_ = mCompletedMissionsGlobal.indexOf(_loc2_) >= 0 || Boolean(mMissions[getMissionIndexFromID(_loc2_)]) && (mMissions[getMissionIndexFromID(_loc2_)] as Mission).mState == Mission.STATE_REWARDS_COLLECTED;
+            if(_loc1_)
             {
-               Cookie.saveCookieVariable(Config.COOKIE_SESSION_NAME,Config.COOKIE_SESSION_NAME_TUTOTRIAL_INDEX,_loc2_);
+               Cookie.saveCookieVariable(Config.COOKIE_SESSION_NAME,Config.COOKIE_SESSION_NAME_TUTOTRIAL_INDEX,_loc1_);
             }
          }
-         return _loc2_;
+         return _loc1_;
       }
       
       public static function showTutor() : Boolean
@@ -422,6 +399,16 @@
                _loc2_ = String(_loc3_.ID);
                return mCompletedMissionsGlobal.indexOf(_loc2_) < 0 && !(mMissions[getMissionIndexFromID(_loc2_)] && (mMissions[getMissionIndexFromID(_loc2_)] as Mission).mState == Mission.STATE_REWARDS_COLLECTED);
             }
+            _loc3_ = GameState.mConfig.MapSetup[param1].UnlockLevel;
+            if(_loc3_)
+            {
+               return GameState.mInstance.mPlayerProfile.mLevel < _loc3_;
+            }
+            _loc3_ = GameState.mConfig.MapSetup[param1].UnlockBadassLevel;
+            if(_loc3_)
+            {
+               return GameState.mInstance.mPlayerProfile.mBadassLevel < _loc3_;
+            }
             return false;
          }
          return true;
@@ -454,39 +441,41 @@
       
       public static function setupFromServer(param1:ServerCall) : void
       {
-         var _loc5_:Array = null;
-         var _loc4_:Mission = null;
+         var _loc2_:Array = null;
+         var _loc3_:Mission = null;
+         var _loc4_:int = 0;
+         var _loc5_:* = null;
          var _loc6_:int = 0;
          var _loc7_:* = null;
-         var _loc8_:int = 0;
-         var _loc9_:* = null;
          if(param1 == null)
          {
             return;
          }
-         var _loc2_:Array = param1.mData.missions_all_complete;
-         if(_loc2_)
+         var _loc8_:Array = param1.mData.missions_all_complete;
+         if(_loc8_)
          {
-            _loc6_ = 0;
-            while(_loc6_ < _loc2_.length)
+            _loc4_ = 0;
+            while(_loc4_ < _loc8_.length)
             {
-               mCompletedMissionsGlobal[_loc6_] = _loc2_[_loc6_];
-               _loc6_++;
+               mCompletedMissionsGlobal[_loc4_] = _loc8_[_loc4_];
+               _loc4_++;
             }
          }
-         var _loc3_:Array = param1.mData.missions_finished;
-         if(_loc3_)
+         var _loc9_:Array = param1.mData.missions_finished;
+         if(_loc9_)
          {
-            for each(_loc7_ in _loc3_)
+            for each(_loc5_ in _loc9_)
             {
-               if(_loc4_ = getMission(_loc7_.mission_id))
+               _loc3_ = getMission(_loc5_.mission_id);
+               if(_loc3_)
                {
-                  _loc4_.mState = Mission.STATE_REWARDS_COLLECTED;
-                  if(_loc4_.mType == Mission.TYPE_RANK)
+                  _loc3_.mState = Mission.STATE_REWARDS_COLLECTED;
+                  if(_loc3_.mType == Mission.TYPE_RANK)
                   {
-                     if((_loc8_ = RankManager.getIndexOfMission(_loc4_) + 1) > GameState.mInstance.mPlayerProfile.mRankIdx)
+                     _loc6_ = RankManager.getIndexOfMission(_loc3_) + 1;
+                     if(_loc6_ > GameState.mInstance.mPlayerProfile.mRankIdx)
                      {
-                        GameState.mInstance.mPlayerProfile.mRankIdx = _loc8_;
+                        GameState.mInstance.mPlayerProfile.mRankIdx = _loc6_;
                      }
                   }
                }
@@ -495,17 +484,19 @@
                }
             }
          }
-         if(_loc5_ = param1.mData.missions_incomplete)
+         _loc2_ = param1.mData.missions_incomplete;
+         if(_loc2_)
          {
-            for each(_loc9_ in _loc5_)
+            for each(_loc7_ in _loc2_)
             {
-               if(_loc4_ = getMission(_loc9_.mission_id))
+               _loc3_ = getMission(_loc7_.mission_id);
+               if(_loc3_)
                {
-					 _loc4_.setup(_loc9_);
+                  _loc3_.setup(_loc7_);
                }
                else
                {
-                  Utils.LogError("Trying to setup unknown mission \"" + _loc7_.mission_id);
+                  Utils.LogError("Trying to setup unknown mission \"" + _loc5_.mission_id);
                }
             }
          }
@@ -609,3 +600,4 @@
       }
    }
 }
+

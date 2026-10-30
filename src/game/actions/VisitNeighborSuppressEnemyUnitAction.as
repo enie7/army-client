@@ -16,7 +16,6 @@ package game.actions
    
    public class VisitNeighborSuppressEnemyUnitAction extends Action
    {
-       
       
       private var mSuppressMortar:FriendSuppressObject;
       
@@ -71,7 +70,7 @@ package game.actions
          {
             return;
          }
-         if(mTarget == null || !mTarget.isAlive() || (mTarget as EnemyUnit).mCurrentAction || (mTarget as EnemyUnit).getHealth() == 0)
+         if(Boolean(mTarget == null || !mTarget.isAlive()) || Boolean((mTarget as EnemyUnit).mCurrentAction) || (mTarget as EnemyUnit).getHealth() == 0)
          {
             mSkipped = true;
             return;
@@ -93,65 +92,65 @@ package game.actions
       
       private function execute() : void
       {
-         var _loc13_:Item = null;
-         var _loc1_:GameState = GameState.mInstance;
-         var _loc2_:IsometricScene = _loc1_.mScene;
-         var _loc3_:GamePlayerProfile = _loc1_.mPlayerProfile;
-         var _loc4_:EnemyUnit = mTarget as EnemyUnit;
-         var _loc5_:Object;
-         var _loc6_:int = int((_loc5_ = GameState.mConfig.AllyAction.SuppressEnemyUnit).Damage);
-         var _loc7_:* = _loc4_.getHealth() - _loc6_ <= 0;
-         var _loc8_:int = int(_loc5_.RewardSocialXP);
-         var _loc9_:int = _loc4_.mHitRewardMoney;
-         var _loc10_:int = _loc4_.mHitRewardSupplies;
-         var _loc11_:int = _loc4_.mHitRewardEnergy;
-         if(_loc7_)
+         var _loc6_:Object = null;
+         var _loc1_:Item = null;
+         var _loc2_:GameState = GameState.mInstance;
+         var _loc3_:IsometricScene = _loc2_.mScene;
+         var _loc4_:GamePlayerProfile = _loc2_.mPlayerProfile;
+         var _loc5_:EnemyUnit = mTarget as EnemyUnit;
+         var _loc7_:int = int((_loc6_ = GameState.mConfig.AllyAction.SuppressEnemyUnit).Damage);
+         var _loc8_:* = _loc5_.getHealth() - _loc7_ <= 0;
+         var _loc9_:int = int(_loc6_.RewardSocialXP);
+         var _loc10_:int = _loc5_.mHitRewardMoney;
+         var _loc11_:int = _loc5_.mHitRewardSupplies;
+         var _loc12_:int = _loc5_.mHitRewardEnergy;
+         if(_loc8_)
          {
-            _loc9_ += _loc4_.mKillRewardMoney;
-            _loc10_ += _loc4_.mKillRewardSupplies;
-            _loc11_ += _loc4_.mKillRewardEnergy;
+            _loc10_ += _loc5_.mKillRewardMoney;
+            _loc11_ += _loc5_.mKillRewardSupplies;
+            _loc12_ += _loc5_.mKillRewardEnergy;
          }
-         _loc3_.increaseEnergyRewardCounter(_loc11_);
-         var _loc12_:int = _loc3_.getBonusEnergy();
-         _loc2_.addLootReward(ItemManager.getItem("SocialXP","Resource"),_loc8_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Money","Resource"),_loc9_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc10_,_loc4_.getContainer());
-         _loc2_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc12_,_loc4_.getContainer());
-         var _loc14_:int = _loc3_.mRewardDropsCounter;
-         if(_loc7_)
+         _loc4_.increaseEnergyRewardCounter(_loc12_);
+         var _loc13_:int = _loc4_.getBonusEnergy();
+         _loc3_.addLootReward(ItemManager.getItem("SocialXP","Resource"),_loc9_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Money","Resource"),_loc10_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc11_,_loc5_.getContainer());
+         _loc3_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc13_,_loc5_.getContainer());
+         var _loc14_:int = _loc4_.mRewardDropsCounter;
+         if(_loc8_)
          {
-            _loc13_ = (_loc4_.mItem as TargetItem).getRandomItemDrop();
-            _loc2_.addLootReward(_loc13_,1,mTarget.getContainer());
+            _loc1_ = (_loc5_.mItem as TargetItem).getRandomItemDrop();
+            _loc3_.addLootReward(_loc1_,1,mTarget.getContainer());
          }
-         _loc4_.getCell().mNeighborActionAvailable = false;
-         _loc4_.handleSuppress();
-         _loc3_.addNeighborActions(-1);
-         MissionManager.increaseCounter("HelpNeighborSuppress",_loc4_,1);
-         var _loc15_:GridCell = _loc4_.getCell();
+         _loc5_.getCell().mNeighborActionAvailable = false;
+         _loc5_.handleSuppress();
+         _loc4_.addNeighborActions(-1);
+         MissionManager.increaseCounter("HelpNeighborSuppress",_loc5_,1);
+         var _loc15_:GridCell = _loc5_.getCell();
          var _loc16_:Object = {
             "coord_x":_loc15_.mPosI,
             "coord_y":_loc15_.mPosJ,
-            "item_hit_points":_loc6_,
-            "neighbor_user_id":_loc1_.mVisitingFriend.mUserID,
-            "reward_social_xp":_loc8_,
-            "reward_money":_loc9_,
-            "reward_supplies":_loc10_,
-            "reward_energy":_loc11_,
+            "item_hit_points":_loc7_,
+            "neighbor_user_id":_loc2_.mVisitingFriend.mUserID,
+            "reward_social_xp":_loc9_,
+            "reward_money":_loc10_,
+            "reward_supplies":_loc11_,
+            "reward_energy":_loc12_,
             "neighbor_counter":"Suppress",
-            "target_type":ItemManager.getTableNameForItem(_loc4_.mItem),
-            "target_id":_loc4_.mItem.mId
+            "target_type":ItemManager.getTableNameForItem(_loc5_.mItem),
+            "target_id":_loc5_.mItem.mId
          };
-         if(_loc7_)
+         if(_loc8_)
          {
-            _loc16_.reward_drop_seed_term = _loc3_.mRewardDropSeedTerm;
+            _loc16_.reward_drop_seed_term = _loc4_.mRewardDropSeedTerm;
             _loc16_.reward_drops_counter = _loc14_;
          }
-         if(_loc13_)
+         if(_loc1_)
          {
-            _loc16_.reward_item_type = ItemManager.getTableNameForItem(_loc13_);
-            _loc16_.reward_item_id = _loc13_.mId;
+            _loc16_.reward_item_type = ItemManager.getTableNameForItem(_loc1_);
+            _loc16_.reward_item_id = _loc1_.mId;
          }
-         if(_loc1_.visitingTutor())
+         if(_loc2_.visitingTutor())
          {
             _loc16_.tutor_map = 2;
          }
@@ -162,3 +161,4 @@ package game.actions
       }
    }
 }
+

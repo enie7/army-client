@@ -29,7 +29,6 @@ package game.gameElements
       public static const STATE_DESTROYED:int = 3;
       
       public static const TYPE_MORTAR_PIT:String = "MortarPit";
-       
       
       protected var mState:int;
       
@@ -62,6 +61,7 @@ package game.gameElements
       public function PlayerInstallationObject(param1:int, param2:IsometricScene, param3:MapItem)
       {
          var _loc4_:PlayerInstallationItem = null;
+         _loc4_ = null;
          super(param1,param2,param3);
          _loc4_ = param3 as PlayerInstallationItem;
          this.mActionQueue = new ActionQueue();
@@ -241,13 +241,14 @@ package game.gameElements
       
       public function setHealth(param1:int) : void
       {
-         var _loc4_:IsometricScene = null;
-         var _loc2_:int = this.mHealth;
-         var _loc3_:int = Math.max(0,Math.min(this.mMaxHealth,param1));
-         if(_loc2_ != _loc3_)
+         var _loc2_:IsometricScene = null;
+         var _loc3_:int = this.mHealth;
+         var _loc4_:int = Math.max(0,Math.min(this.mMaxHealth,param1));
+         if(_loc3_ != _loc4_)
          {
-            (_loc4_ = GameState.mInstance.mScene).decrementViewersForInstallation(this,this.getSightRangeAccordingToCondition());
-            if(_loc3_ > 0)
+            _loc2_ = GameState.mInstance.mScene;
+            _loc2_.decrementViewersForInstallation(this,this.getSightRangeAccordingToCondition());
+            if(_loc4_ > 0)
             {
                if(this.mHealth == 0)
                {
@@ -262,12 +263,12 @@ package game.gameElements
             {
                this.remove();
             }
-            this.mHealth = _loc3_;
-            _loc4_.incrementViewersForInstallation(this,this.getSightRangeAccordingToCondition());
+            this.mHealth = _loc4_;
+            _loc2_.incrementViewersForInstallation(this,this.getSightRangeAccordingToCondition());
          }
-         else if(_loc2_ == 0)
+         else if(_loc3_ == 0)
          {
-            if(_loc3_ == 0)
+            if(_loc4_ == 0)
             {
                this.mNewState = STATE_DESTROYED;
             }
@@ -425,8 +426,9 @@ package game.gameElements
       
       public function destroyPermanently() : void
       {
-         this.mState = STATE_DESTROYED;
+         this.mState = STATE_WRECKING;
          this.mDestroyedPermanently = true;
+         this.destroy();
       }
       
       public function getState() : int
@@ -440,3 +442,4 @@ package game.gameElements
       }
    }
 }
+

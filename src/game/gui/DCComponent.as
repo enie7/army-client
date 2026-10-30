@@ -12,6 +12,8 @@ package game.gui
    public class DCComponent extends MovieClip
    {
       
+      public static var mIsModalWindowOpen:Boolean;
+      
       public static const EVENT_WINDOW_CLOSED:String = "EVENT_WINDOW_CLOSED";
       
       public static const COMPONENT_FRAME_NAME_INTRO:String = "In";
@@ -26,8 +28,6 @@ package game.gui
       
       public static var MODAL_ALPHA_RECTANGLE_ALPHA_VALUE:Number = 0.6;
       
-      public static var mIsModalWindowOpen:Boolean;
-      
       private static const FADE_DURATION:int = 500;
       
       public static const STATE_UNDEFINED:int = 0;
@@ -39,7 +39,6 @@ package game.gui
       public static const STATE_CLOSING:int = 3;
       
       protected static var smNumberModalWindowsOpen:int = 0;
-       
       
       private var mModalSquare:Sprite;
       
@@ -78,18 +77,18 @@ package game.gui
       
       protected function setModal() : void
       {
+         var _loc1_:int = 0;
          var _loc2_:int = 0;
-         var _loc3_:int = 0;
          this.mIsModal = true;
-         var _loc1_:DisplayObject = this.mParent.getChildByName(INSTANCE_NAME_MODAL_SQUARE) as DisplayObject;
-         if(_loc1_ == null)
+         var _loc3_:DisplayObject = this.mParent.getChildByName(INSTANCE_NAME_MODAL_SQUARE) as DisplayObject;
+         if(_loc3_ == null)
          {
-            _loc2_ = Math.min(this.mParent.width,this.mParent.width);
-            _loc3_ = Math.min(this.mParent.height,this.mParent.height);
+            _loc1_ = Math.min(this.mParent.width,this.mParent.width);
+            _loc2_ = Math.min(this.mParent.height,this.mParent.height);
             this.mCustomModalSquare = new Sprite();
             this.mCustomModalSquare.name = INSTANCE_NAME_MODAL_SQUARE;
             this.mCustomModalSquare.graphics.beginFill(MODAL_ALPHA_RECTANGLE_COLOR);
-            this.mCustomModalSquare.graphics.drawRect(0,0,_loc2_,_loc3_);
+            this.mCustomModalSquare.graphics.drawRect(0,0,_loc1_,_loc2_);
             if(this.mOpenAnimation)
             {
                this.mCustomModalSquare.alpha = 0;
@@ -109,10 +108,10 @@ package game.gui
          }
          else
          {
-            this.mModalSquareChildIndex = this.mParent.getChildIndex(_loc1_);
-            this.mParent.setChildIndex(_loc1_,this.mParent.numChildren - 1);
+            this.mModalSquareChildIndex = this.mParent.getChildIndex(_loc3_);
+            this.mParent.setChildIndex(_loc3_,this.mParent.numChildren - 1);
          }
-         this.mModalSquare = _loc1_ as Sprite;
+         this.mModalSquare = _loc3_ as Sprite;
          mIsModalWindowOpen = true;
          ++smNumberModalWindowsOpen;
       }
@@ -127,7 +126,7 @@ package game.gui
          var _loc1_:DisplayObject = null;
          var _loc2_:Boolean = false;
          var _loc3_:int = 0;
-         var _loc4_:int = 0;
+         var _loc4_:* = 0;
          var _loc5_:DisplayObject = null;
          if(this.isModal())
          {
@@ -145,10 +144,11 @@ package game.gui
                {
                   _loc2_ = false;
                   _loc3_ = this.mParent.getChildIndex(_loc1_);
-                  _loc4_ = this.mParent.numChildren - 1;
+                  _loc4_ = int(this.mParent.numChildren - 1);
                   while(_loc4_ >= 0)
                   {
-                     if((_loc5_ = this.mParent.getChildAt(_loc4_)) is PopUpWindow && _loc5_ != this)
+                     _loc5_ = this.mParent.getChildAt(_loc4_);
+                     if(_loc5_ is PopUpWindow && _loc5_ != this)
                      {
                         if(_loc4_ > 0 && !(this.mParent.getChildAt(_loc4_ - 1) is PopUpWindow) && this.mParent.getChildAt(_loc4_ - 1) != _loc1_)
                         {
@@ -316,3 +316,4 @@ package game.gui
       }
    }
 }
+

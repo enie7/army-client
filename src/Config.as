@@ -1,4 +1,4 @@
-﻿package
+package
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.events.Event;
@@ -11,6 +11,18 @@
    
    public class Config
    {
+      
+      public static var OUTSIDE_FACEBOOK_MODE:Boolean;
+      
+      public static var smLanguageCode:String;
+      
+      public static var smUserId:String;
+      
+      private static var mLoader:URLLoader;
+      
+      public static var smSignedRequest:String;
+      
+      public static var macAddress:String;
       
       public static var RESTART_STATUS:int = -1;
       
@@ -80,8 +92,6 @@
       
       public static var OFFLINE_MODE:Boolean = true;
       
-      public static var OUTSIDE_FACEBOOK_MODE:Boolean;
-      
       public static const DETAILED_ERROR_MSG_ENABLED:Boolean = true;
       
       public static const DETAILED_ERROR_MSG_CODE:String = "DETAILS";
@@ -95,19 +105,19 @@
       public static const BUTTON_USE_HAND_CURSOR:Boolean = true;
       
       public static const CHECK_FOR_MISPLACED_DEBRIS:Boolean = true;
-	  
-      public static const MOBILE_MODE:Boolean = false; // SHOULD NOT BE USED
-	  
-      public static const USE_DISCORD_RPC:Boolean = false; // SHOULD NOT BE USED
-	  
-      public static const BUILD_WITH_AIR:Boolean = false; // SHOULD NOT BE USED
+      
+      public static const MOBILE_MODE:Boolean = false;
+      
+      public static const USE_DISCORD_RPC:Boolean = false;
+      
+      public static const BUILD_WITH_AIR:Boolean = false;
       
       public static const COOKIE_SETTINGS_NAME:String = "Settings";
       
       public static const COOKIE_SETTINGS_NAME_MUSIC:String = "Music";
       
       public static const COOKIE_SETTINGS_NAME_SFX:String = "Sfx";
-	  
+      
       public static const COOKIE_SETTINGS_NAME_ANIMATION:String = "Animation";
       
       public static const COOKIE_SETTINGS_NAME_NOTIFICATION:String = "Notification";
@@ -174,15 +184,7 @@
       
       public static const TEXT_FORMAT:TextFormat = new TextFormat("Arial",12,65535,true);
       
-      public static var smLanguageCode:String;
-      
-      public static var smUserId:String;
-      
-      private static var mLoader:URLLoader;
-      
       private static var mLoadingComplete:Boolean = true;
-      
-      public static var smSignedRequest:String;
       
       public static var smLoadingDescription:String = "Loading...";
       
@@ -191,9 +193,6 @@
       private static const LANGUAGES:String = "en,de,fr,it,es";
       
       public static var FOR_IPHONE_PLATFORM:Boolean = false;
-      
-      public static var macAddress:String;
-       
       
       public function Config()
       {
@@ -211,13 +210,13 @@
       
       public static function getAppVersion() : String
       {
-		return "1";
+         return "1";
       }
       
       public static function init() : void
       {
-         var _loc2_:Array = null;
-         var _loc7_:String = null;
+         var _loc1_:Array = null;
+         var _loc2_:String = null;
          if(DEBUG_MODE)
          {
          }
@@ -228,19 +227,20 @@
          if(DEBUG_MODE)
          {
          }
-         var _loc1_:String = LANGUAGES;
-         var _loc3_:int = int((_loc2_ = _loc1_.split(",")).length);
-         var _loc4_:String = Capabilities.language;
-         var _loc8_:int = 0;
-         while(_loc8_ < _loc3_)
+         var _loc3_:String = LANGUAGES;
+         var _loc4_:int = int((_loc1_ = _loc3_.split(",")).length);
+         var _loc5_:String = Capabilities.language;
+         var _loc6_:int = 0;
+         while(_loc6_ < _loc4_)
          {
-            if((_loc7_ = String(_loc2_[_loc8_])) == _loc4_)
+            _loc2_ = String(_loc1_[_loc6_]);
+            if(_loc2_ == _loc5_)
             {
-               smLanguageCode = _loc4_;
+               smLanguageCode = _loc5_;
                break;
             }
             smLanguageCode = "en";
-            _loc8_++;
+            _loc6_++;
          }
          SCREEN_WIDTH = GameState.mInstance.getStageWidth();
          SCREEN_HEIGHT = GameState.mInstance.getStageHeight();
@@ -297,3 +297,4 @@
       }
    }
 }
+

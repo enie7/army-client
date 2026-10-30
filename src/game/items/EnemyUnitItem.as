@@ -2,7 +2,6 @@ package game.items
 {
    public class EnemyUnitItem extends TargetItem
    {
-       
       
       public var mProjectileClassStr:String;
       
@@ -25,8 +24,6 @@ package game.items
       public var mWeaponType:String;
       
       public var mPassableGroups:Array;
-      
-      public var mPermanentDestroyArray:Array;
       
       public var mWinRewardMoney:int;
       
@@ -52,19 +49,6 @@ package game.items
          this.mWinRewardBadass = param1.WinRewardBadAss;
          this.mHitRewardBadassXP = param1.HitRewardBadAss;
          this.mKillRewardBadassXP = param1.KillRewardBadAss;
-         this.mPermanentDestroyArray = null;
-         if(param1.PermanentDestroyArray)
-         {
-            if(param1.PermanentDestroyArray is Array)
-            {
-               this.mPermanentDestroyArray = param1.PermanentDestroyArray;
-            }
-            else
-            {
-               this.mPermanentDestroyArray = new Array();
-               this.mPermanentDestroyArray.push(param1.PermanentDestroyArray);
-            }
-         }
          if(param1.PassableGroups is Array)
          {
             this.mPassableGroups = param1.PassableGroups;
@@ -124,3 +108,4 @@ package game.items
       }
    }
 }
+

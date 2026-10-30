@@ -28,7 +28,6 @@ package game.gameElements
    {
       
       public static var mLiberationMovie:MovieClip;
-       
       
       public const FRAME_PLAYER_PRODUCING:int = 3;
       
@@ -56,7 +55,7 @@ package game.gameElements
       
       override public function graphicsLoaded(param1:Sprite) : void
       {
-         var _loc3_:Matrix = null;
+         var _loc2_:Matrix = null;
          super.graphicsLoaded(param1);
          (param1 as MovieClip).gotoAndStop(this.FRAME_ENEMY_CONTROL);
          this.mFlagPole = (param1 as MovieClip).getChildByName("Flagpole") as MovieClip;
@@ -67,55 +66,57 @@ package game.gameElements
          this.mCityName.text = mItem.mName;
          if(LocalizationUtils.languageHasSpecialCharacters())
          {
-            _loc3_ = this.mNameSign.transform.matrix;
-            _loc3_.a = 1;
-            _loc3_.b = 0;
-            _loc3_.c = 0;
-            _loc3_.d = 1;
-            this.mNameSign.transform.matrix = _loc3_;
+            _loc2_ = this.mNameSign.transform.matrix;
+            _loc2_.a = 1;
+            _loc2_.b = 0;
+            _loc2_.c = 0;
+            _loc2_.d = 1;
+            this.mNameSign.transform.matrix = _loc2_;
             LocalizationUtils.replaceFont(this.mCityName);
          }
-         var _loc2_:ObjectLoader = GameState.mInstance.mScene.getObjectLoader();
-         this.mCloudedGraphicVersion = _loc2_[mItem.mLoader](PermanentHFEItem(mItem).mCloudedGraphicsFile,PermanentHFEItem(mItem).mCloudedGraphics);
+         var _loc3_:ObjectLoader = GameState.mInstance.mScene.getObjectLoader();
+         this.mCloudedGraphicVersion = _loc3_[mItem.mLoader](PermanentHFEItem(mItem).mCloudedGraphicsFile,PermanentHFEItem(mItem).mCloudedGraphics);
          this.setHealth(mHealth);
          GameState.mInstance.mScene.mTilemapGraphic.updatePermanentHFEs();
       }
       
       override public function setHealth(param1:int) : void
       {
-         var _loc3_:Array = null;
-         var _loc4_:GridCell = null;
+         var _loc2_:Array = null;
+         var _loc3_:GridCell = null;
+         var _loc4_:int = 0;
          var _loc5_:int = 0;
-         var _loc6_:int = 0;
-         var _loc7_:Array = null;
-         var _loc8_:GridCell = null;
+         var _loc6_:Array = null;
+         var _loc7_:GridCell = null;
+         var _loc8_:int = 0;
          var _loc9_:int = 0;
-         var _loc10_:int = 0;
-         var _loc2_:* = getHealth() == 0;
+         var _loc10_:* = getHealth() == 0;
          super.setHealth(param1);
          if(getHealth() > 0)
          {
-            if(_loc2_)
+            if(_loc10_)
             {
-               _loc3_ = GameState.mInstance.mScene.getTilesUnderObject(this);
-               _loc5_ = int(_loc3_.length);
-               _loc6_ = 0;
-               while(_loc6_ < _loc5_)
+               _loc2_ = GameState.mInstance.mScene.getTilesUnderObject(this);
+               _loc4_ = int(_loc2_.length);
+               _loc5_ = 0;
+               while(_loc5_ < _loc4_)
                {
-                  (_loc4_ = _loc3_[_loc6_] as GridCell).mOwner = MapData.TILE_OWNER_FRIENDLY;
-                  _loc6_++;
+                  _loc3_ = _loc2_[_loc5_] as GridCell;
+                  _loc3_.mOwner = MapData.TILE_OWNER_FRIENDLY;
+                  _loc5_++;
                }
                GameState.mInstance.mMapData.mUpdateRequired = true;
             }
          }
          else
          {
-            _loc9_ = int((_loc7_ = GameState.mInstance.mScene.getTilesUnderObject(this)).length);
-            _loc10_ = 0;
-            while(_loc10_ < _loc9_)
+            _loc8_ = int((_loc6_ = GameState.mInstance.mScene.getTilesUnderObject(this)).length);
+            _loc9_ = 0;
+            while(_loc9_ < _loc8_)
             {
-               (_loc8_ = _loc7_[_loc10_] as GridCell).mOwner = MapData.TILE_OWNER_ENEMY;
-               _loc10_++;
+               _loc7_ = _loc6_[_loc9_] as GridCell;
+               _loc7_.mOwner = MapData.TILE_OWNER_ENEMY;
+               _loc9_++;
             }
             GameState.mInstance.mMapData.mUpdateRequired = true;
             removeProduction();
@@ -138,7 +139,7 @@ package game.gameElements
             {
                GameState.mInstance.mMapData.mUpdateRequired = true;
                this.mFlagPole.visible = false;
-               if(mProduction && !mProduction.isReady() && !mProduction.isWithered() && !GameState.mInstance.visitingFriend() && FeatureTuner.USE_CITY_PRODUCTION_SMOKE_EFFECT)
+               if(Boolean(mProduction && !mProduction.isReady() && !mProduction.isWithered()) && Boolean(!GameState.mInstance.visitingFriend()) && FeatureTuner.USE_CITY_PRODUCTION_SMOKE_EFFECT)
                {
                   _loc1_.gotoAndStop(this.FRAME_PLAYER_PRODUCING);
                }
@@ -256,12 +257,13 @@ package game.gameElements
       
       override public function setProduction(param1:String) : void
       {
+         var _loc4_:GamePlayerProfile = null;
          super.setProduction(param1);
          mState = STATE_PRODUCING;
          var _loc2_:Object = MapItem(mItem).getCraftingObjectByID(param1);
          var _loc3_:int = int(_loc2_.CostSupplies);
-         var _loc4_:GamePlayerProfile;
-         (_loc4_ = GameState.mInstance.mPlayerProfile).addSupplies(-_loc3_,MagicBoxTracker.LABEL_CITY_SUPPLY_CONVERSION,MagicBoxTracker.paramsObj((mItem as MapItem).mType,(mItem as MapItem).mId));
+         _loc4_ = GameState.mInstance.mPlayerProfile;
+         _loc4_.addSupplies(-_loc3_,MagicBoxTracker.LABEL_CITY_SUPPLY_CONVERSION,MagicBoxTracker.paramsObj((mItem as MapItem).mType,(mItem as MapItem).mId));
          var _loc5_:GridCell = getCell();
          var _loc6_:Object = {
             "coord_x":_loc5_.mPosI,
@@ -357,7 +359,8 @@ package game.gameElements
       
       override public function isHarvestingOver() : Boolean
       {
-         return super.isHarvestingOver() || mState == STATE_READY;
+         return Boolean(super.isHarvestingOver()) || mState == STATE_READY;
       }
    }
 }
+

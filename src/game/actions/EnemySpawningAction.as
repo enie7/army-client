@@ -9,6 +9,7 @@ package game.actions
    import game.items.ItemManager;
    import game.items.MapItem;
    import game.net.ServiceIDs;
+   import game.sound.ArmySoundManager;
    import game.states.GameState;
    
    public class EnemySpawningAction extends Action
@@ -21,7 +22,6 @@ package game.actions
       protected static const STATE_ENDING:int = 2;
       
       protected static const STATE_OVER:int = 3;
-       
       
       protected var mState:int;
       
@@ -180,9 +180,11 @@ package game.actions
          var _loc1_:MapItem = ItemManager.getItem((mActor as EnemyInstallationObject).mSpawnEnemy,"EnemyUnit") as MapItem;
          if(_loc1_)
          {
+            ArmySoundManager.getInstance().playSound(ArmySoundManager.SFX_DROID_STATION_SPAWN);
             GameState.mInstance.spawnEnemy(_loc1_,this.mSpawnTile);
          }
          this.mNewState = STATE_OVER;
       }
    }
 }
+

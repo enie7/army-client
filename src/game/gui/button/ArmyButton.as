@@ -14,7 +14,6 @@ package game.gui.button
       public static const BUTTON_PADDING:int = 30;
       
       public static const MAX_BUTTON_WIDTH_DEFAULT:int = 120;
-       
       
       protected var mMaxWidth:int;
       
@@ -61,11 +60,11 @@ package game.gui.button
          super.setText(param1,param2);
          var _loc3_:TextField = mButton.getChildByName("Text_Background_01") as TextField;
          var _loc4_:TextField = mButton.getChildByName("Text_Background_02") as TextField;
-         if(_loc3_ && param1 != null && param1 != "")
+         if(Boolean(_loc3_) && Boolean(param1 != null) && param1 != "")
          {
             _loc3_.text = param1;
          }
-         if(_loc4_ && param1 != null && param1 != "")
+         if(Boolean(_loc4_) && Boolean(param1 != null) && param1 != "")
          {
             _loc4_.text = param1;
          }
@@ -82,3 +81,4 @@ package game.gui.button
       }
    }
 }
+

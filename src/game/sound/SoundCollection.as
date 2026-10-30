@@ -6,7 +6,6 @@ package game.sound
    {
       
       public static const DEBUG_SOUND:Boolean = false;
-       
       
       public var mInitialized:Boolean;
       
@@ -50,7 +49,7 @@ package game.sound
       
       public function getSound() : String
       {
-         var _loc2_:String = null;
+         var _loc1_:String = null;
          if(this.mEmpty)
          {
             if(Config.DEBUG_MODE)
@@ -58,66 +57,71 @@ package game.sound
             }
             return "";
          }
-         var _loc1_:String = null;
+         var _loc2_:String = null;
          if(Boolean(this.mLoadedNames) && this.mLoadedNames.length > 0)
          {
             if(this.mLoadedNames.length == 1)
             {
-               _loc1_ = this.mLoadedNames[0];
+               _loc2_ = this.mLoadedNames[0];
             }
             else
             {
-               _loc1_ = this.mLoadedNames[int(Math.random() * this.mLoadedNames.length)];
+               _loc2_ = this.mLoadedNames[int(Math.random() * this.mLoadedNames.length)];
             }
          }
          else if(this.mPlaceHolder)
          {
-            _loc1_ = this.mPlaceHolder;
+            _loc2_ = this.mPlaceHolder;
          }
          if(DEBUG_SOUND)
          {
-            for each(_loc2_ in this.mLoadedNames)
+            for each(_loc1_ in this.mLoadedNames)
             {
             }
          }
-         return _loc1_;
+         return _loc2_;
       }
       
       private function loadSound(param1:String, param2:Boolean = false) : void
       {
-         var _loc4_:PlayableSoundObject = null;
-         var _loc6_:int = 0;
+         var _loc6_:Array = null;
+         var _loc3_:PlayableSoundObject = null;
+         var _loc4_:int = 0;
          if(DEBUG_SOUND)
          {
          }
-         var _loc3_:ArmySoundManager = ArmySoundManager.getInstance();
-         var _loc5_:Array;
-         if(!(_loc5_ = ArmySoundManager.smLoadedSounds)[param1])
+         var _loc5_:ArmySoundManager = ArmySoundManager.getInstance();
+         _loc6_ = ArmySoundManager.smLoadedSounds;
+         if(!_loc6_[param1])
          {
-            if((Boolean(_loc4_ = _loc3_.addExternalSound(Config.DIR_DATA + param1,param1,ArmySoundManager.TYPE_SFX))) && !_loc4_.mLoaded)
+            if(Boolean(_loc3_ = _loc5_.addExternalSound(Config.DIR_DATA + param1,param1,ArmySoundManager.TYPE_SFX)) && !_loc3_.mLoaded)
             {
                if(param2)
                {
-                  _loc4_.addEventListener(Event.COMPLETE,this.placeholderLoaded);
+                  _loc3_.addEventListener(Event.COMPLETE,this.placeholderLoaded);
                }
                else
                {
-                  _loc4_.addEventListener(Event.COMPLETE,this.soundLoaded);
+                  _loc3_.addEventListener(Event.COMPLETE,this.soundLoaded);
                }
             }
          }
-         if(_loc4_ && _loc4_.mLoaded || Boolean(_loc5_[param1]))
+         if(Boolean(_loc3_) && Boolean(_loc3_.mLoaded) || Boolean(_loc6_[param1]))
          {
             if(param2)
             {
                this.loadCollection();
             }
-            else if((_loc6_ = this.mLoadedNames.indexOf(param1)) < 0)
+            else
             {
-               this.mLoadedNames.push(param1);
-               if(this.mLoadedNames.length >= this.mCollection.length)
+               _loc4_ = this.mLoadedNames.indexOf(param1);
+               if(_loc4_ < 0)
                {
-                  this.mAllLoaded = true;
+                  this.mLoadedNames.push(param1);
+                  if(this.mLoadedNames.length >= this.mCollection.length)
+                  {
+                     this.mAllLoaded = true;
+                  }
                }
             }
          }
@@ -161,7 +165,7 @@ package game.sound
             return;
          }
          var _loc2_:int = int(this.mCollection.length);
-         var _loc3_:int = 0;
+         var _loc3_:* = 0;
          while(_loc3_ < _loc2_)
          {
             _loc1_ = this.mCollection[_loc3_] as String;
@@ -171,3 +175,4 @@ package game.sound
       }
    }
 }
+

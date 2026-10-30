@@ -17,7 +17,6 @@ package game.gui.popups
    
    public class UnlockItemByBuildingWindow extends PopUpWindow
    {
-       
       
       private var mButtonCancel:ArmyButton;
       
@@ -35,15 +34,17 @@ package game.gui.popups
       
       public function Activate(param1:Function, param2:ShopItem) : void
       {
+         var _loc4_:TextFormat = null;
+         var _loc5_:TextField = null;
          var _loc3_:StylizedHeaderClip = null;
          mDoneCallback = param1;
          this.mItem = param2;
          _loc3_ = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip,param2.mName);
-         var _loc5_:TextFormat;
-         var _loc4_:TextField;
-         (_loc5_ = (_loc4_ = mClip.getChildByName("Text_Description") as TextField).defaultTextFormat).size = int(_loc5_.size) + 5;
-         _loc4_.defaultTextFormat = _loc5_;
-         _loc4_.text = GameState.getText("MENU_DESC_UNLOCK_ITEM_BUILDING",[param2.mRequiredBuilding.Name]);
+         _loc5_ = mClip.getChildByName("Text_Description") as TextField;
+         _loc4_ = _loc5_.defaultTextFormat;
+         _loc4_.size = int(_loc4_.size) + 5;
+         _loc5_.defaultTextFormat = _loc4_;
+         _loc5_.text = GameState.getText("MENU_DESC_UNLOCK_ITEM_BUILDING",[param2.mRequiredBuilding.Name]);
          this.mButtonUnlock.setText(GameState.getText("BUTTON_UNLOCK",[param2.getUnlockCost()]));
          this.mButtonUnlock.setIcon(ItemManager.getItem("Premium","Resource"));
          var _loc6_:MovieClip = mClip.getChildByName("Icon_Target") as MovieClip;
@@ -70,3 +71,4 @@ package game.gui.popups
       }
    }
 }
+

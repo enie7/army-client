@@ -9,7 +9,6 @@ package game.gui.popups
    
    public class MoneyPricePointPanel
    {
-       
       
       private var mIndex:int;
       
@@ -17,22 +16,26 @@ package game.gui.popups
       
       private var mSelectCallback:Function;
       
-      public function MoneyPricePointPanel(param1:MovieClip, param2:Object, param3:int, param4:Array, param5:Function)
+      public function MoneyPricePointPanel(param1:MovieClip, param2:*, param3:int, param4:Array, param5:Function)
       {
          var _loc6_:TextField = null;
          super();
          this.mIndex = param3;
          this.mSelectCallback = param5;
-         (_loc6_ = param1.getChildByName("Text_Amount_Resource") as TextField).text = param2.FBCreditPriceRef.Amount;
-         (_loc6_ = param1.getChildByName("Text_Amount_Cost") as TextField).autoSize = TextFieldAutoSize.LEFT;
+         _loc6_ = param1.getChildByName("Text_Amount_Resource") as TextField;
+         _loc6_.text = param2.FBCreditPriceRef.Amount;
+         _loc6_ = param1.getChildByName("Text_Amount_Cost") as TextField;
+         _loc6_.autoSize = TextFieldAutoSize.LEFT;
          _loc6_.text = param2.FBCreditPriceRef.CreditsCost;
          var _loc7_:MovieClip = param1.getChildByName("Counter_Reduction") as MovieClip;
-         if(param2.PricePercentage < 100)
+         if(int(param2.PricePercentage) < 100)
          {
-            (_loc6_ = _loc7_.getChildByName("Text_Amount") as TextField).autoSize = TextFieldAutoSize.CENTER;
+            _loc6_ = _loc7_.getChildByName("Text_Amount") as TextField;
+            _loc6_.autoSize = TextFieldAutoSize.CENTER;
             _loc6_.wordWrap = false;
-            _loc6_.text = "-" + (100 - param2.PricePercentage) + "%";
-            (_loc6_ = _loc7_.getChildByName("Text_Price") as TextField).text = param2.CreditsCostNew;
+            _loc6_.text = "-" + (100 - int(param2.PricePercentage)) + "%";
+            _loc6_ = _loc7_.getChildByName("Text_Price") as TextField;
+            _loc6_.text = String(Math.round(int(param2.PricePercentage) * int(param2.FBCreditPriceRef.CreditsCost) / 100));
          }
          else
          {
@@ -84,3 +87,4 @@ package game.gui.popups
       }
    }
 }
+

@@ -2010,7 +2010,7 @@
         },
         "BUILDING_TESTSITE_DESC": {
             "ID": "BUILDING_TESTSITE_DESC",
-            "fr": "Débloque la batterie de roquettes\\n+2 unités d'artillerie"
+            "fr": "Débloque la batterie de roquettes\\n+3 unités d'artillerie"
         },
         "UNLOCK_BOOTCAMP": {
             "ID": "UNLOCK_BOOTCAMP",
@@ -11574,7 +11574,7 @@
         },
         "MENU_DESC_UNIT_CAP_SNOW": {
             "ID": "MENU_DESC_UNIT_CAP_SNOW",
-            "fr": "Vous avez atteint la capacité maximale des unités. Cette carte a des capacités d'unités fixes. Vendez ou déplacez des unités pour faire de la place à de meilleures."
+            "fr": "Vous avez atteint le max des unités. Vendez ou déplacez des unités pour faire de la place à de meilleures."
         },
         "SNOWMAP_UNLOCK": {
             "ID": "SNOWMAP_UNLOCK",
@@ -12662,7 +12662,7 @@
         },
         "UNIT_ROCKETEER_DESC": {
             "ID": "UNIT_ROCKETEER_DESC",
-            "fr": "Allez là où personne n'est allé auparavant !\\n\\nSpécial :\\nVol (traverse tous les obstacles).\\nÉlite (complètement indestructible)"
+            "fr": "Allez là où personne n'est allé auparavant !\\nSpécial : Vol\\n(traverse tous les obstacles)."
         },
         "TOURNAMENT_HUNT_TANKS_NAME": {
             "ID": "TOURNAMENT_HUNT_TANKS_NAME",
@@ -12899,6 +12899,214 @@
         "BUILDING_GOLD_FACTORY_DESC": {
             "ID": "BUILDING_GOLD_FACTORY_DESC",
             "fr": "Génère 3 or toutes les 8 heures"
+        },
+        "NE2_C2_COMP": {
+            "ID": "NE2_C2_DESC",
+            "fr": "You doing great, Commander!"
+        },
+        "NE2_C4_COMP": {
+            "ID": "NE2_C4_DESC",
+            "fr": "Great job Commander!"
+        },
+        "SHOP_TAB_BUNDLES": {
+            "ID": "SHOP_TAB_BUNDLES",
+            "fr": "Bundles"
+        },
+        "BUNDLE_01": {
+            "ID": "BUNDLE_01",
+            "fr": "Flame Assault Bundle"
+        },
+        "BUNDLE_01_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "fr": "Get two exclusive Flame Force squads and additional 15 Ally Reports to help you on the front!"
+        },
+        "BUNDLE_02": {
+            "ID": "BUNDLE_01",
+            "fr": "Pack Booster Bundle"
+        },
+        "BUNDLE_02_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "fr": "Get few value packs to help you push more on the frontline!"
+        },
+        "BUNDLE_03": {
+            "ID": "BUNDLE_01",
+            "fr": "Intel Bundle"
+        },
+        "BUNDLE_03_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "fr": "Get additional intels and ally reports for better value!"
+        },
+        "BUNDLE_04": {
+            "ID": "BUNDLE_01",
+            "fr": "Material Bundle"
+        },
+        "BUNDLE_04_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "fr": "Get 10 of each material for better value to expand your base!"
+        },
+        "UNIT_FLAME_INFANTRY": {
+            "ID": "UNIT_ELITE_INFANTRY",
+            "fr": "Flame Force"
+        },
+        "UNIT_FLAME_INFANTRY_DESC": {
+            "ID": "UNIT_ELITE_INFANTRY_DESC",
+            "fr": "Special Flame operators\\nSpecial:\\nCan't be fully destroyed"
+        },
+        "CHAR_COLOSSAL": {
+            "ID": "CHAR_COLOSSAL",
+            "fr": "Crimson Colossal Lady"
+        },
+        "MENU_DESC_UNIT_LABS": {
+            "ID": "MENU_DESC_UNIT_LABS",
+            "fr": "You have reached the maximum Lab Unit Capacity.\\nYou can have only one of each lab unit activated."
+        },
+        "MAP_TOOLTIP_COMING_SOON_DESC": {
+            "ID": "MAP_TOOLTIP_COMING_SOON_DESC",
+            "fr": "Test"
+        },
+        "BUILDING_DRIVE_ENERGY_1": {
+            "ID": "BUILDING_DRIVE_ENERGY_1",
+            "fr": "Energy Supplies"
+        },
+        "BUILDING_DRIVE_ENERGY_1_DESC": {
+            "ID": "BUILDING_DRIVE_ENERGY_1_DESC",
+            "fr": "Get 15 energy"
+        },
+        "BUILDING_DRIVE_ENERGY_2": {
+            "ID": "BUILDING_DRIVE_ENERGY_2",
+            "fr": "Energy Supplies"
+        },
+        "BUILDING_DRIVE_ENERGY_2_DESC": {
+            "ID": "BUILDING_DRIVE_ENERGY_2_DESC",
+            "fr": "Get 30 energy"
+        },
+        "BUILDING_DRIVE_ENERGY_3": {
+            "ID": "BUILDING_DRIVE_ENERGY_3",
+            "fr": "Energy Supplies"
+        },
+        "BUILDING_DRIVE_ENERGY_3_DESC": {
+            "ID": "BUILDING_DRIVE_ENERGY_3_DESC",
+            "fr": "Get 60 energy"
+        },
+        "UNIT_RESEARCH_CHOPPER_DESC_TEMP": {
+            "ID": "UNIT_RESEARCH_CHOPPER_DESC_TEMP",
+            "fr": "A highly versatile unit and must-have for any respectable army!\\nSpecial: Flying\\n(moves past all obstacles)"
+        },
+        "BUILDING_POWER_PLANT": {
+            "ID": "BUILDING_GOLD_FACTORY",
+            "fr": "Power Plant"
+        },
+        "BUILDING_POWER_PLANT_DESC": {
+            "ID": "BUILDING_GOLD_FACTORY_DESC",
+            "fr": "Use this power plant to produce additional energy to help you fight on the frontlines!"
+        },
+        "UNIT_SOLDIER": {
+            "ID": "UNIT_INFANTRY",
+            "fr": "Soldier"
+        },
+        "UNIT_SOLDIER_DESC": {
+            "ID": "UNIT_INFANTRY_DESC",
+            "fr": "Basic combat unit"
+        },
+        "AREA_RESEARCH_UNLOCK": {
+            "ID": "AREA_RESEARCH_UNLOCK",
+            "fr": "Unlock Research Lab!"
+        },
+        "AREA_RESEARCH_UNLOCK_DESC": {
+            "ID": "AREA_RESEARCH_UNLOCK_DESC",
+            "fr": "Go to the shop and buy the Research Lab to unlock brand new unit type!"
+        },
+        "AREA_RESEARCH_UNLOCK_COMPL": {
+            "ID": "AREA_RESEARCH_UNLOCK_COMPL",
+            "fr": "Great job Commander! Now just to finish this brand new building to unlock new unit type!"
+        },
+        "RESEARCH_LAB_TITLE": {
+            "ID": "RESEARCH_LAB_TITLE",
+            "fr": "Buy the Research Lab"
+        },
+        "RESEARCH_LAB_DESC": {
+            "ID": "RESEARCH_LAB_DESC",
+            "fr": "Go to the shop and buy the Reseach Lab under the Buildings tab"
+        },
+        "RESEARCH_LAB_DIALOG": {
+            "ID": "RESEARCH_LAB_DIALOG",
+            "fr": "Looks like we need brand new resourses to finish this Research Lab. Find Test Tubes and finish this to unlock brand new unit type!"
+        },
+        "RESEARCH_LAB_FINISH_TITLE": {
+            "ID": "RESEARCH_LAB_FINISH_TITLE",
+            "fr": "Finish Research Lab!"
+        },
+        "RESEARCH_LAB_FINISH_DESC": {
+            "ID": "RESEARCH_LAB_FINISH_DESC",
+            "fr": "Finish the Research Lab to unlock brand new unit type!"
+        },
+        "AREA_RESEARCH_FINISH": {
+            "ID": "AREA_RESEARCH_UNLOCK",
+            "fr": "Finish the Research Lab!"
+        },
+        "AREA_RESEARCH_FINISH_DESC": {
+            "ID": "AREA_RESEARCH_FINISH_DESC",
+            "fr": "Finish the Research Lab!"
+        },
+        "AREA_RESEARCH_FINISH_COMPL": {
+            "ID": "AREA_RESEARCH_FINISH_COMPL",
+            "fr": "Great job Commander! With Research Lab finished, you unlocked brand new unit type. Lab units! You can now buy your first lab unit in the shop!"
+        },
+        "RESEARCH_LAB_DIALOG2": {
+            "ID": "RESEARCH_LAB_DIALOG2",
+            "fr": "Well done Commander! You just unlocked brand new unit type! LAB UNITS! Reseach Lab unlocks brand new units that will help you on the frontline. Let's buy first one: Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER": {
+            "ID": "ASSAULT_CHOPPER",
+            "fr": "First Lab Unit: Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_DESC": {
+            "ID": "ASSAULT_CHOPPER_DESC",
+            "fr": "Let's buy your first lab unit!"
+        },
+        "ASSAULT_CHOPPER_COMPL": {
+            "ID": "ASSAULT_CHOPPER_COMPL",
+            "fr": "Look at this beauty. Say hello to Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_TITLE": {
+            "ID": "ASSAULT_CHOPPER_TITLE",
+            "fr": "Buy a Assault Chopper"
+        },
+        "ASSAULT_CHOPPER_DESC2": {
+            "ID": "ASSAULT_CHOPPER_DESC2",
+            "fr": "Let's buy Assault Chopper!"
+        },
+        "RESEARCH_LAB_DIALOG3": {
+            "ID": "RESEARCH_LAB_DIALOG3",
+            "fr": "Isn't she beautiful? Let's test it right away, should we?"
+        },
+        "ASSAULT_CHOPPER_KILL": {
+            "ID": "ASSAULT_CHOPPER_KILL",
+            "fr": "Test Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_KILL_DESC": {
+            "ID": "ASSAULT_CHOPPER_KILL_DESC",
+            "fr": "Let's test this unit on the frontline!"
+        },
+        "ASSAULT_CHOPPER_KILL_COMPL": {
+            "ID": "ASSAULT_CHOPPER_KILL_COMPL",
+            "fr": "That was some amazing work with that, Commander!"
+        },
+        "ASSAULT_CHOPPER_KILL_TITLE": {
+            "ID": "ASSAULT_CHOPPER_KILL_TITLE",
+            "fr": "Kill enemy units with Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_KILL_DESC2": {
+            "ID": "ASSAULT_CHOPPER_KILL_DESC2",
+            "fr": "Kill some enemies with Assault Chopper"
+        },
+        "RESEARCH_LAB_DIALOG4": {
+            "ID": "RESEARCH_LAB_DIALOG4",
+            "fr": "Well done! We hope this beauty will serve you well on the frontline!"
+        },
+        "RESEARCH_LAB_DIALOG5": {
+            "ID": "RESEARCH_LAB_DIALOG5",
+            "fr": "Until next time Commander, our engineers are back in the lab, I heard they found some blueprints for more lab units.."
         }
     }
 }

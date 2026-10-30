@@ -1,4 +1,4 @@
-﻿package
+package
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.DisplayObject;
@@ -8,6 +8,8 @@
    
    public class AssetManager
    {
+      
+      private static var instance:AssetManager;
       
       public static const SKU_GFX:int = 0;
       
@@ -37,10 +39,7 @@
       
       public static const JSON_FILES_TO_LOAD:Array = ["army_config_base"];
       
-      public static const CVS_FILES_TO_LOAD:Array = ["tile_map","map_2", "tile_map_desert", "pvp_map_1_4valleys_11x11"];
-      
-      private static var instance:AssetManager;
-       
+      public static const CVS_FILES_TO_LOAD:Array = ["tile_map","map_2","tile_map_desert","tile_map_snow","pvp_map_1_4valleys_11x11"];
       
       public function AssetManager()
       {
@@ -68,7 +67,7 @@
       
       public function getClassByName(param1:String) : Class
       {
-         var _loc2_:String = describeType(this).@name.toXMLString();
+         var _loc2_:String = String(describeType(this).@name);
          var _loc3_:String = _loc2_ + "_" + param1;
          return getDefinitionByName(_loc3_) as Class;
       }
@@ -102,3 +101,4 @@
       }
    }
 }
+

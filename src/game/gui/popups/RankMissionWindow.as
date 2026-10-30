@@ -32,7 +32,6 @@ package game.gui.popups
       private static const MAX_FRIENDS_VISIBLE_ON_RANK_TOOLTIP:int = 20;
       
       private static const PLAYERS_RANK_IN_COLUMN:int = 2;
-       
       
       private var mMaxScrollIndex:int;
       
@@ -74,9 +73,9 @@ package game.gui.popups
       
       public function RankMissionWindow()
       {
-         var _loc2_:TextField = null;
-         var _loc1_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_POPUPS_01_NAME,"popup_ranks");
-         super(new _loc1_(),true);
+         var _loc1_:TextField = null;
+         var _loc2_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_POPUPS_01_NAME,"popup_ranks");
+         super(new _loc2_(),true);
          this.mButtonPrevious = Utils.createBasicButton(mClip,"Button_Previous",this.previousClicked);
          this.mButtonNext = Utils.createBasicButton(mClip,"Button_Next",this.nextClicked);
          this.mButtonCancel = Utils.createBasicButton(mClip,"Button_Cancel",this.closeClicked);
@@ -84,8 +83,8 @@ package game.gui.popups
          this.mFrameCurrentRank = mClip.getChildByName("Frame_Current_Rank") as MovieClip;
          this.mFrameNextRank = mClip.getChildByName("Frame_Next_Rank") as MovieClip;
          this.mFrameBrowseRanks = mClip.getChildByName("Frame_Browse_Ranks") as MovieClip;
-         _loc2_ = this.mFrameBrowseRanks.getChildByName("Text_Title") as TextField;
-         _loc2_.text = GameState.getText("RANK_POPUP_ALLIES_RANKS");
+         _loc1_ = this.mFrameBrowseRanks.getChildByName("Text_Title") as TextField;
+         _loc1_.text = GameState.getText("RANK_POPUP_ALLIES_RANKS");
          this.mButtonShare = Utils.createFBIconResizingButton(this.mFrameNewRank,"Button_Share",this.submitClicked);
          this.mButtonShare.setText(GameState.getText("BUTTON_SHARE"));
          this.mScrollBar = mClip.getChildByName("Scrollbar") as MovieClip;
@@ -100,11 +99,12 @@ package game.gui.popups
       
       public function Activate(param1:Function, param2:Mission, param3:Boolean = false) : void
       {
+         var _loc8_:MovieClip = null;
          var _loc4_:StylizedHeaderClip = null;
          var _loc5_:TextField = null;
          var _loc6_:int = 0;
          var _loc7_:MovieClip = null;
-         var _loc8_:MovieClip = null;
+         _loc8_ = null;
          var _loc9_:GamePlayerProfile = null;
          var _loc10_:int = 0;
          var _loc11_:Item = null;
@@ -145,24 +145,31 @@ package game.gui.popups
          {
             this.mFrameNewRank.visible = true;
             this.mFrameCurrentRank.visible = false;
-            (_loc5_ = this.mFrameNewRank.getChildByName("Text_Current_Description") as TextField).text = GameState.getText("RANK_NEW_RANK");
-            (_loc5_ = this.mFrameNewRank.getChildByName("Text_Current_Rank") as TextField).text = RankManager.getNameByIndex(this.mPlayerRankIndex);
+            _loc5_ = this.mFrameNewRank.getChildByName("Text_Current_Description") as TextField;
+            _loc5_.text = GameState.getText("RANK_NEW_RANK");
+            _loc5_ = this.mFrameNewRank.getChildByName("Text_Current_Rank") as TextField;
+            _loc5_.text = RankManager.getNameByIndex(this.mPlayerRankIndex);
             IconLoader.addIcon(this.mRankNew,RankManager.getAdapterByIndex(this.mPlayerRankIndex),this.rankIconLoaded);
          }
          else
          {
             this.mFrameNewRank.visible = false;
             this.mFrameCurrentRank.visible = true;
-            (_loc5_ = this.mFrameCurrentRank.getChildByName("Text_Current_Description") as TextField).text = GameState.getText("RANK_CURRENT");
-            (_loc5_ = this.mFrameCurrentRank.getChildByName("Text_Current_Rank") as TextField).text = RankManager.getNameByIndex(this.mPlayerRankIndex);
+            _loc5_ = this.mFrameCurrentRank.getChildByName("Text_Current_Description") as TextField;
+            _loc5_.text = GameState.getText("RANK_CURRENT");
+            _loc5_ = this.mFrameCurrentRank.getChildByName("Text_Current_Rank") as TextField;
+            _loc5_.text = RankManager.getNameByIndex(this.mPlayerRankIndex);
             IconLoader.addIcon(this.mRankCurrent,RankManager.getAdapterByIndex(this.mPlayerRankIndex),this.rankIconLoaded);
             (this.mFrameCurrentRank.getChildByName("Badge_Desert_Campaign_Enabled") as MovieClip).visible = false;
          }
          if(this.mPlayerRankIndex < RankManager.getRankCount() - 1)
          {
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Objective") as TextField).text = GameState.getText("RANK_NEXT_OBJECTIVE");
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Rank") as TextField).text = RankManager.getNameByIndex(this.mPlayerRankIndex + 1);
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Description") as TextField).text = GameState.getText("RANK_POPUP_DESCRIPTION");
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Objective") as TextField;
+            _loc5_.text = GameState.getText("RANK_NEXT_OBJECTIVE");
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Rank") as TextField;
+            _loc5_.text = RankManager.getNameByIndex(this.mPlayerRankIndex + 1);
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Description") as TextField;
+            _loc5_.text = GameState.getText("RANK_POPUP_DESCRIPTION");
             IconLoader.addIcon(this.mRankNext,RankManager.getAdapterByIndex(this.mPlayerRankIndex + 1),this.rankIconLoaded);
             _loc9_ = GameState.mInstance.mPlayerProfile;
             _loc13_ = param2;
@@ -179,7 +186,7 @@ package game.gui.popups
                {
                   _loc16_ = String(_loc15_.mParameter.Type);
                }
-               if(_loc15_ is OwnItems && _loc16_ && _loc16_ == "Medal")
+               if(Boolean(_loc15_ is OwnItems) && Boolean(_loc16_) && _loc16_ == "Medal")
                {
                   _loc10_ = _loc15_.mGoal;
                   _loc11_ = ItemManager.getItem(_loc15_.mParameter.ID,_loc15_.mParameter.Type);
@@ -190,7 +197,8 @@ package game.gui.popups
                }
                _loc14_++;
             }
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Tiles") as TextField).multiline = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Tiles") as TextField;
+            _loc5_.multiline = false;
             _loc5_.wordWrap = false;
             if(_loc12_ > 0)
             {
@@ -203,7 +211,8 @@ package game.gui.popups
             {
                _loc5_.visible = false;
             }
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Medals") as TextField).multiline = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Medals") as TextField;
+            _loc5_.multiline = false;
             _loc5_.wordWrap = false;
             if(_loc10_ > 0)
             {
@@ -221,11 +230,16 @@ package game.gui.popups
          }
          else
          {
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Objective") as TextField).visible = false;
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Rank") as TextField).visible = false;
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Description") as TextField).visible = false;
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Tiles") as TextField).visible = false;
-            (_loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Medals") as TextField).visible = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Objective") as TextField;
+            _loc5_.visible = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Next_Rank") as TextField;
+            _loc5_.visible = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Description") as TextField;
+            _loc5_.visible = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Tiles") as TextField;
+            _loc5_.visible = false;
+            _loc5_ = this.mFrameNextRank.getChildByName("Text_Amount_Medals") as TextField;
+            _loc5_.visible = false;
          }
          doOpeningTransition();
       }
@@ -245,23 +259,23 @@ package game.gui.popups
       
       private function populateRankTimeline() : void
       {
+         var _loc1_:MovieClip = null;
          var _loc2_:MovieClip = null;
-         var _loc3_:MovieClip = null;
+         var _loc3_:TextField = null;
          var _loc4_:TextField = null;
-         var _loc5_:TextField = null;
-         var _loc1_:int = 0;
-         while(_loc1_ < RANKS_VISIBLE)
+         var _loc5_:int = 0;
+         while(_loc5_ < RANKS_VISIBLE)
          {
-            (this.mRanksCompleteOnTimeline[_loc1_] as MovieClip).visible = false;
-            (this.mRanksIncompleteOnTimeline[_loc1_] as MovieClip).visible = false;
-            _loc2_ = this.mPlayerRankIndex >= this.mCurrentScrollIndex + _loc1_ ? this.mRanksCompleteOnTimeline[_loc1_] : this.mRanksIncompleteOnTimeline[_loc1_];
-            _loc2_.visible = true;
-            _loc3_ = _loc2_.getChildByName("Icon_Rank") as MovieClip;
-            _loc4_ = _loc2_.getChildByName("Text_Title") as TextField;
-            _loc5_ = _loc2_.getChildByName("Text_Friends") as TextField;
-            IconLoader.addIcon(_loc3_,RankManager.getAdapterByIndex(this.mCurrentScrollIndex + _loc1_),this.rankIconLoaded);
-            _loc4_.text = RankManager.getNameByIndex(this.mCurrentScrollIndex + _loc1_);
-            _loc1_++;
+            (this.mRanksCompleteOnTimeline[_loc5_] as MovieClip).visible = false;
+            (this.mRanksIncompleteOnTimeline[_loc5_] as MovieClip).visible = false;
+            _loc1_ = this.mPlayerRankIndex >= this.mCurrentScrollIndex + _loc5_ ? this.mRanksCompleteOnTimeline[_loc5_] : this.mRanksIncompleteOnTimeline[_loc5_];
+            _loc1_.visible = true;
+            _loc2_ = _loc1_.getChildByName("Icon_Rank") as MovieClip;
+            _loc3_ = _loc1_.getChildByName("Text_Title") as TextField;
+            _loc4_ = _loc1_.getChildByName("Text_Friends") as TextField;
+            IconLoader.addIcon(_loc2_,RankManager.getAdapterByIndex(this.mCurrentScrollIndex + _loc5_),this.rankIconLoaded);
+            _loc3_.text = RankManager.getNameByIndex(this.mCurrentScrollIndex + _loc5_);
+            _loc5_++;
          }
       }
       
@@ -328,3 +342,4 @@ package game.gui.popups
       }
    }
 }
+

@@ -1,4 +1,4 @@
-﻿package game.characters
+package game.characters
 {
    import flash.display.MovieClip;
    import flash.events.Event;
@@ -25,7 +25,13 @@
    public class PlayerUnit extends IsometricCharacter
    {
       
+      public static var smPlayerSelectionAmbiance:Boolean;
+      
+      public static var smPlayerSelectionAmbianceCollection:SoundCollection;
+      
       public static const TYPE_INFANTRY:String = "Infantry";
+      
+      public static const TYPE_SOLDIER:String = "Soldier";
       
       public static const TYPE_SPECIALFORCES:String = "SpecialForces";
       
@@ -45,24 +51,25 @@
       
       public static const TYPE_ELITE_INFANTRY:String = "EliteInfantry";
       
+      public static const TYPE_FLAME_FORCE:String = "FlameForce";
+      
       public static const TYPE_WARFLY:String = "Warfly";
-	  
+      
       public static const TYPE_SNIPER:String = "Sniper";
-	  
+      
       public static const TYPE_ELITE_LANDKREUZER:String = "EliteLandKreuzer";
-	  
+      
       public static const TYPE_ELITE_ROCKETEER:String = "EliteRocketeer";
-	  
+      
       public static const TYPE_ELITE_JUGGERNAUT:String = "EliteJuggernaut";
+      
+      public static const TYPE_BLACK_FOX:String = "BlackFox";
+      
+      public static const TYPE_CHOPTER:String = "AssaultChopper";
       
       public static const UNIT_LEVEL_RECRUIT:int = 0;
       
       public static var smLongestAttackRange:int = 1;
-      
-      public static var smPlayerSelectionAmbiance:Boolean;
-      
-      public static var smPlayerSelectionAmbianceCollection:SoundCollection;
-       
       
       private var mUnitLevel:int;
       
@@ -145,7 +152,8 @@
          this.mSelectLongSounds = ArmySoundManager.SC_EMPTY;
          mAttackSoundsSecondary = ArmySoundManager.SC_ENM_ATTACK_SECONDARY;
          var _loc1_:String = mItem.mId;
-         if(_loc1_ == PlayerUnit.TYPE_INFANTRY || _loc1_ == PlayerUnit.TYPE_ELITE_INFANTRY || _loc1_ == PlayerUnit.TYPE_SNIPER || _loc1_ == PlayerUnit.TYPE_ELITE_ROCKETEER)
+         // TYPE_SNIPER2 is never declared; dynamic lookup as in the 23.2 build.
+         if(_loc1_ == PlayerUnit.TYPE_INFANTRY || _loc1_ == PlayerUnit.TYPE_ELITE_INFANTRY || _loc1_ == PlayerUnit.TYPE_FLAME_FORCE || _loc1_ == PlayerUnit.TYPE_SNIPER || _loc1_ == PlayerUnit.TYPE_ELITE_ROCKETEER || _loc1_ == PlayerUnit.TYPE_SOLDIER || _loc1_ == Object(PlayerUnit).TYPE_SNIPER2)
          {
             mMoveSounds = ArmySoundManager.SC_GENERAL_INFANTRY_MOVING;
             this.mSelectSounds = ArmySoundManager.SC_FRN_INF_SELECT_SHORT;
@@ -191,6 +199,22 @@
             mDieSounds = ArmySoundManager.SC_ROCKET_DEATH;
             mAttackSounds = ArmySoundManager.SC_ROCKET_ATTACK;
             mMoveSounds = ArmySoundManager.SC_ROCKET_MOVING;
+         }
+         else if(_loc1_ == PlayerUnit.TYPE_BLACK_FOX)
+         {
+            this.mSelectSounds = ArmySoundManager.SC_BLACKFOX_SELECT;
+            this.mSelectLongSounds = ArmySoundManager.SC_EMPTY;
+            mDieSounds = ArmySoundManager.SC_FRN_INF_DIE;
+            mAttackSounds = ArmySoundManager.SC_FRN_INF_ATTACK;
+            mMoveSounds = ArmySoundManager.SC_BLACKFOX_SELECT;
+         }
+         else if(_loc1_ == PlayerUnit.TYPE_CHOPTER)
+         {
+            this.mSelectSounds = ArmySoundManager.SC_FRN_APC_SELECT_SHORT;
+            this.mSelectLongSounds = ArmySoundManager.SC_FRN_APC_SELECT_LONG;
+            mDieSounds = ArmySoundManager.SC_FRN_CHOPTER_DEATH;
+            mAttackSounds = ArmySoundManager.SC_FRN_CHOPTER_ATTACK;
+            mMoveSounds = ArmySoundManager.SC_CHOPTER_MOVING;
          }
          else
          {
@@ -496,31 +520,35 @@
       
       override public function showHealthWarning(param1:Boolean) : void
       {
-         var _loc4_:MovieClip = null;
-         var _loc5_:MovieClip = null;
+         var _loc2_:MovieClip = null;
+         var _loc3_:MovieClip = null;
          if(!mAnimationController)
          {
             return;
          }
-         var _loc2_:MovieClip = mAnimationController.getCurrentAnimation();
-         var _loc3_:int = 0;
-         while(_loc3_ < _loc2_.numChildren)
+         var _loc4_:MovieClip = mAnimationController.getCurrentAnimation();
+         var _loc5_:int = 0;
+         while(_loc5_ < _loc4_.numChildren)
          {
-            if(_loc5_ = (_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip).getChildByName("Hint_Health_Friendly") as MovieClip)
+            _loc2_ = _loc4_.getChildAt(_loc5_) as MovieClip;
+            _loc3_ = _loc2_.getChildByName("Hint_Health_Friendly") as MovieClip;
+            if(_loc3_)
             {
-               if(param1 == _loc5_.visible)
+               if(param1 == _loc3_.visible)
                {
-                  _loc5_.visible = !param1;
+                  _loc3_.visible = !param1;
                }
             }
-            if(_loc5_ = (_loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip).getChildByName("Hint_Health_Friendly_Attention") as MovieClip)
+            _loc2_ = _loc4_.getChildAt(_loc5_) as MovieClip;
+            _loc3_ = _loc2_.getChildByName("Hint_Health_Friendly_Attention") as MovieClip;
+            if(_loc3_)
             {
-               if(param1 != _loc5_.visible)
+               if(param1 != _loc3_.visible)
                {
-                  _loc5_.visible = param1;
+                  _loc3_.visible = param1;
                }
             }
-            _loc3_++;
+            _loc5_++;
          }
       }
       
@@ -540,3 +568,4 @@
       }
    }
 }
+

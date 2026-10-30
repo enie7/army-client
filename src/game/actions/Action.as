@@ -13,7 +13,6 @@ package game.actions
    {
       
       protected static var smSingleAttacksCount:int;
-       
       
       public var mName:String;
       
@@ -78,7 +77,7 @@ package game.actions
             }
             this.mSupportActions = null;
          }
-         if(this.mActor && this.mActor is Renderable && this.mActor.isAlive())
+         if(Boolean(this.mActor) && Boolean(this.mActor is Renderable) && this.mActor.isAlive())
          {
             Renderable(this.mActor).setAnimationAction(AnimationController.CHARACTER_ANIMATION_IDLE);
          }
@@ -151,13 +150,13 @@ package game.actions
       public function setDirection(param1:int, param2:int = 1) : void
       {
          var _loc3_:int = 0;
-         var _loc5_:Renderable = null;
+         var _loc4_:Renderable = null;
+         var _loc5_:int = 0;
          var _loc6_:int = 0;
-         var _loc7_:int = 0;
-         var _loc4_:int = param2 * GameState.mInstance.mScene.mGridDimX;
-         if(this.mActor && this.mActor is Renderable && this.mActor.isRotatable())
+         var _loc7_:int = param2 * GameState.mInstance.mScene.mGridDimX;
+         if(Boolean(this.mActor) && Boolean(this.mActor is Renderable) && this.mActor.isRotatable())
          {
-            if(param1 + _loc4_ <= this.mActor.mX)
+            if(param1 + _loc7_ <= this.mActor.mX)
             {
                _loc3_ = AnimationController.DIR_LEFT;
                this.mActor.setAnimationDirection(_loc3_);
@@ -170,26 +169,28 @@ package game.actions
          }
          else if(this.mCharacterActors)
          {
-            _loc6_ = int(this.mCharacterActors.length);
-            _loc7_ = 0;
-            while(_loc7_ < _loc6_)
+            _loc5_ = int(this.mCharacterActors.length);
+            _loc6_ = 0;
+            while(_loc6_ < _loc5_)
             {
-               if((_loc5_ = this.mCharacterActors[_loc7_] as Renderable).isRotatable())
+               _loc4_ = this.mCharacterActors[_loc6_] as Renderable;
+               if(_loc4_.isRotatable())
                {
-                  if(param1 + _loc4_ <= _loc5_.mX)
+                  if(param1 + _loc7_ <= _loc4_.mX)
                   {
                      _loc3_ = AnimationController.DIR_LEFT;
-                     _loc5_.setAnimationDirection(_loc3_);
+                     _loc4_.setAnimationDirection(_loc3_);
                   }
-                  else if(param1 > _loc5_.mX)
+                  else if(param1 > _loc4_.mX)
                   {
                      _loc3_ = AnimationController.DIR_RIGHT;
-                     _loc5_.setAnimationDirection(_loc3_);
+                     _loc4_.setAnimationDirection(_loc3_);
                   }
                }
-               _loc7_++;
+               _loc6_++;
             }
          }
       }
    }
 }
+

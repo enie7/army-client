@@ -4,7 +4,8 @@ package game.items
    
    public class EnemyInstallationItem extends TargetItem
    {
-       
+      
+      public var mProjectileClassStr:String;
       
       public var mDamage:int;
       
@@ -33,6 +34,7 @@ package game.items
       public function EnemyInstallationItem(param1:Object)
       {
          super(param1);
+         this.mProjectileClassStr = param1.ProjectileClass;
          this.mDamage = param1.Damage;
          this.mAttackRange = param1.AttackRange;
          this.mFiringType = param1.FiringType;
@@ -111,3 +113,4 @@ package game.items
       }
    }
 }
+

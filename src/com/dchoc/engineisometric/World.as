@@ -32,11 +32,10 @@ package com.dchoc.engineisometric
       public static const STATE_TILE_LOWER:int = 7;
       
       public static const STATE_STOP:int = 8;
-       
       
       public var mTiles:Array;
       
-      public var mElementObjects:Vector.<WorldElementObject>;
+      public var mElementObjects:Vector.<WorldElementObject> = new Vector.<WorldElementObject>();
       
       public var mTileWidthScreen:int;
       
@@ -106,7 +105,6 @@ package com.dchoc.engineisometric
       
       public function World(param1:Number, param2:Number, param3:Boolean = false)
       {
-         this.mElementObjects = new Vector.<WorldElementObject>();
          super();
          this.mTileWidthScreen = param1;
          this.mTileHeightScreen = param2;
@@ -202,22 +200,23 @@ package com.dchoc.engineisometric
       
       protected function updateShadowLayer() : void
       {
-         var _loc3_:WorldElement = null;
-         var _loc4_:Sprite = null;
+         var _loc1_:WorldElement = null;
+         var _loc2_:Sprite = null;
          DCUtils.removeAllChildren(this.mLayerShadows);
-         var _loc1_:int = this.mLayerObjects.numChildren;
-         var _loc2_:int = 0;
-         while(_loc2_ < _loc1_)
+         var _loc3_:int = this.mLayerObjects.numChildren;
+         var _loc4_:int = 0;
+         while(_loc4_ < _loc3_)
          {
-            _loc3_ = WorldElement(this.mLayerObjects.getChildAt(_loc2_));
-            if(_loc3_.visible)
+            _loc1_ = WorldElement(this.mLayerObjects.getChildAt(_loc4_));
+            if(_loc1_.visible)
             {
-               if((_loc4_ = _loc3_.getShadowDisplayObjects()).numChildren > 0)
+               _loc2_ = _loc1_.getShadowDisplayObjects();
+               if(_loc2_.numChildren > 0)
                {
-                  this.mLayerShadows.addChild(_loc4_);
+                  this.mLayerShadows.addChild(_loc2_);
                }
             }
-            _loc2_++;
+            _loc4_++;
          }
       }
       
@@ -270,21 +269,21 @@ package com.dchoc.engineisometric
       
       public function addObject(param1:Class) : WorldElementObject
       {
+         var _loc2_:Number = NaN;
          var _loc3_:Number = NaN;
          var _loc4_:Number = NaN;
-         var _loc5_:Number = NaN;
-         var _loc2_:WorldElementObject = new param1(this);
-         if(_loc2_)
+         var _loc5_:WorldElementObject = new param1(this);
+         if(_loc5_)
          {
-            this.mElementObjects[this.mElementObjects.length] = _loc2_;
-            this.mLayerObjects.addChild(_loc2_);
-            _loc3_ = this.getScreenToWorldX(mouseX,mouseY);
-            _loc4_ = this.getScreenToWorldY(mouseX,mouseY);
-            _loc5_ = this.getGroundHeight(_loc3_,_loc4_);
-            _loc2_.setWorldPosition(_loc3_,_loc4_,_loc5_);
-            _loc2_.updatePhysics(0);
+            this.mElementObjects[this.mElementObjects.length] = _loc5_;
+            this.mLayerObjects.addChild(_loc5_);
+            _loc2_ = this.getScreenToWorldX(mouseX,mouseY);
+            _loc3_ = this.getScreenToWorldY(mouseX,mouseY);
+            _loc4_ = this.getGroundHeight(_loc2_,_loc3_);
+            _loc5_.setWorldPosition(_loc2_,_loc3_,_loc4_);
+            _loc5_.updatePhysics(0);
          }
-         return _loc2_;
+         return _loc5_;
       }
       
       public function addElementObject(param1:WorldElementObject, param2:Number = -1, param3:Number = -1, param4:Number = 0) : void
@@ -391,47 +390,47 @@ package com.dchoc.engineisometric
       
       public function lowerSelectedTileMountain() : void
       {
+         var _loc1_:Number = NaN;
          var _loc2_:Number = NaN;
-         var _loc3_:Number = NaN;
-         var _loc4_:WorldElement = null;
-         var _loc1_:Number = -this.HILL_RADIUS;
-         while(_loc1_ <= this.HILL_RADIUS)
+         var _loc3_:WorldElement = null;
+         var _loc4_:Number = -this.HILL_RADIUS;
+         while(_loc4_ <= this.HILL_RADIUS)
          {
-            _loc2_ = -this.HILL_RADIUS;
-            while(_loc2_ <= this.HILL_RADIUS)
+            _loc1_ = -this.HILL_RADIUS;
+            while(_loc1_ <= this.HILL_RADIUS)
             {
-               _loc3_ = (this.HILL_RADIUS * this.HILL_RADIUS * 2 - _loc2_ * _loc2_ - _loc1_ * _loc1_) * 0.125 / (this.HILL_RADIUS * this.HILL_RADIUS * 2);
-               if(this.isTilePositionInBoundaries(this.mSelectedTile.mWorldX + _loc2_,this.mSelectedTile.mWorldY + _loc1_))
+               _loc2_ = (this.HILL_RADIUS * this.HILL_RADIUS * 2 - _loc1_ * _loc1_ - _loc4_ * _loc4_) * 0.125 / (this.HILL_RADIUS * this.HILL_RADIUS * 2);
+               if(this.isTilePositionInBoundaries(this.mSelectedTile.mWorldX + _loc1_,this.mSelectedTile.mWorldY + _loc4_))
                {
-                  _loc4_ = this.mTiles[this.mSelectedTile.mWorldY + _loc1_][this.mSelectedTile.mWorldX + _loc2_];
-                  _loc4_.setWorldPosition(_loc4_.mWorldX,_loc4_.mWorldY,_loc4_.mWorldZ - _loc3_);
+                  _loc3_ = this.mTiles[this.mSelectedTile.mWorldY + _loc4_][this.mSelectedTile.mWorldX + _loc1_];
+                  _loc3_.setWorldPosition(_loc3_.mWorldX,_loc3_.mWorldY,_loc3_.mWorldZ - _loc2_);
                }
-               _loc2_++;
+               _loc1_++;
             }
-            _loc1_++;
+            _loc4_++;
          }
       }
       
       public function raiseSelectedTileMountain() : void
       {
+         var _loc1_:Number = NaN;
          var _loc2_:Number = NaN;
-         var _loc3_:Number = NaN;
-         var _loc4_:WorldElement = null;
-         var _loc1_:Number = -this.HILL_RADIUS;
-         while(_loc1_ <= this.HILL_RADIUS)
+         var _loc3_:WorldElement = null;
+         var _loc4_:Number = -this.HILL_RADIUS;
+         while(_loc4_ <= this.HILL_RADIUS)
          {
-            _loc2_ = -this.HILL_RADIUS;
-            while(_loc2_ <= this.HILL_RADIUS)
+            _loc1_ = -this.HILL_RADIUS;
+            while(_loc1_ <= this.HILL_RADIUS)
             {
-               _loc3_ = (this.HILL_RADIUS * this.HILL_RADIUS * 2 - _loc2_ * _loc2_ - _loc1_ * _loc1_) * 0.125 / (this.HILL_RADIUS * this.HILL_RADIUS * 2);
-               if(this.isTilePositionInBoundaries(this.mSelectedTile.mWorldX + _loc2_,this.mSelectedTile.mWorldY + _loc1_))
+               _loc2_ = (this.HILL_RADIUS * this.HILL_RADIUS * 2 - _loc1_ * _loc1_ - _loc4_ * _loc4_) * 0.125 / (this.HILL_RADIUS * this.HILL_RADIUS * 2);
+               if(this.isTilePositionInBoundaries(this.mSelectedTile.mWorldX + _loc1_,this.mSelectedTile.mWorldY + _loc4_))
                {
-                  _loc4_ = this.mTiles[this.mSelectedTile.mWorldY + _loc1_][this.mSelectedTile.mWorldX + _loc2_];
-                  _loc4_.setWorldPosition(_loc4_.mWorldX,_loc4_.mWorldY,_loc4_.mWorldZ + _loc3_);
+                  _loc3_ = this.mTiles[this.mSelectedTile.mWorldY + _loc4_][this.mSelectedTile.mWorldX + _loc1_];
+                  _loc3_.setWorldPosition(_loc3_.mWorldX,_loc3_.mWorldY,_loc3_.mWorldZ + _loc2_);
                }
-               _loc2_++;
+               _loc1_++;
             }
-            _loc1_++;
+            _loc4_++;
          }
       }
       
@@ -754,25 +753,25 @@ package com.dchoc.engineisometric
       
       public function initLevel(param1:int, param2:int, param3:Class) : void
       {
-         var _loc5_:int = 0;
+         var _loc4_:int = 0;
          this.mTiles = new Array();
          this.mElementObjects = new Vector.<WorldElementObject>();
          this.mWorldWidth = param1;
          this.mWorldHeight = param2;
-         var _loc4_:int = 0;
-         while(_loc4_ < param2)
+         var _loc5_:int = 0;
+         while(_loc5_ < param2)
          {
-            this.mTiles[_loc4_] = new Array();
+            this.mTiles[_loc5_] = new Array();
             if(param3 != null)
             {
-               _loc5_ = 0;
-               while(_loc5_ < param1)
+               _loc4_ = 0;
+               while(_loc4_ < param1)
                {
-                  this.setTile(_loc5_,_loc4_,param3);
-                  _loc5_++;
+                  this.setTile(_loc4_,_loc5_,param3);
+                  _loc4_++;
                }
             }
-            _loc4_++;
+            _loc5_++;
          }
       }
       
@@ -799,9 +798,10 @@ package com.dchoc.engineisometric
       
       public function setTileFromElementTile(param1:int, param2:int, param3:WorldElementTile) : void
       {
+         var _loc5_:WorldElementTile = null;
          var _loc4_:int = -1;
-         var _loc5_:WorldElementTile;
-         if((_loc5_ = this.getTile(param1,param2)) != null)
+         _loc5_ = this.getTile(param1,param2);
+         if(_loc5_ != null)
          {
             _loc4_ = this.mLayerTiles.getChildIndex(_loc5_);
             this.mLayerTiles.removeChildAt(_loc4_);
@@ -914,102 +914,108 @@ package com.dchoc.engineisometric
       
       public function getLevelData() : ByteArray
       {
-         var _loc2_:WorldElement = null;
-         var _loc5_:int = 0;
-         var _loc1_:ByteArray = new ByteArray();
-         _loc1_.writeInt(this.mTiles.length);
-         var _loc3_:int = 0;
-         while(_loc3_ < this.mTiles.length)
-         {
-            _loc1_.writeInt((this.mTiles[_loc3_] as Array).length);
-            _loc5_ = 0;
-            while(_loc5_ < (this.mTiles[_loc3_] as Array).length)
-            {
-               _loc2_ = this.mTiles[_loc3_][_loc5_];
-               _loc1_.writeUTF(getQualifiedClassName(_loc2_));
-               _loc2_.storeToByteArray(_loc1_);
-               _loc5_++;
-            }
-            _loc3_++;
-         }
-         _loc1_.writeInt(this.mElementObjects.length);
+         var _loc1_:WorldElement = null;
+         var _loc2_:int = 0;
+         var _loc3_:ByteArray = new ByteArray();
+         _loc3_.writeInt(this.mTiles.length);
          var _loc4_:int = 0;
-         while(_loc4_ < this.mElementObjects.length)
+         while(_loc4_ < this.mTiles.length)
          {
-            _loc2_ = this.mElementObjects[_loc4_];
-            _loc1_.writeUTF(getQualifiedClassName(_loc2_));
-            _loc2_.storeToByteArray(_loc1_);
+            _loc3_.writeInt((this.mTiles[_loc4_] as Array).length);
+            _loc2_ = 0;
+            while(_loc2_ < (this.mTiles[_loc4_] as Array).length)
+            {
+               _loc1_ = this.mTiles[_loc4_][_loc2_];
+               _loc3_.writeUTF(getQualifiedClassName(_loc1_));
+               _loc1_.storeToByteArray(_loc3_);
+               _loc2_++;
+            }
             _loc4_++;
          }
-         return _loc1_;
+         _loc3_.writeInt(this.mElementObjects.length);
+         var _loc5_:int = 0;
+         while(_loc5_ < this.mElementObjects.length)
+         {
+            _loc1_ = this.mElementObjects[_loc5_];
+            _loc3_.writeUTF(getQualifiedClassName(_loc1_));
+            _loc1_.storeToByteArray(_loc3_);
+            _loc5_++;
+         }
+         return _loc3_;
       }
       
       public function setLevelData(param1:ByteArray) : void
       {
-         var _loc3_:String = null;
-         var _loc4_:Class = null;
-         var _loc5_:WorldElementObject = null;
-         var _loc9_:int = 0;
-         var _loc10_:int = 0;
+         var _loc2_:String = null;
+         var _loc3_:Class = null;
+         var _loc4_:WorldElementObject = null;
+         var _loc5_:int = 0;
+         var _loc6_:int = 0;
          DCUtils.removeAllChildren(this);
          this.initDisplayContainers();
-         var _loc2_:int = param1.readInt();
-         this.mTiles = new Array();
-         var _loc6_:int = 0;
-         while(_loc6_ < _loc2_)
-         {
-            _loc9_ = param1.readInt();
-            this.mTiles[_loc6_] = new Array();
-            _loc10_ = 0;
-            while(_loc10_ < _loc9_)
-            {
-               _loc3_ = param1.readUTF();
-               (_loc5_ = new (_loc4_ = getDefinitionByName(_loc3_) as Class)(this)).restoreFromByteArray(param1);
-               this.mTiles[_loc6_][_loc10_] = _loc5_;
-               this.mLayerTiles.addChild(_loc5_);
-               _loc10_++;
-            }
-            _loc6_++;
-         }
          var _loc7_:int = param1.readInt();
-         this.mElementObjects = new Vector.<WorldElementObject>();
+         this.mTiles = new Array();
          var _loc8_:int = 0;
          while(_loc8_ < _loc7_)
          {
-            _loc3_ = param1.readUTF();
-            (_loc5_ = new (_loc4_ = getDefinitionByName(_loc3_) as Class)(this)).restoreFromByteArray(param1);
-            this.mElementObjects[_loc8_] = _loc5_;
-            this.mLayerObjects.addChild(_loc5_);
+            _loc5_ = param1.readInt();
+            this.mTiles[_loc8_] = new Array();
+            _loc6_ = 0;
+            while(_loc6_ < _loc5_)
+            {
+               _loc2_ = param1.readUTF();
+               _loc3_ = getDefinitionByName(_loc2_) as Class;
+               _loc4_ = new _loc3_(this);
+               _loc4_.restoreFromByteArray(param1);
+               this.mTiles[_loc8_][_loc6_] = _loc4_;
+               this.mLayerTiles.addChild(_loc4_);
+               _loc6_++;
+            }
             _loc8_++;
+         }
+         var _loc9_:int = param1.readInt();
+         this.mElementObjects = new Vector.<WorldElementObject>();
+         var _loc10_:int = 0;
+         while(_loc10_ < _loc9_)
+         {
+            _loc2_ = param1.readUTF();
+            _loc3_ = getDefinitionByName(_loc2_) as Class;
+            _loc4_ = new _loc3_(this);
+            _loc4_.restoreFromByteArray(param1);
+            this.mElementObjects[_loc10_] = _loc4_;
+            this.mLayerObjects.addChild(_loc4_);
+            _loc10_++;
          }
       }
       
       public function setLevelDataTiles(param1:ByteArray) : void
       {
-         var _loc3_:String = null;
-         var _loc4_:Class = null;
-         var _loc5_:WorldElement = null;
-         var _loc7_:int = 0;
-         var _loc8_:int = 0;
+         var _loc2_:String = null;
+         var _loc3_:Class = null;
+         var _loc4_:WorldElement = null;
+         var _loc5_:int = 0;
+         var _loc6_:int = 0;
          DCUtils.removeAllChildren(this);
          this.initDisplayContainers();
-         var _loc2_:int = param1.readInt();
+         var _loc7_:int = param1.readInt();
          this.mTiles = new Array();
-         var _loc6_:int = 0;
-         while(_loc6_ < _loc2_)
+         var _loc8_:int = 0;
+         while(_loc8_ < _loc7_)
          {
-            _loc7_ = param1.readInt();
-            this.mTiles[_loc6_] = new Array();
-            _loc8_ = 0;
-            while(_loc8_ < _loc7_)
+            _loc5_ = param1.readInt();
+            this.mTiles[_loc8_] = new Array();
+            _loc6_ = 0;
+            while(_loc6_ < _loc5_)
             {
-               _loc3_ = param1.readUTF();
-               (_loc5_ = new (_loc4_ = getDefinitionByName(_loc3_) as Class)(this)).restoreFromByteArray(param1);
-               this.mTiles[_loc6_][_loc8_] = _loc5_;
-               this.mLayerTiles.addChild(_loc5_);
-               _loc8_++;
+               _loc2_ = param1.readUTF();
+               _loc3_ = getDefinitionByName(_loc2_) as Class;
+               _loc4_ = new _loc3_(this);
+               _loc4_.restoreFromByteArray(param1);
+               this.mTiles[_loc8_][_loc6_] = _loc4_;
+               this.mLayerTiles.addChild(_loc4_);
+               _loc6_++;
             }
-            _loc6_++;
+            _loc8_++;
          }
       }
       
@@ -1098,7 +1104,7 @@ package com.dchoc.engineisometric
       {
          this.mSelectedTileObject = param1;
          this.mSelectedTileObject.visible = false;
-         var _loc2_:int = numChildren - 1;
+         var _loc2_:* = int(numChildren - 1);
          while(_loc2_ >= 0)
          {
             if(getChildAt(_loc2_).name == TILES_LAYER_NAME)
@@ -1150,3 +1156,4 @@ package com.dchoc.engineisometric
       }
    }
 }
+

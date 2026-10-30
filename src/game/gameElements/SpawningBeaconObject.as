@@ -23,7 +23,6 @@ package game.gameElements
    {
       
       private static const SPAWNING_RADIUS:int = 2;
-       
       
       private var mSetupItem:EnemyAppearanceSetupItem;
       
@@ -56,10 +55,13 @@ package game.gameElements
       override public function logicUpdate(param1:int) : Boolean
       {
          var _loc2_:GameState = null;
-         var _loc3_:GridCell = null;
-         var _loc4_:Object = null;
          var _loc5_:TextEffect = null;
          var _loc6_:MovieClip = null;
+         _loc2_ = null;
+         var _loc3_:GridCell = null;
+         var _loc4_:Object = null;
+         _loc5_ = null;
+         _loc6_ = null;
          if(mState != mNewState)
          {
             changeState(mNewState);
@@ -102,7 +104,8 @@ package game.gameElements
          mTextFXTimer -= param1;
          if(mTextFXQueue.length > 0 && mTextFXTimer <= 0)
          {
-            _loc6_ = (_loc5_ = mTextFXQueue[0]).getClip();
+            _loc5_ = mTextFXQueue[0];
+            _loc6_ = _loc5_.getClip();
             _loc6_.scaleX /= mScene.mContainer.scaleX;
             _loc6_.scaleY = _loc6_.scaleY;
             _loc6_.x = mContainer.x;
@@ -137,51 +140,53 @@ package game.gameElements
       
       public function spawnUnits() : void
       {
-         var _loc6_:GridCell = null;
-         var _loc7_:int = 0;
-         var _loc8_:int = 0;
-         var _loc9_:int = 0;
-         var _loc10_:int = 0;
-         var _loc11_:String = null;
-         var _loc12_:EnemyUnit = null;
-         var _loc1_:GameState = GameState.mInstance;
-         var _loc2_:GridCell = mScene.getCellAtLocation(mX,mY);
-         var _loc3_:Array = MapArea.getAreaAroundCell(mScene,_loc2_,SPAWNING_RADIUS).getCells();
-         _loc1_.moveCameraToSeeRenderable(this);
+         var _loc1_:GridCell = null;
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
          var _loc4_:int = 0;
-         while(_loc4_ < _loc3_.length)
-         {
-            if((_loc6_ = _loc3_[_loc4_]).mObject && !(_loc6_.mObject is DebrisObject) || _loc6_.mCharacter || _loc6_.mCharacterComingToThisTile || !MapData.isTilePassable(_loc6_.mType))
-            {
-               _loc3_.splice(_loc4_,1);
-               _loc4_--;
-            }
-            _loc4_++;
-         }
          var _loc5_:int = 0;
-         while(_loc5_ < this.mSetupItem.mNumberOfUnits && _loc3_.length > 0)
+         var _loc6_:String = null;
+         var _loc7_:EnemyUnit = null;
+         var _loc8_:GameState = GameState.mInstance;
+         var _loc9_:GridCell = mScene.getCellAtLocation(mX,mY);
+         var _loc10_:Array = MapArea.getAreaAroundCell(mScene,_loc9_,SPAWNING_RADIUS).getCells();
+         _loc8_.moveCameraToSeeRenderable(this);
+         var _loc11_:* = 0;
+         while(_loc11_ < _loc10_.length)
          {
-            _loc7_ = 0;
-            _loc8_ = Math.random() * 100;
-            _loc9_ = Math.random() * _loc3_.length;
-            _loc2_ = _loc3_[_loc9_];
-            _loc3_.splice(_loc9_,1);
-            _loc10_ = 0;
-            while(_loc10_ < this.mSetupItem.mEnemyUnits.length)
+            _loc1_ = _loc10_[_loc11_];
+            if(Boolean(_loc1_.mObject && !(_loc1_.mObject is DebrisObject) || _loc1_.mCharacter) || Boolean(_loc1_.mCharacterComingToThisTile) || !MapData.isTilePassable(_loc1_.mType))
             {
-               _loc7_ += this.mSetupItem.mEnemyUnitsP[_loc10_] as int;
-               if(_loc8_ < _loc7_)
+               _loc10_.splice(_loc11_,1);
+               _loc11_--;
+            }
+            _loc11_++;
+         }
+         var _loc12_:int = 0;
+         while(_loc12_ < this.mSetupItem.mNumberOfUnits && _loc10_.length > 0)
+         {
+            _loc2_ = 0;
+            _loc3_ = Math.random() * 100;
+            _loc4_ = Math.random() * _loc10_.length;
+            _loc9_ = _loc10_[_loc4_];
+            _loc10_.splice(_loc4_,1);
+            _loc5_ = 0;
+            while(_loc5_ < this.mSetupItem.mEnemyUnits.length)
+            {
+               _loc2_ += this.mSetupItem.mEnemyUnitsP[_loc5_] as int;
+               if(_loc3_ < _loc2_)
                {
-                  _loc11_ = String((this.mSetupItem.mEnemyUnits[_loc10_] as Object).ID);
-                  if(_loc12_ = _loc1_.spawnEnemy(ItemManager.getItem(_loc11_,"EnemyUnit") as MapItem,_loc2_,false))
+                  _loc6_ = String((this.mSetupItem.mEnemyUnits[_loc5_] as Object).ID);
+                  _loc7_ = _loc8_.spawnEnemy(ItemManager.getItem(_loc6_,"EnemyUnit") as MapItem,_loc9_,false);
+                  if(_loc7_)
                   {
-                     _loc12_.startAirDrop();
+                     _loc7_.startAirDrop();
                   }
                   break;
                }
-               _loc10_++;
+               _loc5_++;
             }
-            _loc5_++;
+            _loc12_++;
          }
       }
       
@@ -237,3 +242,4 @@ package game.gameElements
       }
    }
 }
+

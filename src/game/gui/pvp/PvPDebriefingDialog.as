@@ -1,4 +1,4 @@
-﻿package game.gui.pvp
+package game.gui.pvp
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
@@ -18,7 +18,6 @@
    
    public class PvPDebriefingDialog extends PopUpWindow
    {
-       
       
       private var mButtonCancel:ArmyButton;
       
@@ -44,9 +43,9 @@
       
       public function PvPDebriefingDialog()
       {
-         var _loc2_:TextField = null;
-         var _loc1_:Class = DCResourceManager.getInstance().getSWFClass("swf/popups_pvp","popup_pvp_loot");
-         super(new _loc1_(),true);
+         var _loc1_:TextField = null;
+         var _loc2_:Class = DCResourceManager.getInstance().getSWFClass("swf/popups_pvp","popup_pvp_loot");
+         super(new _loc2_(),true);
          this.mPlayerCard = mClip.getChildByName("Player_Card") as MovieClip;
          this.mOpponentCard = mClip.getChildByName("Opponent_Card") as MovieClip;
          this.mStatus = mClip.getChildByName("PvP_Battle_Status") as MovieClip;
@@ -58,12 +57,12 @@
          this.mButtonBrag.setText(GameState.getText("PVP_BUTTON_DEBRIEFING_POST_FEED"));
          this.mHeader = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip);
          this.mHeader.setText(GameState.getText("PVP_DEBRIEFING_TITLE"));
-         _loc2_ = this.mLoot.getChildByName("Text_Description") as TextField;
-         _loc2_.text = GameState.getText("PVP_DEBRIEFING_LOOT");
-         _loc2_ = this.mLoot.getChildByName("Text_Instruction") as TextField;
-         _loc2_.text = GameState.getText("PVP_DEBRIEFING_INSTRUCTION");
-         _loc2_ = this.mStatus.getChildByName("Text_Description") as TextField;
-         _loc2_.text = GameState.getText("PVP_DEBRIEFING_STATUS");
+         _loc1_ = this.mLoot.getChildByName("Text_Description") as TextField;
+         _loc1_.text = GameState.getText("PVP_DEBRIEFING_LOOT");
+         _loc1_ = this.mLoot.getChildByName("Text_Instruction") as TextField;
+         _loc1_.text = GameState.getText("PVP_DEBRIEFING_INSTRUCTION");
+         _loc1_ = this.mStatus.getChildByName("Text_Description") as TextField;
+         _loc1_.text = GameState.getText("PVP_DEBRIEFING_STATUS");
       }
       
       public function Activate(param1:Function, param2:Function) : void
@@ -71,7 +70,7 @@
          this.mButtonBrag.setEnabled(true);
          mDoneCallback = param1;
          this.mMatchUpCallback = param2;
-         this.mPlayer = new PvPOpponent(GameState.mInstance.mPlayerProfile.mUid,GameState.mInstance.mPlayerProfile.mBadassXp,GameState.mInstance.mPlayerProfile.mBadassLevel,GameState.mInstance.mPlayerProfile.mBadassWins, "", "");
+         this.mPlayer = new PvPOpponent(GameState.mInstance.mPlayerProfile.mUid,GameState.mInstance.mPlayerProfile.mBadassXp,GameState.mInstance.mPlayerProfile.mBadassLevel,GameState.mInstance.mPlayerProfile.mBadassWins,"","");
          this.setCard(this.mPlayerCard,this.mPlayer);
          this.mOpponent = GameState.mInstance.mPvPMatch.mOpponent;
          this.setCard(this.mOpponentCard,this.mOpponent);
@@ -97,19 +96,18 @@
       
       private function setLootItems(param1:Array) : void
       {
-         var _loc3_:CollectibleItem = null;
-         var _loc4_:MovieClip = null;
+         var _loc2_:CollectibleItem = null;
+         var _loc3_:MovieClip = null;
          if(param1 == null)
          {
             return;
          }
-         var _loc2_:int = 1;
-         for each(_loc3_ in param1)
+         var _loc4_:int = 1;
+         for each(_loc2_ in param1)
          {
-            _loc4_ = this.mLoot.getChildByName("Item_0" + _loc2_) as MovieClip;
-            IconLoader.addIcon(_loc4_,_loc3_,this.iconLoaded);
-            _loc2_++;
-            if(_loc2_ > 4)
+            _loc3_ = this.mLoot.getChildByName("Item_0" + _loc4_) as MovieClip;
+            IconLoader.addIcon(_loc3_,_loc2_,this.iconLoaded);
+            if(++_loc4_ > 4)
             {
                break;
             }
@@ -125,6 +123,7 @@
       
       private function setCard(param1:MovieClip, param2:PvPOpponent) : void
       {
+         var _loc5_:MovieClip = null;
          var _loc3_:TextField = null;
          if(param1 == null || param2 == null)
          {
@@ -138,12 +137,12 @@
          _loc3_ = param1.getChildByName("Text_Name") as TextField;
          _loc3_.text = param2.mName;
          var _loc4_:Sprite = param1.getChildByName("Thumb") as Sprite;
-         if(param2 && param2.mPicID != null && param2.mPicID != "")
+         if(Boolean(param2) && Boolean(param2.mPicID != null) && param2.mPicID != "")
          {
             IconLoader.addIconPicture(_loc4_,param2.mPicID);
          }
-         var _loc5_:MovieClip;
-         _loc3_ = (_loc5_ = param1.getChildByName("Rank_Icon") as MovieClip).getChildByName("Text_PvP_Rank") as TextField;
+         _loc5_ = param1.getChildByName("Rank_Icon") as MovieClip;
+         _loc3_ = _loc5_.getChildByName("Text_PvP_Rank") as TextField;
          _loc3_.text = "" + param2.mBadassLevel;
       }
       
@@ -194,3 +193,4 @@
       }
    }
 }
+

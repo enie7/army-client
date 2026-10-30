@@ -1,4 +1,4 @@
-﻿package game.gui.missions
+package game.gui.missions
 {
    import com.dchoc.GUI.DCButton;
    import flash.display.MovieClip;
@@ -16,7 +16,6 @@
       private static var ICON_SPACING:int = Config.FOR_IPHONE_PLATFORM ? 52 : 100;
       
       private static const NUMBER_OF_MISSION_BUTTONS:int = 3;
-       
       
       private var mUnstable:Boolean;
       
@@ -38,27 +37,28 @@
       
       public function MissionIconsManager(param1:GameHUD)
       {
-         var _loc4_:MovieClip = null;
-         var _loc6_:MissionIconFrame = null;
+         var _loc2_:MovieClip = null;
+         var _loc3_:MissionIconFrame = null;
          super();
          this.mHUD = param1;
          this.mParentClip = param1.getHUDClipBottom();
-         var _loc2_:MovieClip = this.mParentClip.getChildByName("pullout_mission_frame") as MovieClip;
-         var _loc3_:MovieClip = _loc2_.getChildByName("pullout_mission") as MovieClip;
-         this.mMissionStackFrame = _loc3_.getChildByName("Frame_Mission_Stack") as MovieClip;
+         var _loc4_:MovieClip = this.mParentClip.getChildByName("pullout_mission_frame") as MovieClip;
+         var _loc5_:MovieClip = _loc4_.getChildByName("pullout_mission") as MovieClip;
+         this.mMissionStackFrame = _loc5_.getChildByName("Frame_Mission_Stack") as MovieClip;
          if(this.mMissionStackFrame.parent)
          {
             this.mMissionStackFrame.parent.removeChild(this.mMissionStackFrame);
          }
          this.mMissionStackButton = this.addMissionStackButton(this.mMissionStackFrame,"Button_Mission",this.buttonMissionStackPressed);
          this.mMissionFrames = new Array();
-         var _loc5_:int = 0;
-         while(_loc5_ < NUMBER_OF_MISSION_BUTTONS)
+         var _loc6_:int = 0;
+         while(_loc6_ < NUMBER_OF_MISSION_BUTTONS)
          {
-            _loc4_ = _loc3_.getChildByName("Frame_Mission_" + (_loc5_ + 1)) as MovieClip;
-            (_loc6_ = new MissionIconFrame(_loc4_)).removeFromParent();
-            this.mMissionFrames[_loc5_] = _loc6_;
-            _loc5_++;
+            _loc2_ = _loc5_.getChildByName("Frame_Mission_" + (_loc6_ + 1)) as MovieClip;
+            _loc3_ = new MissionIconFrame(_loc2_);
+            _loc3_.removeFromParent();
+            this.mMissionFrames[_loc6_] = _loc3_;
+            _loc6_++;
          }
          if(Config.FOR_IPHONE_PLATFORM)
          {
@@ -87,8 +87,9 @@
       
       private function addMissionStackButton(param1:MovieClip, param2:String, param3:Function) : MissionStackButton
       {
-         var _loc4_:MovieClip;
-         if((_loc4_ = param1.getChildByName(param2) as MovieClip) != null)
+         var _loc4_:MovieClip = null;
+         _loc4_ = param1.getChildByName(param2) as MovieClip;
+         if(_loc4_ != null)
          {
             _loc4_.mouseEnabled = true;
             return new MissionStackButton(param1,_loc4_,DCButton.BUTTON_TYPE_ICON,null,null,null,null,null,param3);
@@ -126,81 +127,85 @@
       
       public function updateMissionButtons() : void
       {
-         var _loc3_:Mission = null;
-         var _loc6_:Mission = null;
-         var _loc7_:int = 0;
-         var _loc8_:MovieClip = null;
-         var _loc9_:MovieClip = null;
-         var _loc10_:MissionIconFrame = null;
-         var _loc11_:MissionButton = null;
-         var _loc1_:int = MissionManager.getNumMissions();
-         var _loc2_:int = NUMBER_OF_MISSION_BUTTONS;
-         var _loc4_:int = 0;
-		 var map_id:String = GameState.mInstance.mCurrentMapId;
-         while(_loc4_ < _loc1_)
+         var _loc1_:Mission = null;
+         var _loc2_:Mission = null;
+         var _loc3_:int = 0;
+         var _loc4_:MovieClip = null;
+         var _loc5_:MovieClip = null;
+         var _loc6_:MissionIconFrame = null;
+         var _loc7_:MissionButton = null;
+         var _loc8_:int = MissionManager.getNumMissions();
+         var _loc9_:int = NUMBER_OF_MISSION_BUTTONS;
+         var _loc10_:int = 0;
+         var _loc11_:String = GameState.mInstance.mCurrentMapId;
+         while(_loc10_ < _loc8_)
          {
-            _loc6_ = MissionManager.getMissionByIndex(_loc4_);
-            _loc7_ = this.mMissionList.indexOf(_loc6_);
-            if(_loc6_.mState == Mission.STATE_ACTIVE && !_loc6_.allObjectivesDone())
+            _loc2_ = MissionManager.getMissionByIndex(_loc10_);
+            _loc3_ = this.mMissionList.indexOf(_loc2_);
+            if(_loc2_.mState == Mission.STATE_ACTIVE && !_loc2_.allObjectivesDone())
             {
-               if(_loc7_ == -1 && (_loc6_.mType == Mission.TYPE_NORMAL || _loc6_.mType == Mission.TYPE_STORY || _loc6_.mType == Mission.TYPE_TIP || _loc6_.mType == Mission.TYPE_CAMPAIGN))
+               if(_loc3_ == -1 && (_loc2_.mType == Mission.TYPE_NORMAL || _loc2_.mType == Mission.TYPE_STORY || _loc2_.mType == Mission.TYPE_TIP || _loc2_.mType == Mission.TYPE_CAMPAIGN))
                {
-				  if (_loc6_.mMapId == map_id){
-					this.mMissionList.push(_loc6_);
-				  }
+                  if(_loc2_.mMapId == _loc11_)
+                  {
+                     this.mMissionList.push(_loc2_);
+                  }
                }
-               else if(_loc6_.mType == Mission.TYPE_RANK)
+               else if(_loc2_.mType == Mission.TYPE_RANK)
                {
-                  _loc3_ = _loc6_;
+                  _loc1_ = _loc2_;
                }
             }
-            else if(_loc7_ != -1)
+            else if(_loc3_ != -1)
             {
-               this.mMissionList.splice(_loc7_,1);
+               this.mMissionList.splice(_loc3_,1);
             }
-            _loc4_++;
+            _loc10_++;
          }
          this.mMissionList.sort(sortMissions);
          if(this.mMissionList.length > NUMBER_OF_MISSION_BUTTONS)
          {
-            //_loc2_--; ?????????????????????????????????
-            this.mMissionStackButton.setText(String(this.mMissionList.length - _loc2_),"Header");
-            (_loc9_ = (_loc8_ = this.mParentClip.getChildByName("pullout_mission_frame") as MovieClip).getChildByName("pullout_mission") as MovieClip).addChild(this.mMissionStackFrame);
+            this.mMissionStackButton.setText(String(this.mMissionList.length - _loc9_),"Header");
+            _loc4_ = this.mParentClip.getChildByName("pullout_mission_frame") as MovieClip;
+            _loc5_ = _loc4_.getChildByName("pullout_mission") as MovieClip;
+            _loc5_.addChild(this.mMissionStackFrame);
          }
          else if(this.mMissionStackFrame.parent)
          {
             this.mMissionStackFrame.parent.removeChild(this.mMissionStackFrame);
          }
-         var _loc5_:int = 0;
-         while(_loc5_ < this.mMissionList.length && _loc5_ < _loc2_)
+         var _loc12_:int = 0;
+         while(_loc12_ < this.mMissionList.length && _loc12_ < _loc9_)
          {
-            _loc6_ = this.mMissionList[_loc5_];
-            if((_loc11_ = (_loc10_ = this.mMissionFrames[_loc5_] as MissionIconFrame).getButton()).getMission() != _loc6_)
+            _loc2_ = this.mMissionList[_loc12_];
+            _loc6_ = this.mMissionFrames[_loc12_] as MissionIconFrame;
+            _loc7_ = _loc6_.getButton();
+            if(_loc7_.getMission() != _loc2_)
             {
-               if(!_loc11_.getMission())
+               if(!_loc7_.getMission())
                {
-                  _loc10_.setY(this.getNewMissionSlideStartY(_loc10_));
+                  _loc6_.setY(this.getNewMissionSlideStartY(_loc6_));
                   this.mUnstable = true;
                }
-               if(_loc6_.mId == "COMBAT_S_1")
+               if(_loc2_.mId == "COMBAT_S_1")
                {
-                  _loc11_.setMission(_loc6_,null);
+                  _loc7_.setMission(_loc2_,null);
                }
                else
                {
-                  _loc11_.setMission(_loc6_,smHighlightedMissionAdded ? MissionButton.STATE_UNOPENED : null);
+                  _loc7_.setMission(_loc2_,smHighlightedMissionAdded ? MissionButton.STATE_UNOPENED : null);
                }
-               _loc10_.addToParent();
+               _loc6_.addToParent();
             }
-            smHighlightedMissionAdded = smHighlightedMissionAdded || _loc11_.getState() == MissionButton.STATE_NEW;
-            _loc5_++;
+            smHighlightedMissionAdded = smHighlightedMissionAdded || _loc7_.getState() == MissionButton.STATE_NEW;
+            _loc12_++;
          }
-         while(_loc4_ < NUMBER_OF_MISSION_BUTTONS)
+         while(_loc10_ < NUMBER_OF_MISSION_BUTTONS)
          {
-            (this.mMissionFrames[_loc4_] as MissionIconFrame).removeFromParent();
-            _loc4_++;
+            (this.mMissionFrames[_loc10_] as MissionIconFrame).removeFromParent();
+            _loc10_++;
          }
-         if(!_loc3_)
+         if(_loc1_)
          {
          }
       }
@@ -250,32 +255,35 @@
       
       public function checkMissionProgress() : void
       {
-         var _loc3_:MissionIconFrame = null;
-         var _loc4_:MissionButton = null;
-         var _loc5_:Mission = null;
-         var _loc1_:int = int(this.mMissionFrames.length);
-         var _loc2_:int = 0;
-         while(_loc2_ < _loc1_)
+         var _loc1_:MissionIconFrame = null;
+         var _loc2_:MissionButton = null;
+         var _loc3_:Mission = null;
+         var _loc4_:* = int(this.mMissionFrames.length);
+         var _loc5_:int = 0;
+         while(_loc5_ < _loc4_)
          {
-            _loc3_ = this.mMissionFrames[_loc2_];
-            if(_loc5_ = (_loc4_ = _loc3_.getButton()).getMission())
+            _loc1_ = this.mMissionFrames[_loc5_];
+            _loc2_ = _loc1_.getButton();
+            _loc3_ = _loc2_.getMission();
+            if(_loc3_)
             {
-               if(_loc5_.allObjectivesDone())
+               if(_loc3_.allObjectivesDone())
                {
-                  this.mMissionFrames.push(_loc3_);
-                  this.mMissionFrames.splice(_loc2_,1);
-                  _loc1_--;
-                  _loc4_.setState(MissionButton.STATE_COMPLETE);
-                  _loc3_.setY(this.getNewMissionSlideStartY(_loc3_));
+                  this.mMissionFrames.push(_loc1_);
+                  this.mMissionFrames.splice(_loc5_,1);
+                  _loc4_--;
+                  _loc2_.setState(MissionButton.STATE_COMPLETE);
+                  _loc1_.setY(this.getNewMissionSlideStartY(_loc1_));
                   this.mUnstable = true;
                }
-               else if(_loc5_.getProgressPending(true))
+               else if(_loc3_.getProgressPending(true))
                {
-                  _loc4_.setState(MissionButton.STATE_PROGRESSING);
+                  _loc2_.setState(MissionButton.STATE_PROGRESSING);
                }
             }
-            _loc2_++;
+            _loc5_++;
          }
       }
    }
 }
+

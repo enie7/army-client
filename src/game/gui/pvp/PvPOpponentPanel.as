@@ -1,4 +1,4 @@
-﻿package game.gui.pvp
+package game.gui.pvp
 {
    import flash.display.MovieClip;
    import flash.display.Sprite;
@@ -13,7 +13,6 @@
    
    public class PvPOpponentPanel
    {
-       
       
       public var mBasePanel:MovieClip;
       
@@ -58,12 +57,13 @@
       
       public function setData(param1:PvPOpponent, param2:Boolean) : void
       {
+         var _loc4_:MovieClip = null;
          var _loc3_:TextField = null;
          this.mOpponent = param1;
          _loc3_ = this.mBasePanel.getChildByName("Text_Name") as TextField;
          _loc3_.text = param1.mName;
-         var _loc4_:MovieClip;
-         _loc3_ = (_loc4_ = this.mBasePanel.getChildByName("Rank_Icon") as MovieClip).getChildByName("Text_PvP_Rank") as TextField;
+         _loc4_ = this.mBasePanel.getChildByName("Rank_Icon") as MovieClip;
+         _loc3_ = _loc4_.getChildByName("Text_PvP_Rank") as TextField;
          _loc3_.text = param1.mBadassLevel.toString();
          _loc3_ = this.mBasePanel.getChildByName("Text_Wins") as TextField;
          _loc3_.text = param1.mPvPWins.toString();
@@ -78,14 +78,14 @@
             this.mButtonAttack.setText(GameState.getText("PVP_ATTACK"));
          }
          var _loc5_:Sprite = this.mBasePanel.getChildByName("Thumb") as Sprite;
-         if(param1 && param1.mPicID != null && param1.mPicID != "")
+         if(Boolean(param1) && Boolean(param1.mPicID != null) && param1.mPicID != "")
          {
             IconLoader.addIconPicture(_loc5_,param1.mPicID);
          }
          this.mButtonRemove.setVisible(false);
       }
-  
-	  private function attackClicked(param1:MouseEvent) : void
+      
+      private function attackClicked(param1:MouseEvent) : void
       {
          (this.mDialog as PvPMatchUpDialog).attackPlayer(this.mOpponent);
       }
@@ -93,6 +93,6 @@
       private function removeClicked(param1:MouseEvent) : void
       {
       }
-      
    }
 }
+

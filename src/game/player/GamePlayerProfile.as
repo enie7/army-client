@@ -1,4 +1,4 @@
-﻿package game.player
+package game.player
 {
    import com.dchoc.utils.DCUtils;
    import flash.events.TimerEvent;
@@ -19,7 +19,6 @@
    import game.items.ShopItem;
    import game.items.SupplyPackItem;
    import game.items.WaterPackItem;
-   import game.magicBox.FlurryEvents;
    import game.magicBox.MagicBoxTracker;
    import game.missions.Mission;
    import game.missions.MissionManager;
@@ -33,7 +32,6 @@
    
    public class GamePlayerProfile
    {
-       
       
       private var mLoaded:Boolean;
       
@@ -81,13 +79,13 @@
       
       private var mRecentlyGiftedSupplies:Array;
       
-      private var mLevelProgression:Array;
+      private var mLevelProgression:Array = new Array();
       
       private var mLevelConfig:*;
       
-      private var mSocialLevelProgression:Array;
+      private var mSocialLevelProgression:Array = new Array();
       
-      private var mBadassLevelProgression:Array;
+      private var mBadassLevelProgression:Array = new Array();
       
       public var mPic:String;
       
@@ -131,9 +129,6 @@
       
       public function GamePlayerProfile()
       {
-         this.mLevelProgression = new Array();
-         this.mSocialLevelProgression = new Array();
-         this.mBadassLevelProgression = new Array();
          super();
          this.mLevel = 1;
          this.mXp = 0;
@@ -177,30 +172,30 @@
       
       public function setInitialValues(param1:ServerCall) : void
       {
-         var _loc4_:String = null;
-         var _loc5_:int = 0;
-         var _loc7_:Item = null;
+         var _loc2_:String = null;
+         var _loc3_:int = 0;
+         var _loc4_:Item = null;
+         var _loc5_:* = null;
+         var _loc6_:String = null;
+         var _loc7_:String = null;
          var _loc8_:* = null;
-         var _loc9_:String = null;
-         var _loc10_:String = null;
-         var _loc11_:* = null;
-         var _loc12_:ShopItem = null;
+         var _loc9_:ShopItem = null;
          this.mLoaded = true;
-         var _loc2_:* = GameState.mConfig;
-         this.setupLevelProgression(_loc2_.Levels);
-         this.setupSocialLevelProgression(_loc2_.SocialLevels);
-         this.setupBadassLevelProgression(_loc2_.BadassLevels);
+         var _loc10_:* = GameState.mConfig;
+         this.setupLevelProgression(_loc10_.Levels);
+         this.setupSocialLevelProgression(_loc10_.SocialLevels);
+         this.setupBadassLevelProgression(_loc10_.BadassLevels);
          this.mInventory = new Inventory();
-         var _loc3_:int = getTimer();
-         var _loc6_:int = 8454143;
+         var _loc11_:int = getTimer();
+         var _loc12_:int = 8454143;
          if(param1 == null)
          {
-            this.mTimeBetweenEnergyRecharges = Number(_loc2_.PlayerRechargeIntervals.Default.Energy) * 60;
+            this.mTimeBetweenEnergyRecharges = Number(_loc10_.PlayerRechargeIntervals.Default.Energy) * 60;
             this.mSecsSinceLastEnemySpawn = 0;
-            this.mXp = _loc2_.PlayerStartValues.Default.XP;
+            this.mXp = _loc10_.PlayerStartValues.Default.XP;
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mMoney = _loc2_.PlayerStartValues.Default.Money;
+               this.mMoney = _loc10_.PlayerStartValues.Default.Money;
             }
             else
             {
@@ -208,7 +203,7 @@
             }
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mPremium = _loc2_.PlayerStartValues.Default.Premium;
+               this.mPremium = _loc10_.PlayerStartValues.Default.Premium;
             }
             else
             {
@@ -216,7 +211,7 @@
             }
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mEnergy = _loc2_.PlayerStartValues.Default.Energy;
+               this.mEnergy = _loc10_.PlayerStartValues.Default.Energy;
             }
             else
             {
@@ -224,41 +219,41 @@
             }
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mSupplies = _loc2_.PlayerStartValues.Default.Supplies;
+               this.mSupplies = _loc10_.PlayerStartValues.Default.Supplies;
             }
             else
             {
                this.mSupplies = 59500;
             }
-            this.mMaterial = _loc2_.PlayerStartValues.Default.Material;
-            this.mSocialXp = _loc2_.PlayerStartValues.Default.SocialXP;
-            this.mWater = _loc2_.PlayerStartValues.Default.Water;
+            this.mMaterial = _loc10_.PlayerStartValues.Default.Material;
+            this.mSocialXp = _loc10_.PlayerStartValues.Default.SocialXP;
+            this.mWater = _loc10_.PlayerStartValues.Default.Water;
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mSuppliesCap = _loc2_.PlayerStartValues.Default.SuppliesCap;
+               this.mSuppliesCap = _loc10_.PlayerStartValues.Default.SuppliesCap;
             }
             else
             {
                this.mSuppliesCap = 60000;
             }
             this.mSecondsToRechargeEnergy = 0;
-            _loc7_ = ItemManager.getItem("Intel","Intel");
+            _loc4_ = ItemManager.getItem("Intel","Intel");
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mInventory.addItems(_loc7_,100);
+               this.mInventory.addItems(_loc4_,100);
             }
             else
             {
-               this.mInventory.addItems(_loc7_,500);
+               this.mInventory.addItems(_loc4_,500);
             }
-            _loc7_ = ItemManager.getItem("AllyReport","Intel");
+            _loc4_ = ItemManager.getItem("AllyReport","Intel");
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mInventory.addItems(_loc7_,100);
+               this.mInventory.addItems(_loc4_,100);
             }
             else
             {
-               this.mInventory.addItems(_loc7_,500);
+               this.mInventory.addItems(_loc4_,500);
             }
             if(!Config.CHEAT_GOD_MODE)
             {
@@ -271,62 +266,63 @@
          }
          else
          {
-            _loc8_ = param1.mData;
-            this.mXp = _loc8_.resource_experience;
-            this.mMoney = _loc8_.resource_money;
-            this.mPremium = _loc8_.resource_premium;
-            this.mEnergy = _loc8_.resource_energy;
-            this.mSupplies = _loc8_.resource_supplies;
-            this.mMaterial = _loc8_.resource_material;
-            this.mSocialXp = _loc8_.resource_socialxp;
-            this.mWater = _loc8_.resource_water;
-            this.mSuppliesCap = _loc8_.supply_cap;
-            this.mSecondsToRechargeEnergy = _loc8_.secs_to_energy_gain;
-            this.mRewardDropSeedTerm = _loc8_.reward_drop_seed_term;
-            this.mRewardDropsCounter = _loc8_.reward_drops_counter;
-            this.mEnergyRewardCounter = _loc8_.resource_energy_percentiles;
-            this.mInventory.initializeFromServer(_loc8_);
+            _loc5_ = param1.mData;
+            this.mXp = _loc5_.resource_experience;
+            this.mMoney = _loc5_.resource_money;
+            this.mPremium = _loc5_.resource_premium;
+            this.mEnergy = _loc5_.resource_energy;
+            this.mSupplies = _loc5_.resource_supplies;
+            this.mMaterial = _loc5_.resource_material;
+            this.mSocialXp = _loc5_.resource_socialxp;
+            this.mWater = _loc5_.resource_water;
+            this.mSuppliesCap = _loc5_.supply_cap;
+            this.mSecondsToRechargeEnergy = _loc5_.secs_to_energy_gain;
+            this.mRewardDropSeedTerm = _loc5_.reward_drop_seed_term;
+            this.mRewardDropsCounter = _loc5_.reward_drops_counter;
+            this.mEnergyRewardCounter = _loc5_.resource_energy_percentiles;
+            this.mInventory.initializeFromServer(_loc5_);
             this.mRecentlyGiftedEnergy = new Array();
             this.mRecentlyGiftedSupplies = new Array();
-            this.mTimeBetweenEnergyRecharges = _loc8_.energy_recharge_time;
-            this.mSecsSinceLastEnemySpawn = _loc8_.secs_since_last_enemy_spawn;
-            _loc9_ = String(_loc8_.recently_gifted_energy_to);
-            _loc10_ = String(_loc8_.recently_gifted_supplies_to);
-            _loc9_ = DCUtils.trim(_loc9_);
-            _loc10_ = DCUtils.trim(_loc10_);
-            if(_loc9_.indexOf(",") == -1)
+            this.mTimeBetweenEnergyRecharges = _loc5_.energy_recharge_time;
+            this.mSecsSinceLastEnemySpawn = _loc5_.secs_since_last_enemy_spawn;
+            _loc6_ = String(_loc5_.recently_gifted_energy_to);
+            _loc7_ = String(_loc5_.recently_gifted_supplies_to);
+            _loc6_ = DCUtils.trim(_loc6_);
+            _loc7_ = DCUtils.trim(_loc7_);
+            if(_loc6_.indexOf(",") == -1)
             {
-               this.mRecentlyGiftedEnergy = [_loc9_];
+               this.mRecentlyGiftedEnergy = [_loc6_];
             }
             else
             {
-               this.mRecentlyGiftedEnergy = _loc9_.split(",");
+               this.mRecentlyGiftedEnergy = _loc6_.split(",");
             }
-            if(_loc10_.indexOf(",") == -1)
+            if(_loc7_.indexOf(",") == -1)
             {
-               this.mRecentlyGiftedSupplies = [_loc10_];
+               this.mRecentlyGiftedSupplies = [_loc7_];
             }
             else
             {
-               this.mRecentlyGiftedSupplies = _loc10_.split(",");
+               this.mRecentlyGiftedSupplies = _loc7_.split(",");
             }
-            if(_loc8_.item_unlocks)
+            if(_loc5_.item_unlocks)
             {
-               for each(_loc11_ in _loc8_.item_unlocks)
+               for each(_loc8_ in _loc5_.item_unlocks)
                {
-                  if(_loc12_ = ItemManager.getItemByTableName(_loc11_.item_id,_loc11_.item_type) as ShopItem)
+                  _loc9_ = ItemManager.getItemByTableName(_loc8_.item_id,_loc8_.item_type) as ShopItem;
+                  if(_loc9_)
                   {
-                     _loc12_.mEarlyUnlockBought = true;
+                     _loc9_.mEarlyUnlockBought = true;
                   }
                }
             }
-            if(_loc8_.wishlist)
+            if(_loc5_.wishlist)
             {
-               this.mWishList.setupFromServer(_loc8_.wishlist);
+               this.mWishList.setupFromServer(_loc5_.wishlist);
             }
             if(!Config.CHEAT_GOD_MODE)
             {
-               this.mMaxEnergy = _loc8_.energy_cap;
+               this.mMaxEnergy = _loc5_.energy_cap;
             }
             else
             {
@@ -398,7 +394,7 @@
          {
             this.addSupplies(SupplyPackItem(param1).mSuppliesGain);
          }
-		 else if(param1 is WaterPackItem)
+         else if(param1 is WaterPackItem)
          {
             this.addWater(WaterPackItem(param1).mWaterGain);
          }
@@ -638,16 +634,12 @@
             MagicBoxTracker.paramsAddGameCurrency(param3,-param1);
             MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_SPEND_CASH,param2,param3);
          }
-         else
+         else if(param4)
          {
-            if(param4)
-            {
-               _loc6_ = Number(param4.mCostPremium) * 100;
-               MagicBoxTracker.paramsTrackRealCurrency(param3,_loc6_,param4.mCashGain);
-               param3["product"] = param4.mId;
-               MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_BUY_CASH,MagicBoxTracker.LABEL_SUCCESS,param3);
-            }
-
+            _loc6_ = Number(param4.mCostPremium) * 100;
+            MagicBoxTracker.paramsTrackRealCurrency(param3,_loc6_,param4.mCashGain);
+            param3["product"] = param4.mId;
+            MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_BUY_CASH,MagicBoxTracker.LABEL_SUCCESS,param3);
          }
       }
       
@@ -680,18 +672,13 @@
             }
             MagicBoxTracker.paramsTrackPremiumCurrency(param3,-param1);
             MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_SPEND_PC,param2,param3);
-
          }
-         else
+         else if(param4)
          {
-            if(param4)
-            {
-               _loc7_ = Number(param4.mCostPremium) * 100;
-               MagicBoxTracker.paramsTrackRealCurrency(param3,_loc7_,param4.mGoldGain);
-               param3["product"] = param4.mId;
-               MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_BUY_PC,MagicBoxTracker.LABEL_SUCCESS,param3);
-            }
- 
+            _loc7_ = Number(param4.mCostPremium) * 100;
+            MagicBoxTracker.paramsTrackRealCurrency(param3,_loc7_,param4.mGoldGain);
+            param3["product"] = param4.mId;
+            MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_BUY_PC,MagicBoxTracker.LABEL_SUCCESS,param3);
          }
       }
       
@@ -732,7 +719,6 @@
       {
          var _loc3_:* = null;
          this.setEnergy(this.mEnergy + param1);
-
          if(this.mEnergy == 0)
          {
             if(param2)
@@ -816,7 +802,6 @@
             }
             MagicBoxTracker.paramsAddSupplyResource(param3,-param1);
             MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_ECONOMY,MagicBoxTracker.TYPE_SPEND_SUPPLY,param2,param3);
-
          }
       }
       
@@ -986,38 +971,52 @@
       
       public function updateUnitCaps() : void
       {
-         var _loc3_:Renderable = null;
-         var _loc4_:ConstructionObject = null;
-         var _loc5_:ConstructionItem = null;
+         var _loc1_:Renderable = null;
+         var _loc2_:ConstructionObject = null;
+         var _loc3_:ConstructionItem = null;
          if(GameState.mInstance.visitingFriend())
          {
             return;
          }
-         var _loc1_:* = GameState.mConfig;
-         this.mUnitCaps.Infantry = int(_loc1_.PlayerStartValues.Default.UnitCapInfantry);
-         this.mUnitCaps.Armor = int(_loc1_.PlayerStartValues.Default.UnitCapArmor);
-         this.mUnitCaps.Artillery = int(_loc1_.PlayerStartValues.Default.UnitCapArtillery);
+         var _loc4_:* = GameState.mConfig;
+         if(_loc4_.MapSetup[GameState.mInstance.mCurrentMapId].hasOwnProperty("UnitCapInfantry"))
+         {
+            this.mUnitCaps.Infantry = int(_loc4_.MapSetup[GameState.mInstance.mCurrentMapId].UnitCapInfantry);
+            this.mUnitCaps.Armor = int(_loc4_.MapSetup[GameState.mInstance.mCurrentMapId].UnitCapArmor);
+            this.mUnitCaps.Artillery = int(_loc4_.MapSetup[GameState.mInstance.mCurrentMapId].UnitCapArtillery);
+            this.mUnitCaps.Lab = int(_loc4_.MapSetup[GameState.mInstance.mCurrentMapId].UnitCapLab);
+         }
+         else
+         {
+            this.mUnitCaps.Infantry = int(_loc4_.PlayerStartValues.Default.UnitCapInfantry);
+            this.mUnitCaps.Armor = int(_loc4_.PlayerStartValues.Default.UnitCapArmor);
+            this.mUnitCaps.Artillery = int(_loc4_.PlayerStartValues.Default.UnitCapArtillery);
+            this.mUnitCaps.Lab = int(_loc4_.PlayerStartValues.Default.UnitCapLab);
+         }
          this.mUnitCounts.Infantry = 0;
          this.mUnitCounts.Armor = 0;
          this.mUnitCounts.Artillery = 0;
-         var _loc2_:Array = GameState.mInstance.mScene.mAllElements;
-         for each(_loc3_ in _loc2_)
+         this.mUnitCounts.Lab = 0;
+         var _loc5_:Array = GameState.mInstance.mScene.mAllElements;
+         for each(_loc1_ in _loc5_)
          {
-            if(_loc3_ is ConstructionObject)
+            if(_loc1_ is ConstructionObject)
             {
-               if((_loc4_ = _loc3_ as ConstructionObject).mHasBeenCompleted)
+               _loc2_ = _loc1_ as ConstructionObject;
+               if(_loc2_.mHasBeenCompleted)
                {
-                  _loc5_ = _loc4_.mItem as ConstructionItem;
-                  this.mUnitCaps.Infantry += _loc5_.mUnitCapIncrements.Infantry;
-                  this.mUnitCaps.Armor += _loc5_.mUnitCapIncrements.Armor;
-                  this.mUnitCaps.Artillery += _loc5_.mUnitCapIncrements.Artilery;
+                  _loc3_ = _loc2_.mItem as ConstructionItem;
+                  this.mUnitCaps.Infantry += _loc3_.mUnitCapIncrements.Infantry;
+                  this.mUnitCaps.Armor += _loc3_.mUnitCapIncrements.Armor;
+                  this.mUnitCaps.Artillery += _loc3_.mUnitCapIncrements.Artilery;
+                  this.mUnitCaps.Lab += _loc3_.mUnitCapIncrements.Lab;
                }
             }
-            else if(!(_loc3_ is DecorationObject))
+            else if(!(_loc1_ is DecorationObject))
             {
-               if(_loc3_ is PlayerUnit)
+               if(_loc1_ is PlayerUnit)
                {
-                  this.mUnitCounts[_loc3_.mItem.mType] += 1;
+                  this.mUnitCounts[_loc1_.mItem.mType] += 1;
                }
             }
          }
@@ -1168,7 +1167,8 @@
          this.mBadassWins = param1.pvp_data.wins;
          for each(_loc2_ in param1.allies)
          {
-            if((_loc6_ = FriendsCollection.smFriends.GetFriend(_loc2_.facebook_id)) == null)
+            _loc6_ = FriendsCollection.smFriends.GetFriend(_loc2_.facebook_id);
+            if(_loc6_ == null)
             {
                if(Config.DEBUG_MODE)
                {
@@ -1185,7 +1185,7 @@
          _loc3_ = new Array();
          for each(_loc4_ in param1.possible_opponents)
          {
-            PvPOpponentCollection.smCollection.addOpponent(_loc4_.facebook_id,_loc4_.score,_loc4_.level,_loc4_.wins, _loc4_.player_name, _loc4_.avatar);
+            PvPOpponentCollection.smCollection.addOpponent(_loc4_.facebook_id,_loc4_.score,_loc4_.level,_loc4_.wins,_loc4_.player_name,_loc4_.avatar);
             _loc3_.push(_loc4_.facebook_id);
          }
          for each(_loc5_ in param1.recent_attacks)
@@ -1195,14 +1195,14 @@
          }
       }
       
-      public function setValuesFromOfflineSave(savedata:*) : void
+      public function setValuesFromOfflineSave(param1:*) : void
       {
-         var i:* = null;
-         for(i in savedata)
+         var _loc2_:* = null;
+         for(_loc2_ in param1)
          {
-            if(i != "mWishList" && i != "mInventory")
+            if(_loc2_ != "mWishList" && _loc2_ != "mInventory")
             {
-               this[i] = savedata[i];
+               this[_loc2_] = param1[_loc2_];
             }
          }
       }
@@ -1213,3 +1213,4 @@
       }
    }
 }
+

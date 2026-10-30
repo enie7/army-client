@@ -1,4 +1,4 @@
-﻿package game.sound
+package game.sound
 {
    import com.dchoc.utils.Cookie;
    import flash.events.Event;
@@ -13,15 +13,15 @@
    public class ArmySoundManager
    {
       
+      private static var mInstance:ArmySoundManager;
+      
+      private static var mAllowInstance:Boolean;
+      
       private static const SOUND_INITIAL_VOLUME:Number = 1;
       
       public static const TYPE_MUSIC:int = 0;
       
       public static const TYPE_SFX:int = 1;
-      
-      private static var mInstance:ArmySoundManager;
-      
-      private static var mAllowInstance:Boolean;
       
       public static var smLoadedSounds:Array = new Array();
       
@@ -63,7 +63,9 @@
       
       public static const SFX_UI_REPAIR:String = "sound/UI_sounds/unit_repair.mp3";
       
-      private static const mMandatorySounds:Array = [SFX_UI_BUILDING_CONSTRUCT,SFX_UI_NEW_UNIT_PLACED,SFX_UI_NEW_RANK,SFX_UI_LEVEL_UP,SFX_UI_CITY_LIBERATED,SFX_UI_AREA_UNLOCK,SFX_UI_CLICK,SFX_UI_HARVEST,SFX_UI_CLEAN,SFX_UI_ERROR,SFX_UI_COLLECT,SFX_UI_ENERGY_BOOST,SFX_UI_BUY_PREMIUM,SFX_UI_BUY_ITEM,SFX_UI_PLACE_ITEM,SFX_UI_SELL_ITEM,SFX_UI_REPAIR];
+      public static const SFX_DROID_STATION_SPAWN:String = "sound/Building_sounds/droid_station_spawn.mp3";
+      
+      private static const mMandatorySounds:Array = [SFX_UI_BUILDING_CONSTRUCT,SFX_UI_NEW_UNIT_PLACED,SFX_UI_NEW_RANK,SFX_UI_LEVEL_UP,SFX_UI_CITY_LIBERATED,SFX_UI_AREA_UNLOCK,SFX_UI_CLICK,SFX_UI_HARVEST,SFX_UI_CLEAN,SFX_UI_ERROR,SFX_UI_COLLECT,SFX_UI_ENERGY_BOOST,SFX_UI_BUY_PREMIUM,SFX_UI_BUY_ITEM,SFX_UI_PLACE_ITEM,SFX_UI_SELL_ITEM,SFX_UI_REPAIR,SFX_DROID_STATION_SPAWN];
       
       private static const SFX_FM_MORTAR:String = "sound/Units/firemission_friendlyattack.mp3";
       
@@ -187,6 +189,20 @@
       
       private static const SFX_HELI:String = "sound/Units/osprey_helicopter.mp3";
       
+      private static const SFX_BLACKFOX_SELECT1:String = "sound/Units/Black_Fox/blackfox_select_1.mp3";
+      
+      private static const SFX_BLACKFOX_SELECT2:String = "sound/Units/Black_Fox/blackfox_select_2.mp3";
+      
+      private static const SFX_BLACKFOX_SELECT3:String = "sound/Units/Black_Fox/blackfox_select_3.mp3";
+      
+      private static const SFX_BLACKFOX_SELECT4:String = "sound/Units/Black_Fox/blackfox_select_4.mp3";
+      
+      private static const SFX_FRN_CHOPTER_MOVING_1:String = "sound/Units/Chopter/Chopter_moving.mp3";
+      
+      private static const SFX_FRN_CHOPTER_ATTACK_1:String = "sound/Units/Chopter/Chopter_attack.mp3";
+      
+      private static const SFX_FRN_CHOPTER_DEATH_1:String = "sound/Units/Chopter/Chopter_death.mp3";
+      
       private static const SFX_PLANE:String = "sound/Units/osprey_plane.mp3";
       
       private static const SFX_PLACEHOLDER_EXPLODE:String = SFX_ENM_BUILDING_EXPLODE_1;
@@ -305,6 +321,14 @@
       
       public static var SC_HELI:SoundCollection = new SoundCollection(SFX_HELI,[SFX_HELI]);
       
+      public static const SC_CHOPTER_MOVING:SoundCollection = new SoundCollection(SFX_PLACEHOLDER_VEHICLE_MOVING,[SFX_FRN_CHOPTER_MOVING_1]);
+      
+      public static const SC_FRN_CHOPTER_ATTACK:SoundCollection = new SoundCollection(SFX_PLACEHOLDER_ATTACK,[SFX_FRN_CHOPTER_ATTACK_1]);
+      
+      public static const SC_FRN_CHOPTER_DEATH:SoundCollection = new SoundCollection(SFX_PLACEHOLDER_DEATH,[SFX_FRN_CHOPTER_DEATH_1]);
+      
+      public static var SC_BLACKFOX_SELECT:SoundCollection = new SoundCollection(SFX_PLACEHOLDER_SELECT,[SFX_BLACKFOX_SELECT1,SFX_BLACKFOX_SELECT2,SFX_BLACKFOX_SELECT3,SFX_BLACKFOX_SELECT4]);
+      
       public static var SC_PLANE:SoundCollection = new SoundCollection(SFX_PLANE,[SFX_PLANE]);
       
       public static var SC_FIRE_MISSION_ARTILLERY:SoundCollection = new SoundCollection(SFX_FM_MORTAR,[SFX_FM_ARTILLERY]);
@@ -314,7 +338,6 @@
       public static var SC_FIRE_MISSION_NAPALM:SoundCollection = new SoundCollection(SFX_FM_MORTAR,[SFX_FM_NAPALM]);
       
       public static var SC_FIRE_MISSION_DOOMSDAY:SoundCollection = new SoundCollection(SFX_FM_MORTAR,[SFX_FM_DOOMSDAY]);
-       
       
       private var mMusicOn:Boolean;
       
@@ -408,6 +431,7 @@
       
       public function addExternalSound(param1:String, param2:String, param3:int, param4:Number = 1000, param5:Boolean = false) : PlayableSoundObject
       {
+         var _loc6_:Sound = null;
          if(this.soundExists(param2))
          {
             return null;
@@ -415,8 +439,8 @@
          if(Config.DEBUG_MODE)
          {
          }
-         var _loc6_:Sound;
-         (_loc6_ = new Sound(new URLRequest(param1),new SoundLoaderContext(param4,param5))).addEventListener(IOErrorEvent.IO_ERROR,this.sndError);
+         _loc6_ = new Sound(new URLRequest(param1),new SoundLoaderContext(param4,param5));
+         _loc6_.addEventListener(IOErrorEvent.IO_ERROR,this.sndError);
          if(Config.DEBUG_MODE)
          {
          }
@@ -429,8 +453,9 @@
       
       private function createSound(param1:Sound, param2:String, param3:int) : PlayableSoundObject
       {
-         var _loc4_:PlayableSoundObject;
-         (_loc4_ = new PlayableSoundObject()).addEventListener(Event.COMPLETE,this.soundObjectLoaded);
+         var _loc4_:PlayableSoundObject = null;
+         _loc4_ = new PlayableSoundObject();
+         _loc4_.addEventListener(Event.COMPLETE,this.soundObjectLoaded);
          _loc4_.mName = param2;
          _loc4_.setSound(param1);
          _loc4_.mChannel = new SoundChannel();
@@ -471,7 +496,8 @@
          for each(_loc2_ in this.mSoundsDictionary)
          {
             _loc3_ = _loc2_.mChannel;
-            if((_loc4_ = param1.target as SoundChannel) == _loc3_)
+            _loc4_ = param1.target as SoundChannel;
+            if(_loc4_ == _loc3_)
             {
                _loc4_.removeEventListener(Event.SOUND_COMPLETE,this.soundCompleteHandler);
                _loc2_.mChannel = _loc2_.getSound().play(_loc2_.mPosition,_loc2_.mLoops,new SoundTransform(_loc2_.mVolume));
@@ -523,12 +549,13 @@
       
       public function playSound(param1:String, param2:Number = 1, param3:Number = 0, param4:int = 0) : PlayableSoundObject
       {
+         var _loc5_:PlayableSoundObject = null;
          if(!GameState.mInstance.mInitialized || param1 == null || this.mSoundsDictionary == null)
          {
             return null;
          }
-         var _loc5_:PlayableSoundObject;
-         if((_loc5_ = this.mSoundsDictionary[param1]) == null || _loc5_.getSound() == null || _loc5_.mChannel == null)
+         _loc5_ = this.mSoundsDictionary[param1];
+         if(_loc5_ == null || _loc5_.getSound() == null || _loc5_.mChannel == null)
          {
             return null;
          }
@@ -567,7 +594,7 @@
       
       public function playSoundFromCollection(param1:SoundCollection, param2:Number = 1, param3:Number = 0, param4:int = 0) : PlayableSoundObject
       {
-         var soundObject:PlayableSoundObject;
+         var soundObject:PlayableSoundObject = null;
          var col:SoundCollection = param1;
          var volume:Number = param2;
          var startTime:Number = param3;
@@ -723,9 +750,10 @@
       
       public function setSoundVolume(param1:String, param2:Number) : void
       {
+         var _loc4_:SoundTransform = null;
          var _loc3_:PlayableSoundObject = this.mSoundsDictionary[param1];
-         var _loc4_:SoundTransform;
-         (_loc4_ = _loc3_.mChannel.soundTransform).volume = param2;
+         _loc4_ = _loc3_.mChannel.soundTransform;
+         _loc4_.volume = param2;
          _loc3_.mChannel.soundTransform = _loc4_;
       }
       
@@ -760,3 +788,4 @@
       }
    }
 }
+

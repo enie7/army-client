@@ -1,4 +1,4 @@
-﻿package game.missions
+package game.missions
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
@@ -15,7 +15,6 @@
    import game.isometric.IsometricScene;
    import game.isometric.elements.Renderable;
    import game.items.*;
-   import game.magicBox.FlurryEvents;
    import game.magicBox.MagicBoxTracker;
    import game.net.ServiceIDs;
    import game.player.GamePlayerProfile;
@@ -54,7 +53,6 @@
       public static const TYPE_TIP:String = "Tip";
       
       public static const TYPE_INSTANT_TIP:String = "InstantTip";
-       
       
       public var mId:String;
       
@@ -381,17 +379,18 @@
       
       public function setup(param1:Object) : void
       {
-         var _loc3_:Object = null;
-         var _loc4_:Objective = null;
+         var _loc2_:Object = null;
+         var _loc3_:Objective = null;
          this.mState = STATE_ACTIVE;
-         var _loc2_:Array = param1.objectives;
-         if(_loc2_)
+         var _loc4_:Array = param1.objectives;
+         if(_loc4_)
          {
-            for each(_loc3_ in _loc2_)
+            for each(_loc2_ in _loc4_)
             {
-               if(_loc4_ = this.mObjectives[_loc3_.objectiveId])
+               _loc3_ = this.mObjectives[_loc2_.objectiveId];
+               if(_loc3_)
                {
-                  _loc4_.initialize(this.mType,_loc3_);
+                  _loc3_.initialize(this.mType,_loc2_);
                }
                else if(Config.DEBUG_MODE)
                {
@@ -530,31 +529,31 @@
       
       public function increaseCounter(param1:String, param2:Object, param3:int) : Boolean
       {
-         var _loc5_:Objective = null;
-         var _loc4_:Boolean = false;
-         for each(_loc5_ in this.mObjectives)
+         var _loc4_:Objective = null;
+         var _loc5_:Boolean = false;
+         for each(_loc4_ in this.mObjectives)
          {
-            if(_loc5_.mType == param1 && (_loc5_.mCounter < _loc5_.mGoal || _loc5_ is Stockpile || _loc5_ is Own || _loc5_ is StockpileItems || _loc5_ is OwnItems) &&  this.mMapId == GameState.mInstance.mCurrentMapId)
+            if(_loc4_.mType == param1 && (_loc4_.mCounter < _loc4_.mGoal || _loc4_ is Stockpile || _loc4_ is Own || _loc4_ is StockpileItems || _loc4_ is OwnItems) && this.mMapId == GameState.mInstance.mCurrentMapId)
             {
-               _loc4_ = _loc5_.increase(param2,param3) || _loc4_;
+               _loc5_ = _loc4_.increase(param2,param3) || _loc5_;
                if(Config.DEBUG_MISSIONS)
                {
                }
-               if(_loc5_.isDone())
+               if(_loc4_.isDone())
                {
-                  if(_loc4_)
+                  if(_loc5_)
                   {
-                     _loc5_.clean();
+                     _loc4_.clean();
                      if(this.mType == TYPE_CAMPAIGN)
                      {
-                        MissionManager.addCompleteCampaignObjective(this,_loc5_);
+                        MissionManager.addCompleteCampaignObjective(this,_loc4_);
                      }
                   }
                }
             }
          }
-         this.mProgressPending = _loc4_;
-         return _loc4_;
+         this.mProgressPending = _loc5_;
+         return _loc5_;
       }
       
       public function getProgressPending(param1:Boolean = false) : Boolean
@@ -590,44 +589,47 @@
       
       public function createGameObjects() : void
       {
-         var _loc2_:Object = null;
+         var _loc1_:Object = null;
+         var _loc2_:int = 0;
          var _loc3_:int = 0;
-         var _loc4_:int = 0;
+         var _loc4_:Number = NaN;
          var _loc5_:Number = NaN;
-         var _loc6_:Number = NaN;
-         var _loc7_:MapItem = null;
-         var _loc8_:Renderable = null;
-         var _loc9_:String = null;
-         var _loc1_:IsometricScene = GameState.mInstance.mScene;
-         for each(_loc2_ in this.mMissionSetup)
+         var _loc6_:MapItem = null;
+         var _loc7_:Renderable = null;
+         var _loc8_:String = null;
+         var _loc9_:IsometricScene = GameState.mInstance.mScene;
+         for each(_loc1_ in this.mMissionSetup)
          {
-            _loc3_ = int(_loc2_.AreaX);
-            _loc4_ = int(_loc2_.AreaY);
-            _loc5_ = _loc1_.getCenterPointXAtIJ(_loc3_,_loc4_);
-            _loc6_ = _loc1_.getCenterPointYAtIJ(_loc3_,_loc4_);
-            if((_loc7_ = ItemManager.getItem(_loc2_.Item.ID,_loc2_.Item.Type) as MapItem).mType != "HFEPlot")
+            _loc2_ = int(_loc1_.AreaX);
+            _loc3_ = int(_loc1_.AreaY);
+            _loc4_ = _loc9_.getCenterPointXAtIJ(_loc2_,_loc3_);
+            _loc5_ = _loc9_.getCenterPointYAtIJ(_loc2_,_loc3_);
+            _loc6_ = ItemManager.getItem(_loc1_.Item.ID,_loc1_.Item.Type) as MapItem;
+            if(_loc6_.mType != "HFEPlot")
             {
-               (_loc8_ = _loc1_.createObject(_loc7_,new Point(0,0))).setPos(_loc5_,_loc6_,0);
-               if((_loc9_ = _loc7_.mType) == "Infantry" || _loc9_ == "Armor" || _loc9_ == "Artillery")
+               _loc7_ = _loc9_.createObject(_loc6_,new Point(0,0));
+               _loc7_.setPos(_loc4_,_loc5_,0);
+               _loc8_ = _loc6_.mType;
+               if(_loc8_ == "Infantry" || _loc8_ == "Armor" || _loc8_ == "Artillery" || _loc8_ == "Lab")
                {
-                  if(_loc2_.Health)
+                  if(_loc1_.Health)
                   {
-                     (_loc8_ as PlayerUnit).setHealth(_loc2_.Health);
+                     (_loc7_ as PlayerUnit).setHealth(_loc1_.Health);
                   }
                   GameState.mInstance.mPlayerProfile.updateUnitCaps();
-                  GameState.mInstance.mPlayerProfile.addUnit(_loc7_ as PlayerUnitItem);
+                  GameState.mInstance.mPlayerProfile.addUnit(_loc6_ as PlayerUnitItem);
                }
-               else if(_loc9_ == "EnemyUnit")
+               else if(_loc8_ == "EnemyUnit")
                {
-                  if(_loc2_.Health)
+                  if(_loc1_.Health)
                   {
-                     (_loc8_ as EnemyUnit).setHealth(_loc2_.Health);
+                     (_loc7_ as EnemyUnit).setHealth(_loc1_.Health);
                   }
-                  (_loc8_ as EnemyUnit).setActivationTime(_loc2_.ActivationDelay);
+                  (_loc7_ as EnemyUnit).setActivationTime(_loc1_.ActivationDelay);
                }
-               else if(_loc9_ == "HomeFrontEffort")
+               else if(_loc8_ == "HomeFrontEffort")
                {
-                  (_loc8_ as PlayerBuildingObject).handlePlacedOnMap();
+                  (_loc7_ as PlayerBuildingObject).handlePlacedOnMap();
                }
             }
          }
@@ -663,3 +665,4 @@
       }
    }
 }
+

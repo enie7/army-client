@@ -1,4 +1,4 @@
-﻿package game.gui
+package game.gui
 {
    import com.dchoc.GUI.DCButton;
    import flash.display.MovieClip;
@@ -27,7 +27,6 @@
    
    public class ProductionItemPanel
    {
-       
       
       private var mItemActionButton:ResizingIconButton;
       
@@ -116,86 +115,86 @@
       
       public function setData(param1:ShopItem) : void
       {
+         var _loc2_:ResizingIconButton = null;
          var _loc3_:ResizingIconButton = null;
-         var _loc4_:ResizingIconButton = null;
-         var _loc5_:MovieClip = null;
-         var _loc6_:GamePlayerProfile = null;
+         var _loc4_:MovieClip = null;
+         var _loc5_:GamePlayerProfile = null;
+         var _loc6_:TextField = null;
          var _loc7_:TextField = null;
-         var _loc8_:TextField = null;
-         var _loc9_:TextFormat = null;
-         var _loc10_:PlayerUnitItem = null;
+         var _loc8_:TextFormat = null;
+         var _loc9_:PlayerUnitItem = null;
+         var _loc10_:TextFormat = null;
          var _loc11_:TextFormat = null;
-         var _loc12_:TextFormat = null;
-         var _loc13_:ConstructionItem = null;
-         var _loc14_:DecorationItem = null;
-         var _loc15_:PlayerInstallationItem = null;
-         var _loc16_:HFEPlotItem = null;
+         var _loc12_:ConstructionItem = null;
+         var _loc13_:DecorationItem = null;
+         var _loc14_:PlayerInstallationItem = null;
+         var _loc15_:HFEPlotItem = null;
          this.mItem = param1;
          if(param1.isUnlocked())
          {
             this.mBasePanel = this.mBasePanelUnLocked;
             this.mBasePanelLocked.parent.removeChild(this.mBasePanelLocked);
-            _loc3_ = Utils.createResizingIconButton(this.mBasePanel,"Button_Buy",null);
-            _loc4_ = Utils.createResizingIconButton(this.mBasePanel,"Button_Unlock",null);
+            _loc2_ = Utils.createResizingIconButton(this.mBasePanel,"Button_Buy",null);
+            _loc3_ = Utils.createResizingIconButton(this.mBasePanel,"Button_Unlock",null);
             this.mInfoButton = new ArmyButton(this.mBasePanel,this.mBasePanel.getChildByName("production_info") as MovieClip,DCButton.BUTTON_TYPE_OK,null,null,this.mouseDown,null,null,this.mouseUp);
             this.mInfoButton.setVisible(true);
+            _loc2_.setVisible(true);
             _loc3_.setVisible(true);
-            _loc4_.setVisible(true);
             if(param1.canAffordItemWithResources() && param1.capAvailable())
             {
-               this.mItemActionButton = _loc3_;
+               this.mItemActionButton = _loc2_;
                this.mItemAction = this.buyPressed;
-               _loc4_.setVisible(false);
+               _loc3_.setVisible(false);
             }
             else
             {
-               this.mItemActionButton = _loc4_;
+               this.mItemActionButton = _loc3_;
                this.mItemAction = this.buyPressedNoResources;
-               _loc3_.setVisible(false);
+               _loc2_.setVisible(false);
             }
          }
          else
          {
             this.mBasePanel = this.mBasePanelLocked;
             this.mBasePanelUnLocked.parent.removeChild(this.mBasePanelUnLocked);
-            _loc5_ = this.mBasePanel.getChildByName("Counter_Unlock") as MovieClip;
+            _loc4_ = this.mBasePanel.getChildByName("Counter_Unlock") as MovieClip;
             this.mItemActionButton = Utils.createResizingIconButton(this.mBasePanel,"Button_Unlock",null);
             this.mInfoButtonLock = new ArmyButton(this.mBasePanel,this.mBasePanel.getChildByName("production_info_lock") as MovieClip,DCButton.BUTTON_TYPE_OK,null,null,this.mouseDown,null,null,this.mouseUp);
             this.mInfoButtonLock.setVisible(true);
             this.mItemAction = this.unlockPressed;
-            _loc6_ = GameState.mInstance.mPlayerProfile;
-            _loc5_.visible = true;
-            _loc7_ = _loc5_.getChildByName("Text_Title") as TextField;
-            _loc8_ = _loc5_.getChildByName("Text_Amount") as TextField;
+            _loc5_ = GameState.mInstance.mPlayerProfile;
+            _loc4_.visible = true;
+            _loc6_ = _loc4_.getChildByName("Text_Title") as TextField;
+            _loc7_ = _loc4_.getChildByName("Text_Amount") as TextField;
             if(!param1.hasRequiredLevel())
             {
-               _loc7_.text = GameState.getText("SHOP_REQUIRES_LEVEL");
-               _loc8_.text = String(param1.mRequiredLevel);
+               _loc6_.text = GameState.getText("SHOP_REQUIRES_LEVEL");
+               _loc7_.text = String(param1.mRequiredLevel);
             }
             else if(!param1.hasRequiredAllies())
             {
-               _loc7_.text = GameState.getText("SHOP_REQUIRES_ALLIES");
-               _loc8_.text = String(param1.mRequiredAllies);
+               _loc6_.text = GameState.getText("SHOP_REQUIRES_ALLIES");
+               _loc7_.text = String(param1.mRequiredAllies);
             }
             else if(!param1.hasRequiredMission())
             {
-               _loc7_.text = "";
-               _loc8_.text = "X";
+               _loc6_.text = "";
+               _loc7_.text = "X";
             }
             else if(!param1.hasRequiredBuilding())
             {
-               _loc7_.text = "";
-               _loc8_.text = "X";
+               _loc6_.text = "";
+               _loc7_.text = "X";
             }
             else if(!param1.hasRequiredIntel())
             {
-               _loc7_.text = "";
-               _loc8_.text = "X";
+               _loc6_.text = "";
+               _loc7_.text = "X";
             }
             else
             {
-               _loc7_.text = "";
-               _loc8_.text = "X";
+               _loc6_.text = "";
+               _loc7_.text = "X";
             }
          }
          this.mIconBase = this.mBasePanel.getChildByName("Icon") as MovieClip;
@@ -203,8 +202,9 @@
          this.mName.text = param1.mName;
          if(Config.FOR_IPHONE_PLATFORM)
          {
-            (_loc9_ = this.mName.getTextFormat()).size = 23;
-            this.mName.defaultTextFormat = _loc9_;
+            _loc8_ = this.mName.getTextFormat();
+            _loc8_.size = 23;
+            this.mName.defaultTextFormat = _loc8_;
          }
          this.setPriceCounterValues(param1);
          if(this.mIcon != null && Boolean(this.mIcon.parent))
@@ -242,11 +242,13 @@
             this.mItemDescriptionSecondary.wordWrap = true;
             if(Config.FOR_IPHONE_PLATFORM)
             {
-               (_loc11_ = this.mItemDescription.getTextFormat()).size = 17;
-               this.mItemDescription.defaultTextFormat = _loc11_;
-               (_loc11_ = this.mItemDescriptionSecondary.getTextFormat()).size = 17;
-               this.mItemDescriptionSecondary.defaultTextFormat = _loc11_;
-               this.mItemDescriptionSecondary.setTextFormat(_loc11_);
+               _loc10_ = this.mItemDescription.getTextFormat();
+               _loc10_.size = 17;
+               this.mItemDescription.defaultTextFormat = _loc10_;
+               _loc10_ = this.mItemDescriptionSecondary.getTextFormat();
+               _loc10_.size = 17;
+               this.mItemDescriptionSecondary.defaultTextFormat = _loc10_;
+               this.mItemDescriptionSecondary.setTextFormat(_loc10_);
             }
             this.mItemHealth = this.mBasePanel.getChildByName("Text_health") as TextField;
             this.mItemDamage = this.mBasePanel.getChildByName("Text_damage") as TextField;
@@ -266,16 +268,20 @@
             this.mItemSize.wordWrap = true;
             if(Config.FOR_IPHONE_PLATFORM)
             {
-               (_loc12_ = this.mItemHealth.getTextFormat()).size = 17;
-               this.mItemHealth.defaultTextFormat = _loc12_;
-               (_loc12_ = this.mItemDamage.getTextFormat()).size = 17;
-               this.mItemDamage.defaultTextFormat = _loc12_;
-               (_loc12_ = this.mItemRange.getTextFormat()).size = 17;
-               this.mItemRange.defaultTextFormat = _loc12_;
-               (_loc12_ = this.mItemSize.getTextFormat()).size = 17;
-               this.mItemSize.defaultTextFormat = _loc12_;
+               _loc11_ = this.mItemHealth.getTextFormat();
+               _loc11_.size = 17;
+               this.mItemHealth.defaultTextFormat = _loc11_;
+               _loc11_ = this.mItemDamage.getTextFormat();
+               _loc11_.size = 17;
+               this.mItemDamage.defaultTextFormat = _loc11_;
+               _loc11_ = this.mItemRange.getTextFormat();
+               _loc11_.size = 17;
+               this.mItemRange.defaultTextFormat = _loc11_;
+               _loc11_ = this.mItemSize.getTextFormat();
+               _loc11_.size = 17;
+               this.mItemSize.defaultTextFormat = _loc11_;
             }
-            _loc10_ = null;
+            _loc9_ = null;
             switch(param1.mType)
             {
                case "Infantry":
@@ -283,55 +289,64 @@
                   this.mItemDamage.visible = true;
                   this.mItemRange.visible = false;
                   this.mItemSize.visible = false;
-                  _loc10_ = this.mItem as PlayerUnitItem;
-                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc10_.mHealth;
-                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc10_.mDamage;
+                  _loc9_ = this.mItem as PlayerUnitItem;
+                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc9_.mHealth;
+                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc9_.mDamage;
                   break;
                case "Armor":
                   this.mItemHealth.visible = true;
                   this.mItemDamage.visible = true;
                   this.mItemRange.visible = false;
                   this.mItemSize.visible = false;
-                  _loc10_ = this.mItem as PlayerUnitItem;
-                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc10_.mHealth;
-                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc10_.mDamage;
+                  _loc9_ = this.mItem as PlayerUnitItem;
+                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc9_.mHealth;
+                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc9_.mDamage;
                   break;
                case "Artillery":
                   this.mItemHealth.visible = true;
                   this.mItemDamage.visible = true;
                   this.mItemRange.visible = true;
                   this.mItemSize.visible = false;
-                  _loc10_ = this.mItem as PlayerUnitItem;
-                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc10_.mHealth;
-                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc10_.mDamage;
-                  this.mItemRange.text = GameState.getText("SHOP_PANEL_ITEM_RANGE") + " : " + _loc10_.mAttackRange;
+                  _loc9_ = this.mItem as PlayerUnitItem;
+                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc9_.mHealth;
+                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc9_.mDamage;
+                  this.mItemRange.text = GameState.getText("SHOP_PANEL_ITEM_RANGE") + " : " + _loc9_.mAttackRange;
+                  break;
+               case "Lab":
+                  this.mItemHealth.visible = true;
+                  this.mItemDamage.visible = true;
+                  this.mItemRange.visible = false;
+                  this.mItemSize.visible = false;
+                  _loc9_ = this.mItem as PlayerUnitItem;
+                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc9_.mHealth;
+                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc9_.mDamage;
                   break;
                case "Building":
                   this.mItemHealth.visible = false;
                   this.mItemDamage.visible = false;
                   this.mItemRange.visible = false;
                   this.mItemSize.visible = true;
-                  _loc13_ = this.mItem as ConstructionItem;
-                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc13_.getItemSizeString();
+                  _loc12_ = this.mItem as ConstructionItem;
+                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc12_.getItemSizeString();
                   break;
                case "NonFunctionalDeco":
                   this.mItemHealth.visible = false;
                   this.mItemDamage.visible = false;
                   this.mItemRange.visible = false;
                   this.mItemSize.visible = true;
-                  _loc14_ = this.mItem as DecorationItem;
-                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc14_.getItemSizeString();
+                  _loc13_ = this.mItem as DecorationItem;
+                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc13_.getItemSizeString();
                   break;
                case "CounterAttack":
                   this.mItemHealth.visible = true;
                   this.mItemDamage.visible = true;
                   this.mItemRange.visible = true;
                   this.mItemRange.visible = true;
-                  _loc15_ = this.mItem as PlayerInstallationItem;
-                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc15_.mHealth;
-                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc15_.mDamage;
-                  this.mItemRange.text = GameState.getText("SHOP_PANEL_ITEM_RANGE") + " : " + _loc15_.mAttackRange;
-                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc15_.getItemSizeString();
+                  _loc14_ = this.mItem as PlayerInstallationItem;
+                  this.mItemHealth.text = GameState.getText("SHOP_PANEL_ITEM_HEALTH") + " : " + _loc14_.mHealth;
+                  this.mItemDamage.text = GameState.getText("SHOP_PANEL_ITEM_DAMAGE") + " : " + _loc14_.mDamage;
+                  this.mItemRange.text = GameState.getText("SHOP_PANEL_ITEM_RANGE") + " : " + _loc14_.mAttackRange;
+                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc14_.getItemSizeString();
                   break;
                case "EnergyRefill":
                case "BuyGold":
@@ -350,11 +365,11 @@
                   this.mItemDamage.visible = false;
                   this.mItemRange.visible = false;
                   this.mItemSize.visible = true;
-                  _loc16_ = this.mItem as HFEPlotItem;
-                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc16_.getItemSizeString();
+                  _loc15_ = this.mItem as HFEPlotItem;
+                  this.mItemSize.text = GameState.getText("SHOP_PANEL_ITEM_SIZE") + " : " + _loc15_.getItemSizeString();
             }
          }
-         var _loc2_:int = 10;
+         var _loc16_:int = 10;
          if(param1.isUnlocked())
          {
             this.mPopUpTextField.setTitleText(param1.mName);
@@ -364,7 +379,7 @@
                this.mItemDescription.text = param1.getDescription();
                if(param1.getDescriptionSecondary())
                {
-                  this.mItemDescriptionSecondary.y = this.mItemDescription.y + this.mItemDescription.height + _loc2_;
+                  this.mItemDescriptionSecondary.y = this.mItemDescription.y + this.mItemDescription.height + _loc16_;
                   this.mItemDescriptionSecondary.text = param1.getDescriptionSecondary();
                }
                else
@@ -398,7 +413,7 @@
                if(!(this.mdialogpopup is ProductionDialog))
                {
                   this.mItemDescription.text = param1.getDescription();
-                  this.mItemDescriptionSecondary.y = this.mItemDescription.y + this.mItemDescription.height + _loc2_;
+                  this.mItemDescriptionSecondary.y = this.mItemDescription.y + this.mItemDescription.height + _loc16_;
                   this.mItemDescriptionSecondary.text = GameState.getText("SHOP_REQUIRES_PREFIX") + "\n" + param1.getUnlockText() + "\n" + param1.getUnlockCostText();
                }
             }
@@ -412,8 +427,8 @@
       
       private function setPriceCounterValues(param1:ShopItem) : void
       {
+         var _loc2_:int = 0;
          var _loc3_:int = 0;
-         var _loc4_:int = 0;
          this.mItemActionButton.setDefaultWidth(true);
          this.mItemActionButton.setText(this.getTextForBuyButton(param1));
          this.mItemActionButton.setIcon(this.getResourceForBuyButton(param1));
@@ -424,10 +439,10 @@
          this.mDescription.wordWrap = false;
          if(param1 is MapItem)
          {
-            _loc3_ = int((param1 as MapItem).mCrafting.Time);
-            if(_loc3_ > 0 && !(param1 is ConstructionItem))
+            _loc2_ = int((param1 as MapItem).mCrafting.Time);
+            if(_loc2_ > 0 && !(param1 is ConstructionItem))
             {
-               this.mDescription.text = GameState.getText("SHOP_PRODUCTION_TIME",[TimeUtils.secondsToString(_loc3_ * 60,2,true)]);
+               this.mDescription.text = GameState.getText("SHOP_PRODUCTION_TIME",[TimeUtils.secondsToString(_loc2_ * 60,2,true)]);
             }
             else
             {
@@ -436,24 +451,24 @@
          }
          else if(param1.mType == "Area" && !param1.mEarlyUnlockBought)
          {
-            _loc4_ = (param1 as AreaItem).mCostIntel;
-            this.mDescription.text = GameState.getText("SHOP_REQUIRES_PREFIX") + " " + _loc4_ + " " + GameState.getText("SHOP_REQUIRES_INTEL");
+            _loc3_ = (param1 as AreaItem).mCostIntel;
+            this.mDescription.text = GameState.getText("SHOP_REQUIRES_PREFIX") + " " + _loc3_ + " " + GameState.getText("SHOP_REQUIRES_INTEL");
          }
-         var _loc2_:TextFormat = this.mDescription.getTextFormat();
+         var _loc4_:TextFormat = this.mDescription.getTextFormat();
          if(Config.FOR_IPHONE_PLATFORM)
          {
             if(!(this.mdialogpopup is ProductionDialog))
             {
-               _loc2_.size = 16;
-               this.mDescription.defaultTextFormat = _loc2_;
-               this.mDescription.setTextFormat(_loc2_);
+               _loc4_.size = 16;
+               this.mDescription.defaultTextFormat = _loc4_;
+               this.mDescription.setTextFormat(_loc4_);
             }
          }
-         while(this.mDescription.textWidth + 3 > this.mDescription.width && _loc2_.size as int > 1)
+         while(this.mDescription.textWidth + 3 > this.mDescription.width && _loc4_.size as int > 1)
          {
-            _loc2_.size = (_loc2_.size as int) - 1;
-            this.mDescription.defaultTextFormat = _loc2_;
-            this.mDescription.setTextFormat(_loc2_);
+            _loc4_.size = (_loc4_.size as int) - 1;
+            this.mDescription.defaultTextFormat = _loc4_;
+            this.mDescription.setTextFormat(_loc4_);
          }
       }
       
@@ -513,14 +528,26 @@
          }
          else if(!this.mItem.capAvailable())
          {
-            if(this.mItem.mType == "Infantry")
+            if(GameState.mInstance.mCurrentMapId == "Snow")
+            {
+               GameState.mInstance.mHUD.openPolarCapTextBox();
+            }
+            else if(this.mItem.mType == "Infantry")
             {
                _loc3_.openInfantryCapTextBox();
-            } else if(this.mItem.mType == "Armor"){
-				_loc3_.openArmorCapTextBox();
-            } else if(this.mItem.mType == "Artillery"){
-				_loc3_.openArtilleryCapTextBox();
-			}
+            }
+            else if(this.mItem.mType == "Armor")
+            {
+               _loc3_.openArmorCapTextBox();
+            }
+            else if(this.mItem.mType == "Artillery")
+            {
+               _loc3_.openArtilleryCapTextBox();
+            }
+            else if(this.mItem.mType == "Lab")
+            {
+               _loc3_.openLabCapTextBox();
+            }
             else
             {
                _loc3_.openUnitCapTextBox(this.mItem);
@@ -581,3 +608,4 @@
       }
    }
 }
+

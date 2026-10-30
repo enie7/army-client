@@ -22,6 +22,8 @@ package game.gameElements
    public class NeighborAvatar extends Sprite
    {
       
+      public static var smMouseOver:Boolean;
+      
       private static const RANK_ICON_SIZE:int = 45;
       
       private static const STATE_WAIT:int = 0;
@@ -37,9 +39,6 @@ package game.gameElements
       private static const DISAPPEAR_TIME:int = 3000;
       
       private static const HOLD_IN_TARGET_TIME:int = 1000;
-      
-      public static var smMouseOver:Boolean;
-       
       
       private var mState:int;
       
@@ -77,6 +76,8 @@ package game.gameElements
       
       public function NeighborAvatar(param1:NeighborActionQueue)
       {
+         var _loc3_:IsometricScene = null;
+         var _loc4_:GridCell = null;
          super();
          this.mState = STATE_WAIT;
          this.mActionQueue = param1;
@@ -84,8 +85,8 @@ package game.gameElements
          var _loc2_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,"hud_visitor_card");
          this.mMainClip = new _loc2_();
          addChild(this.mMainClip);
-         var _loc3_:IsometricScene = GameState.mInstance.mScene;
-         var _loc4_:GridCell = (param1.mTargetObjects[0] as Renderable).getCell();
+         _loc3_ = GameState.mInstance.mScene;
+         _loc4_ = (param1.mTargetObjects[0] as Renderable).getCell();
          x = _loc3_.getCenterPointXOfCell(_loc4_) - this.mMainClip.width / 2;
          y = _loc3_.getCenterPointYOfCell(_loc4_) - _loc3_.mGridDimY / 2 - this.mMainClip.height;
          this.mFriend = FriendsCollection.smFriends.GetFriend(this.mActionQueue.mUserID);
@@ -190,11 +191,13 @@ package game.gameElements
                if(this.mMainClip.currentFrameLabel == "end")
                {
                   this.mMainClip.stop();
-                  if(_loc4_ = this.mMainClip.getChildByName("Text_Title") as TextField)
+                  _loc4_ = this.mMainClip.getChildByName("Text_Title") as TextField;
+                  if(_loc4_)
                   {
                      _loc4_.text = this.mFriend.mName;
                   }
-                  if(_loc4_ = this.mMainClip.getChildByName("Text_Amount") as TextField)
+                  _loc4_ = this.mMainClip.getChildByName("Text_Amount") as TextField;
+                  if(_loc4_)
                   {
                      _loc4_.text = GameState.getText("TOOLTIP_HUD_FRIEND_HELP");
                   }
@@ -251,7 +254,8 @@ package game.gameElements
          else if(this.mState == STATE_EXECUTE)
          {
             smMouseOver = false;
-            if(_loc9_ = this.mActionQueue.getNextAction())
+            _loc9_ = this.mActionQueue.getNextAction();
+            if(_loc9_)
             {
                this.mCurrentActions.push(_loc9_);
                this.mDestLoc = new Point();
@@ -284,23 +288,23 @@ package game.gameElements
       
       private function startCurrentAction() : Boolean
       {
-         var _loc2_:Action = null;
-         var _loc1_:Boolean = false;
+         var _loc1_:Action = null;
+         var _loc2_:Boolean = false;
          if(this.mCurrentActions[this.mActionsStarted])
          {
-            _loc2_ = this.mCurrentActions[this.mActionsStarted] as Action;
-            _loc2_.start();
-            if(_loc2_.isOver())
+            _loc1_ = this.mCurrentActions[this.mActionsStarted] as Action;
+            _loc1_.start();
+            if(_loc1_.isOver())
             {
-               _loc1_ = false;
+               _loc2_ = false;
             }
             else
             {
-               _loc1_ = true;
+               _loc2_ = true;
             }
             ++this.mActionsStarted;
          }
-         return _loc1_;
+         return _loc2_;
       }
       
       private function removeListeners() : void
@@ -355,3 +359,4 @@ package game.gameElements
       }
    }
 }
+

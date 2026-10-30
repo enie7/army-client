@@ -8,7 +8,6 @@ package com.dchoc.GUI
    
    public class DCTabs extends EventDispatcher
    {
-       
       
       protected var mTabContents:Vector.<DisplayObjectContainer>;
       
@@ -65,6 +64,7 @@ package com.dchoc.GUI
       
       public function selectTab(param1:int) : void
       {
+         var _loc4_:DisplayObjectContainer = null;
          if(param1 == this.mSelectedTab)
          {
             (this.mTabButtons[param1] as DCButtonSelected).select();
@@ -95,8 +95,8 @@ package com.dchoc.GUI
          }
          (this.mTabButtons[param1] as DCButtonSelected).select();
          (this.mTabButtons[param1] as DCButtonSelected).putToFront();
-         var _loc4_:DisplayObjectContainer;
-         (_loc4_ = this.mTabContents[param1] as DisplayObjectContainer).visible = true;
+         _loc4_ = this.mTabContents[param1] as DisplayObjectContainer;
+         _loc4_.visible = true;
          if(this.mFunctionToCallWhenSelectATab != null)
          {
             this.mFunctionToCallWhenSelectATab(this.mSelectedTab);
@@ -132,7 +132,7 @@ package com.dchoc.GUI
       
       public function hideAllTabs() : void
       {
-         var _loc1_:int = int(this.mTabButtons.length - 1);
+         var _loc1_:* = int(this.mTabButtons.length - 1);
          while(_loc1_ >= 0)
          {
             this.hideTab(_loc1_);
@@ -142,7 +142,7 @@ package com.dchoc.GUI
       
       public function enableAllTabs(param1:Boolean) : void
       {
-         var _loc2_:int = int(this.mTabButtons.length - 1);
+         var _loc2_:* = int(this.mTabButtons.length - 1);
          while(_loc2_ >= 0)
          {
             this.enableTabAt(_loc2_,param1);
@@ -196,3 +196,4 @@ package com.dchoc.GUI
       }
    }
 }
+

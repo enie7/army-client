@@ -11,6 +11,8 @@ package com.dchoc.GUI
    public class DCComponent extends MovieClip
    {
       
+      public static var mIsModalWindowOpen:Boolean;
+      
       public static const EVENT_WINDOW_CLOSED:String = "EVENT_WINDOW_CLOSED";
       
       public static const COMPONENT_FRAME_NAME_INTRO:String = "In";
@@ -25,8 +27,6 @@ package com.dchoc.GUI
       
       public static var MODAL_ALPHA_RECTANGLE_ALPHA_VALUE:Number = 0.6;
       
-      public static var mIsModalWindowOpen:Boolean;
-      
       private static const FADE_DURATION:int = 500;
       
       public static const STATE_UNDEFINED:int = 0;
@@ -38,7 +38,6 @@ package com.dchoc.GUI
       public static const STATE_CLOSING:int = 3;
       
       protected static var smNumberModalWindowsOpen:int = 0;
-       
       
       private var mModalSquare:Sprite;
       
@@ -290,3 +289,4 @@ package com.dchoc.GUI
       }
    }
 }
+

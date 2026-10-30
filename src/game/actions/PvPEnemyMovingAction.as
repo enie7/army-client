@@ -13,7 +13,6 @@ package game.actions
    
    public class PvPEnemyMovingAction extends EnemyMovingAction
    {
-       
       
       private var mCheckPathLength:Boolean;
       
@@ -26,37 +25,38 @@ package game.actions
       
       private function findDestinationCell() : GridCell
       {
-         var _loc6_:int = 0;
-         var _loc7_:GridCell = null;
-         var _loc8_:GridCell = null;
-         var _loc9_:int = 0;
-         var _loc1_:IsometricScene = GameState.mInstance.mScene;
-         var _loc2_:Array = new Array();
-         var _loc3_:PvPEnemyUnit = mActor as PvPEnemyUnit;
-         var _loc4_:PlayerUnit = _loc3_.getClosestPlayerUnit();
-         var _loc5_:GridCell = null;
-         if(_loc4_)
+         var _loc1_:int = 0;
+         var _loc2_:GridCell = null;
+         var _loc3_:GridCell = null;
+         var _loc4_:int = 0;
+         var _loc5_:IsometricScene = GameState.mInstance.mScene;
+         var _loc6_:Array = new Array();
+         var _loc7_:PvPEnemyUnit = mActor as PvPEnemyUnit;
+         var _loc8_:PlayerUnit = _loc7_.getClosestPlayerUnit();
+         var _loc9_:GridCell = null;
+         if(_loc8_)
          {
-            _loc5_ = _loc4_.getCell();
+            _loc9_ = _loc8_.getCell();
          }
-         if(_loc5_)
+         if(_loc9_)
          {
-            _loc1_.getNeighboringCellsAtDistance(mActor as IsometricCharacter,_loc3_.mMovementRange,_loc2_);
-            _loc6_ = int.MAX_VALUE;
-            _loc7_ = GameState.mInstance.mScene.getSurroundingFreeCell((mActor as PvPEnemyUnit).getCell().mPosI,(mActor as PvPEnemyUnit).getCell().mPosJ);
-            for each(_loc8_ in _loc2_)
+            _loc5_.getNeighboringCellsAtDistance(mActor as IsometricCharacter,_loc7_.mMovementRange,_loc6_);
+            _loc1_ = int.MAX_VALUE;
+            _loc2_ = GameState.mInstance.mScene.getSurroundingFreeCell((mActor as PvPEnemyUnit).getCell().mPosI,(mActor as PvPEnemyUnit).getCell().mPosJ);
+            for each(_loc3_ in _loc6_)
             {
-               if(_loc8_ != _loc5_)
+               if(_loc3_ != _loc9_)
                {
-                  if((_loc9_ = Math.abs(_loc5_.mPosI - _loc8_.mPosI) + Math.abs(_loc5_.mPosJ - _loc8_.mPosJ)) < _loc6_)
+                  _loc4_ = Math.abs(_loc9_.mPosI - _loc3_.mPosI) + Math.abs(_loc9_.mPosJ - _loc3_.mPosJ);
+                  if(_loc4_ < _loc1_)
                   {
-                     _loc6_ = _loc9_;
-                     _loc7_ = _loc8_;
+                     _loc1_ = _loc4_;
+                     _loc2_ = _loc3_;
                   }
                }
             }
          }
-         return _loc7_;
+         return _loc2_;
       }
       
       override public function isOver() : Boolean
@@ -104,9 +104,9 @@ package game.actions
                {
                   _loc5_ = 3;
                   _loc6_ = GameState.mInstance.mScene.getCellAtLocation(_loc2_[0],_loc2_[1]);
-                  while(Boolean(_loc6_) && Boolean(_loc6_.mParent) && (_loc6_.mCharacter || _loc6_.mObject && !_loc6_.mObject.isWalkable() || _loc6_.mG > (mActor as PvPEnemyUnit).mMovementRange + 0.5))
+                  while(Boolean(_loc6_) && Boolean(_loc6_.mParent) && (Boolean(_loc6_.mCharacter || _loc6_.mObject && !_loc6_.mObject.isWalkable()) || Boolean(_loc6_.mG > (mActor as PvPEnemyUnit).mMovementRange + 0.5)))
                   {
-                     if(Boolean((_loc6_ = _loc6_.mParent).mCharacter) || _loc6_.mObject && !_loc6_.mObject.isWalkable())
+                     if(Boolean((_loc6_ = _loc6_.mParent).mCharacter) || Boolean(_loc6_.mObject) && Boolean(!_loc6_.mObject.isWalkable()))
                      {
                         if(--_loc5_ < 0)
                         {
@@ -167,3 +167,4 @@ package game.actions
       }
    }
 }
+

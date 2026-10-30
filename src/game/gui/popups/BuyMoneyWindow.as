@@ -11,13 +11,12 @@ package game.gui.popups
    
    public class BuyMoneyWindow extends PopUpWindow
    {
-       
       
       private var mButtonContinue:ResizingButton;
       
       private var mButtonCancel:DCButton;
       
-      private var mPricePoints:Array;
+      private var mPricePoints:*;
       
       private var mSelectedPricePoint:int;
       
@@ -30,28 +29,30 @@ package game.gui.popups
          this.mButtonCancel = Utils.createBasicButton(mClip,"Button_Cancel",this.closeClicked);
          this.mButtonContinue = Utils.createFBIconResizingButton(mClip,"Button_Share",this.continueClicked);
          this.mButtonContinue.setText(GameState.getText("BUTTON_CONTINUE"));
+         this.mPricePoints = GameState.mConfig["FBCreditPriceVariations"];
       }
       
       public function Activate(param1:Function, param2:Array) : void
       {
          var _loc3_:StylizedHeaderClip = null;
          var _loc4_:TextField = null;
-         var _loc7_:MovieClip = null;
-         var _loc8_:MoneyPricePointPanel = null;
+         var _loc5_:MovieClip = null;
+         var _loc6_:MoneyPricePointPanel = null;
          mDoneCallback = param1;
          _loc3_ = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip,GameState.getText("MENU_HEADER_BUY_MONEY"));
-         (_loc4_ = mClip.getChildByName("Text_Description") as TextField).text = GameState.getText("MENU_DESC_BUY_MONEY");
-         (_loc4_ = mClip.getChildByName("Text_Disclaimer") as TextField).text = GameState.getText("MONEY_DISCLAIMER");
+         _loc4_ = mClip.getChildByName("Text_Description") as TextField;
+         _loc4_.text = GameState.getText("MENU_DESC_BUY_MONEY");
+         _loc4_ = mClip.getChildByName("Text_Disclaimer") as TextField;
+         _loc4_.text = GameState.getText("MONEY_DISCLAIMER");
          this.mSelectedPricePoint = 0;
-         var _loc5_:Array = new Array();
+         var _loc7_:Array = new Array();
          this.mPricePointPanels = new Array();
-         var _loc6_:int = 0;
-         while(_loc6_ < this.mPricePoints.length)
+         var _loc8_:* = null;
+         for(_loc8_ in this.mPricePoints)
          {
-            _loc7_ = mClip.getChildByName("Frame_Option_" + (_loc6_ + 1)) as MovieClip;
-            _loc8_ = new MoneyPricePointPanel(_loc7_,this.mPricePoints[_loc6_],_loc6_,_loc5_,this.selectClicked);
-            this.mPricePointPanels.push(_loc8_);
-            _loc6_++;
+            _loc5_ = mClip.getChildByName("Frame_Option_" + (int(_loc8_) + 1)) as MovieClip;
+            _loc6_ = new MoneyPricePointPanel(_loc5_,this.mPricePoints[_loc8_],int(_loc8_),_loc7_,this.selectClicked);
+            this.mPricePointPanels.push(_loc6_);
          }
          doOpeningTransition();
       }
@@ -64,7 +65,7 @@ package game.gui.popups
       private function continueClicked(param1:MouseEvent) : void
       {
          mDoneCallback((this as Object).constructor);
-         GameState.mInstance.externalCallBuyMoney(this.mPricePoints[this.mSelectedPricePoint]);
+         GameState.mInstance.externalCallBuyMoney(this.mPricePoints[String(this.mSelectedPricePoint)]);
       }
       
       private function selectClicked(param1:int) : void
@@ -73,3 +74,4 @@ package game.gui.popups
       }
    }
 }
+

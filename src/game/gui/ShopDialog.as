@@ -1,4 +1,4 @@
-﻿package game.gui
+package game.gui
 {
    import com.dchoc.GUI.DCButton;
    import com.dchoc.graphics.DCResourceManager;
@@ -17,6 +17,8 @@
    
    public class ShopDialog extends PopUpWindow
    {
+      
+      public static var mTutorialItem:Item;
       
       public static const TAB_BUTTON_SPACING:int = 3;
       
@@ -44,12 +46,13 @@
       
       public static const TAB_BOOSTERS:String = "Boosters";
       
+      public static const TAB_BUNDLES:String = "BuyBundles";
+      
       private static const PANEL_COUNT:int = 8;
       
-      private static const TAB_COUNT:int = 10;
+      private static const BIG_PANEL_COUNT:int = 4;
       
-      public static var mTutorialItem:Item;
-       
+      private static const TAB_COUNT:int = 10;
       
       protected var mPlayer:GamePlayerProfile;
       
@@ -61,11 +64,13 @@
       
       private var mButtonNext:DCButton;
       
-      private var mPanels:Array;
+      private var mPanels:Array = new Array();
+      
+      private var mBigPanels:Array = new Array();
       
       private var mAllItems:Object;
       
-      private var mItemsForSell:Array;
+      private var mItemsForSell:Array = new Array();
       
       private var mHeader:StylizedHeaderClip;
       
@@ -89,15 +94,15 @@
       
       private var mIndicatorArrow:MovieClip;
       
+      private var useBigPanels:* = false;
+      
       public function ShopDialog()
       {
-         var _loc3_:Object = null;
-         var _loc4_:int = 0;
-         var _loc5_:MovieClip = null;
-         this.mPanels = new Array();
-         this.mItemsForSell = new Array();
-         var _loc1_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_POPUPS_FULLSCREEN_NAME,"New_shop_ipad");
-         super(new _loc1_(),true,false);
+         var _loc1_:Object = null;
+         var _loc2_:int = 0;
+         var _loc3_:MovieClip = null;
+         var _loc4_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_POPUPS_FULLSCREEN_NAME,"New_shop_ipad");
+         super(new _loc4_(),true,false);
          this.mGame = GameState.mInstance;
          this.mPlayer = this.mGame.mPlayerProfile;
          this.mHeader = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip);
@@ -108,75 +113,82 @@
          this.mButtonPrevious = Utils.createBasicButton(mClip,"left_arrow",this.previousPressed);
          this.mButtonNext = Utils.createBasicButton(mClip,"right_arrow",this.nextPressed);
          this.mTabObjects = new Array();
-         var _loc2_:int = 1;
+         var _loc5_:int = 1;
          if(GameState.mConfig.ShopSpecial != null)
          {
             this.mTabObjects[0] = GameState.mConfig.ShopTab[TAB_SPECIALS];
-            _loc2_ = 0;
+            _loc5_ = 0;
          }
-         for each(_loc3_ in GameState.mConfig.ShopTab)
+         for each(_loc1_ in GameState.mConfig.ShopTab)
          {
-            if(_loc3_.ID != TAB_SPECIALS)
+            if(_loc1_.ID != TAB_SPECIALS)
             {
-               this.mTabObjects[_loc3_.Order - _loc2_] = _loc3_;
+               this.mTabObjects[_loc1_.Order - _loc5_] = _loc1_;
             }
          }
-         _loc4_ = 0;
-         while(_loc4_ < PANEL_COUNT)
+         _loc2_ = 0;
+         while(_loc2_ < PANEL_COUNT)
          {
-            _loc5_ = MovieClip(mClip.getChildByName("icon_shop_item_" + (_loc4_ + 1)));
-            this.mPanels[_loc4_] = new ShopItemPanel(_loc5_,this);
-            _loc4_++;
+            _loc3_ = MovieClip(mClip.getChildByName("icon_shop_item_" + (_loc2_ + 1)));
+            this.mPanels[_loc2_] = new ShopItemPanel(_loc3_,this);
+            _loc2_++;
+         }
+         _loc2_ = 0;
+         while(_loc2_ < BIG_PANEL_COUNT)
+         {
+            _loc3_ = MovieClip(mClip.getChildByName("icon_shop_item_big_" + (_loc2_ + 1)));
+            this.mBigPanels[_loc2_] = new ShopItemPanel(_loc3_,this);
+            _loc2_++;
          }
       }
       
       public function Activate(param1:Function, param2:String, param3:String) : void
       {
-         var _loc5_:String = null;
-         var _loc6_:Boolean = false;
+         var _loc4_:String = null;
+         var _loc5_:Boolean = false;
+         var _loc6_:String = null;
          var _loc7_:String = null;
-         var _loc8_:String = null;
          mDoneCallback = param1;
          this.mShopType = param3;
          this.mProfileGold.setText(this.mPlayer.mPremium.toString());
          this.mProfileCash.setText(this.mPlayer.mMoney.toString());
-         var _loc4_:int = 0;
-         while(_loc4_ < this.mTabObjects.length)
+         var _loc8_:int = 0;
+         while(_loc8_ < this.mTabObjects.length)
          {
-            if((this.mTabObjects[_loc4_] as Object).TabType is Array)
+            if((this.mTabObjects[_loc8_] as Object).TabType is Array)
             {
-               _loc6_ = false;
-               for each(_loc7_ in (this.mTabObjects[_loc4_] as Object).TabType)
+               _loc5_ = false;
+               for each(_loc6_ in (this.mTabObjects[_loc8_] as Object).TabType)
                {
-                  if(_loc7_ == this.mShopType)
+                  if(_loc6_ == this.mShopType)
                   {
-                     _loc6_ = true;
+                     _loc5_ = true;
                      break;
                   }
                }
-               if(!_loc6_)
+               if(!_loc5_)
                {
-                  this.mTabObjects.splice(_loc4_,1);
-                  _loc4_--;
+                  this.mTabObjects.splice(_loc8_,1);
+                  _loc8_--;
                }
             }
-            else if((this.mTabObjects[_loc4_] as Object).TabType != this.mShopType)
+            else if((this.mTabObjects[_loc8_] as Object).TabType != this.mShopType)
             {
-               this.mTabObjects.splice(_loc4_,1);
-               _loc4_--;
+               this.mTabObjects.splice(_loc8_,1);
+               _loc8_--;
             }
-            _loc4_++;
+            _loc8_++;
          }
          this.activateShopTabButtons();
          if(!this.mAllItems)
          {
             this.updateItems();
          }
-         for(_loc5_ in this.mTabButtonsByName)
+         for(_loc4_ in this.mTabButtonsByName)
          {
-            if(_loc5_ != TAB_DECOS)
+            if(_loc4_ != TAB_DECOS)
             {
-               (this.mTabButtonsByName[_loc5_] as ResizingButtonSelected).setEnabled(!mTutorialItem);
+               (this.mTabButtonsByName[_loc4_] as ResizingButtonSelected).setEnabled(!mTutorialItem);
             }
          }
          if(mTutorialItem)
@@ -190,122 +202,125 @@
          }
          else if(this.mTabButtonsByName[GameState.mInstance.getHud().getLastTab()])
          {
+            for each(var tab in this.mTabObjects)
+            {
+               if(tab.ID == GameState.mInstance.getHud().getLastTab())
+               {
+                  this.useBigPanels = "BigPanels" in tab ? tab.BigPanels : false;
+                  break;
+               }
+            }
             this.setTab(GameState.mInstance.getHud().getLastTab());
          }
          else
          {
-            for(_loc8_ in this.mTabButtonsByName)
+            for(_loc7_ in this.mTabButtonsByName)
             {
-               if((this.mTabButtonsByName[_loc8_] as ResizingButtonSelected).isEnable())
+               if((this.mTabButtonsByName[_loc7_] as ResizingButtonSelected).isEnable())
                {
-                  this.setTab(_loc8_);
+                  this.setTab(_loc7_);
                   break;
                }
             }
          }
          doOpeningTransition();
       }
-
-	  /*
-      override public function scaleToScreen(): void {
-         // use default
-      }
-	  */
       
       public function activateShopTabButtons() : void
       {
-         var _loc3_:ResizingButtonSelected = null;
-         var _loc4_:int = 0;
+         var _loc1_:ResizingButtonSelected = null;
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
+         var _loc4_:ResizingButtonSelected = null;
          var _loc5_:int = 0;
-         var _loc6_:ResizingButtonSelected = null;
-         var _loc7_:int = 0;
+         var _loc6_:int = 0;
+         var _loc7_:ResizingButtonSelected = null;
          var _loc8_:int = 0;
-         var _loc9_:ResizingButtonSelected = null;
-         var _loc10_:int = 0;
-         var _loc11_:int = 0;
+         var _loc9_:int = 0;
          this.mTabButtonsByName = new Array();
          this.mTabButtons = new Array();
-         var _loc1_:int = 1;
-         while(_loc1_ <= TAB_COUNT)
+         var _loc10_:int = 1;
+         while(_loc10_ <= TAB_COUNT)
          {
-            _loc3_ = Utils.createResizingButtonSelected(mClip,"Button_Tab_" + _loc1_,this.tabButtonPressed);
-            _loc3_.resizeNeeded = false;
-            if(!_loc3_)
+            _loc1_ = Utils.createResizingButtonSelected(mClip,"Button_Tab_" + _loc10_,this.tabButtonPressed);
+            _loc1_.resizeNeeded = false;
+            if(!_loc1_)
             {
                break;
             }
-            if(_loc1_ <= this.mTabObjects.length)
+            if(_loc10_ <= this.mTabObjects.length)
             {
-               _loc3_.setText((this.mTabObjects[_loc1_ - 1] as Object).Name);
-               _loc3_.setPool(this.mTabButtons);
-               _loc3_.setAllowDeselection(false);
-               this.mTabButtonsByName[(this.mTabObjects[_loc1_ - 1] as Object).ID] = _loc3_;
+               _loc1_.setText((this.mTabObjects[_loc10_ - 1] as Object).Name);
+               _loc1_.setPool(this.mTabButtons);
+               _loc1_.setAllowDeselection(false);
+               this.mTabButtonsByName[(this.mTabObjects[_loc10_ - 1] as Object).ID] = _loc1_;
             }
             else
             {
-               _loc3_.setVisible(false);
+               _loc1_.setVisible(false);
             }
-            _loc1_++;
+            _loc10_++;
          }
-         var _loc2_:Boolean = true;
-         while(_loc2_)
+         var _loc11_:Boolean = true;
+         while(_loc11_)
          {
-            _loc4_ = 0;
-            _loc5_ = 0;
-            _loc7_ = int(this.mTabButtons.length);
-            _loc8_ = 0;
-            while(_loc8_ < _loc7_)
+            _loc2_ = 0;
+            _loc3_ = 0;
+            _loc5_ = int(this.mTabButtons.length);
+            _loc6_ = 0;
+            while(_loc6_ < _loc5_)
             {
-               _loc6_ = this.mTabButtons[_loc8_] as ResizingButtonSelected;
-               _loc5_ += _loc6_.getWidth() + TAB_BUTTON_SPACING;
-               if(_loc6_.mTextSize > _loc4_)
+               _loc4_ = this.mTabButtons[_loc6_] as ResizingButtonSelected;
+               _loc3_ += _loc4_.getWidth() + TAB_BUTTON_SPACING;
+               if(_loc4_.mTextSize > _loc2_)
                {
-                  _loc4_ = _loc6_.mTextSize;
+                  _loc2_ = _loc4_.mTextSize;
                }
-               _loc8_++;
+               _loc6_++;
             }
-            if(_loc5_ > TAB_BUTTON_AREA_W && _loc4_ > 1)
+            if(_loc3_ > TAB_BUTTON_AREA_W && _loc2_ > 1)
             {
-               _loc10_ = int(this.mTabButtons.length);
-               _loc11_ = 0;
-               while(_loc11_ < _loc10_)
+               _loc8_ = int(this.mTabButtons.length);
+               _loc9_ = 0;
+               while(_loc9_ < _loc8_)
                {
-                  (_loc9_ = this.mTabButtons[_loc11_] as ResizingButtonSelected).setTextSize(_loc4_ - 1);
-                  _loc11_++;
+                  _loc7_ = this.mTabButtons[_loc9_] as ResizingButtonSelected;
+                  _loc7_.setTextSize(_loc2_ - 1);
+                  _loc9_++;
                }
             }
             else
             {
-               _loc2_ = false;
+               _loc11_ = false;
             }
          }
       }
       
       public function updateItems() : void
       {
+         var _loc1_:Object = null;
+         var _loc2_:Array = null;
+         var _loc3_:Object = null;
          var _loc4_:Object = null;
-         var _loc5_:Array = null;
-         var _loc6_:Object = null;
-         var _loc7_:Object = null;
-         var _loc1_:Object = GameState.mConfig;
-         var _loc2_:Object = _loc1_.ShopTab;
-         var _loc3_:Array = new Array();
+         var _loc5_:Object = GameState.mConfig;
+         var _loc6_:Object = _loc5_.ShopTab;
+         var _loc7_:Array = new Array();
          this.mAllItems = new Object();
-         for each(_loc4_ in _loc2_)
+         for each(_loc1_ in _loc6_)
          {
-            _loc5_ = new Array();
-            _loc6_ = _loc1_[_loc4_.ItemTable];
-            for each(_loc7_ in _loc6_)
+            _loc2_ = new Array();
+            _loc3_ = _loc5_[_loc1_.ItemTable];
+            for each(_loc4_ in _loc3_)
             {
-               _loc5_[_loc7_.ID] = ItemManager.getItem(_loc7_.Item.ID,_loc7_.Item.Type);
-               if(_loc4_.ID == TAB_SPECIALS)
+               _loc2_[_loc4_.ID] = ItemManager.getItem(_loc4_.Item.ID,_loc4_.Item.Type);
+               if(_loc1_.ID == TAB_SPECIALS)
                {
-                  _loc3_.push(_loc5_[_loc7_.ID]);
+                  _loc7_.push(_loc2_[_loc4_.ID]);
                }
             }
-            this.mAllItems[_loc4_.ID] = _loc5_;
+            this.mAllItems[_loc1_.ID] = _loc2_;
          }
-         this.mAllItems[TAB_SPECIALS] = _loc3_;
+         this.mAllItems[TAB_SPECIALS] = _loc7_;
       }
       
       private function setTab(param1:String) : void
@@ -351,23 +366,40 @@
       
       public function setScreen() : void
       {
-         var _loc3_:ShopItemPanel = null;
-         var _loc4_:int = 0;
-         var _loc1_:int = this.mPage * PANEL_COUNT;
+         var _loc1_:ShopItemPanel = null;
          var _loc2_:int = 0;
-         while(_loc2_ < PANEL_COUNT)
+         var _loc3_:int = this.useBigPanels ? this.mPage * BIG_PANEL_COUNT : this.mPage * PANEL_COUNT;
+         var _loc4_:int = 0;
+         var _loc5_:int = this.useBigPanels ? BIG_PANEL_COUNT : PANEL_COUNT;
+         for each(var panel in this.mBigPanels)
          {
-            _loc3_ = ShopItemPanel(this.mPanels[_loc2_]);
-            if((_loc4_ = _loc2_ + _loc1_) < this.mItemsForSell.length)
+            this.useBigPanels ? panel.show() : panel.hide();
+         }
+         for each(panel in this.mPanels)
+         {
+            this.useBigPanels ? panel.hide() : panel.show();
+         }
+         while(_loc4_ < _loc5_)
+         {
+            if(this.useBigPanels)
             {
-               _loc3_.show();
-               _loc3_.setData(this.mItemsForSell[_loc4_]);
+               _loc1_ = ShopItemPanel(this.mBigPanels[_loc4_]);
             }
             else
             {
-               _loc3_.hide();
+               _loc1_ = ShopItemPanel(this.mPanels[_loc4_]);
             }
-            _loc2_++;
+            _loc2_ = _loc4_ + _loc3_;
+            if(_loc2_ < this.mItemsForSell.length)
+            {
+               _loc1_.show();
+               _loc1_.setData(this.mItemsForSell[_loc2_]);
+            }
+            else
+            {
+               _loc1_.hide();
+            }
+            _loc4_++;
          }
       }
       
@@ -380,7 +412,14 @@
       public function refresh() : void
       {
          this.mPage = 0;
-         this.mPageMax = (this.mItemsForSell.length + PANEL_COUNT - 1) / PANEL_COUNT;
+         if(this.useBigPanels)
+         {
+            this.mPageMax = (this.mItemsForSell.length + BIG_PANEL_COUNT - 1) / BIG_PANEL_COUNT;
+         }
+         else
+         {
+            this.mPageMax = (this.mItemsForSell.length + PANEL_COUNT - 1) / PANEL_COUNT;
+         }
          this.setScreen();
          this.setPageNum();
          if(GameState.mInstance.mIndicatedShopItem != null)
@@ -402,6 +441,7 @@
          {
             if((this.mTabButtons[_loc2_] as ResizingButtonSelected).getMovieClip() == param1.target)
             {
+               this.useBigPanels = "BigPanels" in (this.mTabObjects[_loc2_] as Object) ? (this.mTabObjects[_loc2_] as Object).BigPanels : false;
                this.setTab((this.mTabObjects[_loc2_] as Object).ID);
                return;
             }
@@ -541,20 +581,21 @@
       {
          var _loc1_:Number = NaN;
          var _loc2_:Number = NaN;
-         var _loc5_:ShopItemPanel = null;
-         var _loc3_:int = 0;
-         while(_loc3_ < this.mItemsForSell.length)
+         var _loc3_:ShopItemPanel = null;
+         var _loc4_:int = 0;
+         while(_loc4_ < this.mItemsForSell.length)
          {
-            if((this.mItemsForSell[_loc3_] as ShopItem).mId == mTutorialItem.mId)
+            if((this.mItemsForSell[_loc4_] as ShopItem).mId == mTutorialItem.mId)
             {
-               _loc1_ = (_loc5_ = ShopItemPanel(this.mPanels[_loc3_])).mBasePanel.x;
-               _loc2_ = _loc5_.mBasePanel.y - _loc5_.mBasePanel.height / 2;
+               _loc3_ = ShopItemPanel(this.mPanels[_loc4_]);
+               _loc1_ = _loc3_.mBasePanel.x;
+               _loc2_ = _loc3_.mBasePanel.y - _loc3_.mBasePanel.height / 2;
                break;
             }
-            _loc3_++;
+            _loc4_++;
          }
-         var _loc4_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,"grid_highlighted");
-         this.mTutorialArrow = new _loc4_();
+         var _loc5_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,"grid_highlighted");
+         this.mTutorialArrow = new _loc5_();
          this.mTutorialArrow.mouseEnabled = false;
          this.mTutorialArrow.mouseChildren = false;
          this.mTutorialArrow.x = _loc1_;
@@ -626,3 +667,4 @@
       }
    }
 }
+

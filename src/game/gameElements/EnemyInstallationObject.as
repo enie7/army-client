@@ -1,4 +1,4 @@
-﻿package game.gameElements
+package game.gameElements
 {
    import flash.display.MovieClip;
    import flash.events.MouseEvent;
@@ -28,6 +28,8 @@
       
       public static const TYPE_SNIPER:String = "Sniper";
       
+      public static const TYPE_ELITESNIPER:String = "EliteSniper";
+      
       public static const STATE_IDLE:int = 0;
       
       public static const STATE_BEING_HIT:int = 1;
@@ -55,7 +57,6 @@
       public static const ACTION_TYPE_ATTACK_PLAYER:int = 2;
       
       public static const ACTION_TYPE_ATTACK_PLAYER_SPAWN_ENEMY:int = 4;
-       
       
       protected var mState:int;
       
@@ -104,6 +105,7 @@
       public function EnemyInstallationObject(param1:int, param2:IsometricScene, param3:MapItem)
       {
          var _loc4_:EnemyInstallationItem = null;
+         _loc4_ = null;
          super(param1,param2,param3);
          _loc4_ = param3 as EnemyInstallationItem;
          this.mActionQueue = new ActionQueue();
@@ -198,7 +200,7 @@
       {
          super.initSounds();
          mDieSounds = ArmySoundManager.SC_ENM_BUILDING_EXPLOSION;
-         if(mItem.mId == TYPE_SNIPER)
+         if(mItem.mId == TYPE_SNIPER || mItem.mId == TYPE_ELITESNIPER)
          {
             mAttackSounds = ArmySoundManager.SC_ENM_SNIPER_SHOOT;
          }
@@ -232,6 +234,8 @@
       {
          var _loc2_:TextEffect = null;
          var _loc3_:MovieClip = null;
+         _loc2_ = null;
+         _loc3_ = null;
          if(this.mState != this.mNewState)
          {
             this.changeState(this.mNewState);
@@ -277,6 +281,32 @@
                   this.mNewState = STATE_IDLE;
                   hideLoadingBar();
                }
+         }
+         return false;
+      }
+      
+      public function destroysPermanently(param1:MapItem) : Boolean
+      {
+         var _loc2_:Object = null;
+         var _loc3_:int = 0;
+         var _loc4_:int = 0;
+         // mPermanentDestroyArray is not declared on this class; dynamic lookup as in the 23.2 build.
+         if(Object(this).mPermanentDestroyArray)
+         {
+            _loc3_ = int(Object(this).mPermanentDestroyArray.length);
+            _loc4_ = 0;
+            while(_loc4_ < _loc3_)
+            {
+               _loc2_ = Object(this).mPermanentDestroyArray[_loc4_] as Object;
+               if(param1.mId == _loc2_.ID)
+               {
+                  if(param1.mType == _loc2_.Type)
+                  {
+                     return true;
+                  }
+               }
+               _loc4_++;
+            }
          }
          return false;
       }
@@ -591,15 +621,10 @@
       {
          var _loc2_:int = this.mHealth;
          this.mHealth = Math.max(0,param1);
-	     // Fix defences staying at 0 HP
-		 // Not sure what this check was meant for, so it might break something
-         //if(this.mHealth != _loc2_)
-         //{
-            if(this.mHealth == 0)
-            {
-               this.remove();
-            }
-         //}
+         if(this.mHealth == 0)
+         {
+            this.remove();
+         }
       }
       
       public function getPower() : int
@@ -794,3 +819,4 @@
       }
    }
 }
+

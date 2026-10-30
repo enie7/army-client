@@ -1,4 +1,4 @@
-﻿package game.actions
+package game.actions
 {
    import game.battlefield.MapArea;
    import game.battlefield.MapData;
@@ -23,7 +23,6 @@
    import game.items.Item;
    import game.items.ItemManager;
    import game.items.TargetItem;
-   import game.magicBox.FlurryEvents;
    import game.magicBox.MagicBoxTracker;
    import game.missions.MissionManager;
    import game.net.MyServer;
@@ -38,7 +37,6 @@
       protected static const COORD_PAIR_DELIMITER_STR:String = ";";
       
       protected static const COORD_XY_DELIMITER_STR:String = ",";
-       
       
       protected var mObject:FireMissionObject;
       
@@ -81,18 +79,18 @@
       
       override public function isOver() : Boolean
       {
-         return (!!this.mObject ? this.mObject.isOver() : true) || mSkipped;
+         return (this.mObject ? this.mObject.isOver() : true) || mSkipped;
       }
       
       protected function hasIngredients() : Boolean
       {
-         var _loc2_:String = null;
-         var _loc3_:Item = null;
-         var _loc1_:Inventory = GameState.mInstance.mPlayerProfile.mInventory;
-         for(_loc2_ in this.mItem.mRequiredItemSet.mItems)
+         var _loc1_:String = null;
+         var _loc2_:Item = null;
+         var _loc3_:Inventory = GameState.mInstance.mPlayerProfile.mInventory;
+         for(_loc1_ in this.mItem.mRequiredItemSet.mItems)
          {
-            _loc3_ = this.mItem.mRequiredItemSet.mItems[_loc2_];
-            if(_loc1_.getNumberOfItems(_loc3_) < this.mItem.mRequiredItemSet.mAmounts[_loc2_])
+            _loc2_ = this.mItem.mRequiredItemSet.mItems[_loc1_];
+            if(_loc3_.getNumberOfItems(_loc2_) < this.mItem.mRequiredItemSet.mAmounts[_loc1_])
             {
                if(Config.DEBUG_MODE)
                {
@@ -106,8 +104,9 @@
       override public function start() : void
       {
          var _loc1_:GameState = null;
-         var _loc4_:Renderable = null;
-         var _loc7_:GridCell = null;
+         _loc1_ = null;
+         var _loc2_:Renderable = null;
+         var _loc3_:GridCell = null;
          if(!this.hasIngredients())
          {
             this.skip();
@@ -117,34 +116,36 @@
             return;
          }
          _loc1_ = GameState.mInstance;
-         var _loc2_:Array = MapArea.getArea(_loc1_.mScene,this.mGC.mPosI,this.mGC.mPosJ,this.mItem.mSize.x,this.mItem.mSize.y).getCells();
-         this.mObject = new FireMissionObject(this.mItem,_loc2_);
+         var _loc4_:Array = MapArea.getArea(_loc1_.mScene,this.mGC.mPosI,this.mGC.mPosJ,this.mItem.mSize.x,this.mItem.mSize.y).getCells();
+         this.mObject = new FireMissionObject(this.mItem,_loc4_);
          this.mTargets = new Array();
-         var _loc3_:int = 0;
-         while(_loc3_ < _loc2_.length)
+         var _loc5_:int = 0;
+         while(_loc5_ < _loc4_.length)
          {
-            if((_loc7_ = _loc2_[_loc3_]).mCharacter)
+            _loc3_ = _loc4_[_loc5_];
+            if(_loc3_.mCharacter)
             {
-               this.mTargets.push(_loc7_.mCharacter);
+               this.mTargets.push(_loc3_.mCharacter);
             }
-            else if(_loc7_.mObject)
+            else if(_loc3_.mObject)
             {
-               this.mTargets.push(_loc7_.mObject);
+               this.mTargets.push(_loc3_.mObject);
             }
-            _loc3_++;
+            _loc5_++;
          }
-         var _loc5_:int = int(this.mTargets.length);
-         var _loc6_:int = 0;
-         while(_loc6_ < _loc5_)
+         var _loc6_:int = int(this.mTargets.length);
+         var _loc7_:int = 0;
+         while(_loc7_ < _loc6_)
          {
-            if((_loc4_ = this.mTargets[_loc6_] as Renderable) is EnemyInstallationObject)
+            _loc2_ = this.mTargets[_loc7_] as Renderable;
+            if(_loc2_ is EnemyInstallationObject)
             {
-               if((_loc4_ as EnemyInstallationObject).isForceFieldActivated())
+               if((_loc2_ as EnemyInstallationObject).isForceFieldActivated())
                {
-                  (_loc4_ as EnemyInstallationObject).setAnimationAction(AnimationController.INSTALLATION_ANIMATION_HIT,false,true);
+                  (_loc2_ as EnemyInstallationObject).setAnimationAction(AnimationController.INSTALLATION_ANIMATION_HIT,false,true);
                }
             }
-            _loc6_++;
+            _loc7_++;
          }
          this.mObject.start();
          _loc1_.mScene.mSceneHud.addChild(this.mObject);
@@ -154,199 +155,204 @@
       
       protected function execute() : void
       {
-         var _loc7_:Renderable = null;
-         var _loc10_:Object = null;
-         var _loc13_:GridCell = null;
-         var _loc16_:Boolean = false;
-         var _loc17_:Object = null;
-         var _loc18_:Object = null;
-         var _loc19_:int = 0;
+         var _loc18_:String = null;
+         var _loc19_:Array = null;
          var _loc20_:int = 0;
-         var _loc21_:Item = null;
-         var _loc1_:GameState = GameState.mInstance;
-         var _loc2_:Array = new Array();
-         var _loc3_:Array = new Array();
-         var _loc4_:Array = [0,0,0,0];
-         var _loc5_:int = _loc1_.mPlayerProfile.mRewardDropsCounter;
+         var _loc21_:int = 0;
+         var _loc1_:Renderable = null;
+         var _loc2_:Object = null;
+         var _loc3_:GridCell = null;
+         var _loc4_:Boolean = false;
+         var _loc5_:Object = null;
+         var _loc6_:Object = null;
+         var _loc7_:int = 0;
+         var _loc8_:int = 0;
+         var _loc9_:Item = null;
+         var _loc10_:GameState = GameState.mInstance;
+         var _loc11_:Array = new Array();
+         var _loc12_:Array = new Array();
+         var _loc13_:Array = [0,0,0,0];
+         var _loc14_:int = _loc10_.mPlayerProfile.mRewardDropsCounter;
          this.mKilledEnemyCount = 0;
-         var _loc6_:String = "";
-         var _loc8_:int = int(this.mTargets.length);
-         var _loc9_:int = 0;
+         var _loc15_:String = "";
+         var _loc16_:int = int(this.mTargets.length);
+         var _loc17_:int = 0;
          if(!GameState.mInstance.mPlayerProfile.hasEnoughMapResource(1))
          {
             GameState.mInstance.mHUD.openOutOfMapResourceWindow();
-            skip();
+            this.skip();
             return;
-         } else {
-         for(; _loc9_ < _loc8_; _loc9_++)
+         }
+         for(; _loc17_ < _loc16_; _loc17_++)
          {
-            if((_loc7_ = this.mTargets[_loc9_] as Renderable).mScene)
+            _loc1_ = this.mTargets[_loc17_] as Renderable;
+            if(_loc1_.mScene)
             {
-               _loc16_ = true;
-               if(_loc7_ is PlayerUnit)
+               _loc4_ = true;
+               if(_loc1_ is PlayerUnit)
                {
-                  this.damageOwnUnit(_loc7_ as PlayerUnit);
+                  this.damageOwnUnit(_loc1_ as PlayerUnit);
                }
-               else if(_loc7_ is PlayerBuildingObject)
+               else if(_loc1_ is PlayerBuildingObject)
                {
-                  if(_loc7_ is ResourceBuildingObject || _loc7_ is SignalObject)
+                  if(_loc1_ is ResourceBuildingObject || _loc1_ is SignalObject)
                   {
                      continue;
                   }
-                  this.damageOwnBuilding(_loc7_ as PlayerBuildingObject);
+                  this.damageOwnBuilding(_loc1_ as PlayerBuildingObject);
                }
-               else if(_loc7_ is PlayerInstallationObject)
+               else if(_loc1_ is PlayerInstallationObject)
                {
-                  this.damageOwnInstallation(_loc7_ as PlayerInstallationObject);
+                  this.damageOwnInstallation(_loc1_ as PlayerInstallationObject);
                }
-               else if(_loc7_ is EnemyUnit)
+               else if(_loc1_ is EnemyUnit)
                {
-                  _loc16_ = this.attackUnit(_loc7_ as EnemyUnit,_loc2_,_loc3_,_loc4_);
+                  _loc4_ = this.attackUnit(_loc1_ as EnemyUnit,_loc11_,_loc12_,_loc13_);
                }
-               else if(_loc7_ is EnemyInstallationObject)
+               else if(_loc1_ is EnemyInstallationObject)
                {
-                  if(!(_loc7_ is SpawningBeaconObject))
+                  if(!(_loc1_ is SpawningBeaconObject))
                   {
-                     if(!(_loc16_ = this.attackInstallation(_loc7_ as EnemyInstallationObject,_loc2_,_loc3_,_loc4_)))
+                     _loc4_ = this.attackInstallation(_loc1_ as EnemyInstallationObject,_loc11_,_loc12_,_loc13_);
+                     if(!_loc4_)
                      {
-                        if((_loc7_ as EnemyInstallationObject).isForceFieldActivated())
+                        if((_loc1_ as EnemyInstallationObject).isForceFieldActivated())
                         {
-                           (_loc7_ as EnemyInstallationObject).setAnimationAction(AnimationController.INSTALLATION_ANIMATION_IDLE,false,true);
+                           (_loc1_ as EnemyInstallationObject).setAnimationAction(AnimationController.INSTALLATION_ANIMATION_IDLE,false,true);
                         }
                      }
                   }
                }
-               if(_loc16_)
+               if(_loc4_)
                {
-                  if(_loc6_.length > 0)
+                  if(_loc15_.length > 0)
                   {
-                     _loc6_ += COORD_PAIR_DELIMITER_STR;
+                     _loc15_ += COORD_PAIR_DELIMITER_STR;
                   }
-                  _loc6_ = _loc6_ + _loc7_.getCell().mPosI + COORD_XY_DELIMITER_STR + _loc7_.getCell().mPosJ;
+                  _loc15_ = _loc15_ + _loc1_.getCell().mPosI + COORD_XY_DELIMITER_STR + _loc1_.getCell().mPosJ;
                }
             }
          }
          if(this.mItem.mlaunchWithGold)
          {
-            _loc10_ = {
+            _loc2_ = {
                "fire_mission_id":this.mItem.mId,
-               "coords":_loc6_,
+               "coords":_loc15_,
                "cost_energy":1,
                "gold":this.mItem.mUnlockCost,
-               "reward_xp":_loc4_[0],
-               "reward_money":_loc4_[1],
-               "reward_supplies":_loc4_[2],
-               "reward_energy":_loc4_[3]
+               "reward_xp":_loc13_[0],
+               "reward_money":_loc13_[1],
+               "reward_supplies":_loc13_[2],
+               "reward_energy":_loc13_[3]
             };
          }
          else
          {
-            _loc10_ = {
+            _loc2_ = {
                "fire_mission_id":this.mItem.mId,
-               "coords":_loc6_,
+               "coords":_loc15_,
                "cost_energy":1,
                "gold":0,
-               "reward_xp":_loc4_[0],
-               "reward_money":_loc4_[1],
-               "reward_supplies":_loc4_[2],
-               "reward_energy":_loc4_[3]
+               "reward_xp":_loc13_[0],
+               "reward_money":_loc13_[1],
+               "reward_supplies":_loc13_[2],
+               "reward_energy":_loc13_[3]
             };
          }
-         if(_loc1_.mMapData.mMapSetupData.Resource)
+         if(_loc10_.mMapData.mMapSetupData.Resource)
          {
-            _loc10_[MyServer.MAP_RESOURCE_COST_NAMES[_loc1_.mMapData.mMapSetupData.Resource]] = 1;
+            _loc2_[MyServer.MAP_RESOURCE_COST_NAMES[_loc10_.mMapData.mMapSetupData.Resource]] = 1;
          }
          if(this.mKilledEnemyCount > 0)
          {
-            _loc10_.reward_drop_seed_term = _loc1_.mPlayerProfile.mRewardDropSeedTerm;
-            _loc10_.reward_drops_counter = _loc5_;
-            _loc10_.reward_drops_counter_delta = this.mKilledEnemyCount;
+            _loc2_.reward_drop_seed_term = _loc10_.mPlayerProfile.mRewardDropSeedTerm;
+            _loc2_.reward_drops_counter = _loc14_;
+            _loc2_.reward_drops_counter_delta = this.mKilledEnemyCount;
          }
-         if(_loc2_.length > 0)
+         if(_loc11_.length > 0)
          {
-            _loc10_.reward_item_type = _loc2_.toString();
-            _loc10_.reward_item_id = _loc3_.toString();
+            _loc2_.reward_item_type = _loc11_.toString();
+            _loc2_.reward_item_id = _loc12_.toString();
          }
-         var _loc11_:String = null;
-         if(_loc1_.visitingFriend())
+         _loc18_ = null;
+         if(_loc10_.visitingFriend())
          {
-            _loc11_ = _loc1_.mVisitingFriend.mFacebookID;
+            _loc18_ = _loc10_.mVisitingFriend.mFacebookID;
          }
-         MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_GAME,MagicBoxTracker.TYPE_FIRE_MISSION,this.mItem.mId,MagicBoxTracker.paramsObj(this.mItem.mId,_loc11_));
+         MagicBoxTracker.generateEvent(MagicBoxTracker.GROUP_GAME,MagicBoxTracker.TYPE_FIRE_MISSION,this.mItem.mId,MagicBoxTracker.paramsObj(this.mItem.mId,_loc18_));
          if(this.mLastAttackDamageInstallations.length > 0)
          {
-            _loc19_ = 0;
-            while(_loc19_ < this.mLastAttackDamageInstallations.length)
+            _loc7_ = 0;
+            while(_loc7_ < this.mLastAttackDamageInstallations.length)
             {
-               if(_loc19_ == this.mLastAttackDamageInstallations.length - 1)
+               if(_loc7_ == this.mLastAttackDamageInstallations.length - 1)
                {
-                  GameState.mInstance.queueAction(new LastAttackAction(this.mLastAttackDamageInstallations[_loc20_],ServiceIDs.USE_FIRE_MISSION,_loc10_),true);
+                  GameState.mInstance.queueAction(new LastAttackAction(this.mLastAttackDamageInstallations[_loc8_],ServiceIDs.USE_FIRE_MISSION,_loc2_),true);
                }
                else
                {
-                  GameState.mInstance.queueAction(new LastAttackAction(this.mLastAttackDamageInstallations[_loc20_],null,null),true);
+                  GameState.mInstance.queueAction(new LastAttackAction(this.mLastAttackDamageInstallations[_loc8_],null,null),true);
                }
                if(Config.DEBUG_MODE)
                {
                }
-               _loc19_++;
+               _loc7_++;
             }
          }
          else
          {
-            _loc1_.mServer.serverCallServiceWithParameters(ServiceIDs.USE_FIRE_MISSION,_loc10_,false);
+            _loc10_.mServer.serverCallServiceWithParameters(ServiceIDs.USE_FIRE_MISSION,_loc2_,false);
          }
-         var _loc12_:Array;
-         var _loc14_:int = int((_loc12_ = MapArea.getArea(_loc1_.mScene,this.mGC.mPosI,this.mGC.mPosJ,this.mItem.mSize.x,this.mItem.mSize.y).getCells()).length);
-         var _loc15_:int = 0;
-         while(_loc15_ < _loc14_)
+         _loc20_ = int((_loc19_ = MapArea.getArea(_loc10_.mScene,this.mGC.mPosI,this.mGC.mPosJ,this.mItem.mSize.x,this.mItem.mSize.y).getCells()).length);
+         _loc21_ = 0;
+         while(_loc21_ < _loc20_)
          {
-            _loc13_ = _loc12_[_loc15_] as GridCell;
-            if(MapData.isTilePassable(_loc13_.mType))
+            _loc3_ = _loc19_[_loc21_] as GridCell;
+            if(MapData.isTilePassable(_loc3_.mType))
             {
-               if(!_loc13_.mObject && !_loc13_.mCharacter)
+               if(!_loc3_.mObject && !_loc3_.mCharacter)
                {
-                  _loc1_.spawnNewDebris("ScorchedGround","Debris",_loc1_.mScene.getCenterPointXOfCell(_loc13_),_loc1_.mScene.getCenterPointYOfCell(_loc13_));
+                  _loc10_.spawnNewDebris("ScorchedGround","Debris",_loc10_.mScene.getCenterPointXOfCell(_loc3_),_loc10_.mScene.getCenterPointYOfCell(_loc3_));
                }
-               else if(_loc13_.mObject && (_loc13_.mObject is DecorationObject && DecorationObject(_loc13_.mObject).getHealth() == 0 && !DecorationItem(_loc13_.mObject.mItem).mLeaveRuins) || _loc13_.mObject is EnemyInstallationObject && EnemyInstallationObject(_loc13_.mObject).getHealth() == 0 || _loc13_.mObject is HFEPlotObject && HFEPlotObject(_loc13_.mObject).getHealth() == 0)
+               else if(Boolean(_loc3_.mObject && (_loc3_.mObject is DecorationObject && DecorationObject(_loc3_.mObject).getHealth() == 0 && !DecorationItem(_loc3_.mObject.mItem).mLeaveRuins)) || Boolean(_loc3_.mObject is EnemyInstallationObject && EnemyInstallationObject(_loc3_.mObject).getHealth() == 0) || _loc3_.mObject is HFEPlotObject && HFEPlotObject(_loc3_.mObject).getHealth() == 0)
                {
-                  _loc13_.mObject.mKilledByFireMission = true;
+                  _loc3_.mObject.mKilledByFireMission = true;
                }
-               else if(_loc13_.mCharacter)
+               else if(_loc3_.mCharacter)
                {
-                  if(_loc13_.mCharacter.getHealth() > 0)
+                  if(_loc3_.mCharacter.getHealth() > 0)
                   {
-                     _loc1_.spawnNewDebris("ScorchedGround","Debris",_loc1_.mScene.getCenterPointXOfCell(_loc13_),_loc1_.mScene.getCenterPointYOfCell(_loc13_));
+                     _loc10_.spawnNewDebris("ScorchedGround","Debris",_loc10_.mScene.getCenterPointXOfCell(_loc3_),_loc10_.mScene.getCenterPointYOfCell(_loc3_));
                   }
-                  else if(!(_loc13_.mCharacter is PlayerUnit))
+                  else if(!(_loc3_.mCharacter is PlayerUnit))
                   {
-                     _loc13_.mCharacter.mKilledByFireMission = true;
+                     _loc3_.mCharacter.mKilledByFireMission = true;
                   }
                }
             }
-            _loc15_++;
+            _loc21_++;
          }
          if(!this.mItem.mlaunchWithGold)
          {
-            while(_loc20_ < this.mItem.mRequiredItemSet.mItems.length)
+            while(_loc8_ < this.mItem.mRequiredItemSet.mItems.length)
             {
-               if(_loc21_ = this.mItem.mRequiredItemSet.mItems[_loc20_])
+               _loc9_ = this.mItem.mRequiredItemSet.mItems[_loc8_];
+               if(_loc9_)
                {
-                  _loc1_.mPlayerProfile.addItem(_loc21_,-this.mItem.mRequiredItemSet.mAmounts[_loc20_]);
+                  _loc10_.mPlayerProfile.addItem(_loc9_,-this.mItem.mRequiredItemSet.mAmounts[_loc8_]);
                }
-               _loc20_++;
+               _loc8_++;
             }
          }
-         _loc1_.reduceEnergy(mName,1,MagicBoxTracker.paramsObj(this.mItem.mType,this.mItem.mId));
-         _loc1_.reduceMapResource(1);
+         _loc10_.reduceEnergy(mName,1,MagicBoxTracker.paramsObj(this.mItem.mType,this.mItem.mId));
+         _loc10_.reduceMapResource(1);
          this.mObject.destroy();
-         _loc1_.updateGrid();
-         _loc1_.playerMoveMade();
+         _loc10_.updateGrid();
+         _loc10_.playerMoveMade();
          if(this.mItem.mlaunchWithGold)
          {
             this.mItem.mlaunchWithGold = false;
          }
-	   }
       }
       
       protected function damageOwnBuilding(param1:PlayerBuildingObject) : void
@@ -366,49 +372,50 @@
       
       private function attackUnit(param1:EnemyUnit, param2:Array, param3:Array, param4:Array) : Boolean
       {
-         var _loc15_:Item = null;
+         var _loc6_:GameState = null;
+         var _loc5_:Item = null;
          if(!param1 || !param1.isAlive())
          {
             Utils.LogError("Firemission: Enemy not found");
             return false;
          }
-         var _loc5_:GameState;
-         var _loc6_:IsometricScene = (_loc5_ = GameState.mInstance).mScene;
-         var _loc7_:GamePlayerProfile = _loc5_.mPlayerProfile;
-         var _loc8_:* = param1.getHealth() - this.mItem.mDamage <= 0;
-         var _loc9_:int = param1.mHitRewardXP;
-         var _loc10_:int = param1.mHitRewardMoney;
-         var _loc11_:int = param1.mHitRewardMaterial;
-         var _loc12_:int = param1.mHitRewardSupplies;
-         var _loc13_:int = param1.mHitRewardEnergy;
-         if(_loc8_)
+         _loc6_ = GameState.mInstance;
+         var _loc7_:IsometricScene = _loc6_.mScene;
+         var _loc8_:GamePlayerProfile = _loc6_.mPlayerProfile;
+         var _loc9_:* = param1.getHealth() - this.mItem.mDamage <= 0;
+         var _loc10_:int = param1.mHitRewardXP;
+         var _loc11_:int = param1.mHitRewardMoney;
+         var _loc12_:int = param1.mHitRewardMaterial;
+         var _loc13_:int = param1.mHitRewardSupplies;
+         var _loc14_:int = param1.mHitRewardEnergy;
+         if(_loc9_)
          {
-            _loc9_ += param1.mKillRewardXP;
-            _loc10_ += param1.mKillRewardMoney;
-            _loc12_ += param1.mKillRewardSupplies;
-            _loc13_ += param1.mKillRewardEnergy;
+            _loc10_ += param1.mKillRewardXP;
+            _loc11_ += param1.mKillRewardMoney;
+            _loc13_ += param1.mKillRewardSupplies;
+            _loc14_ += param1.mKillRewardEnergy;
             MissionManager.increaseCounter("KillWith",this.mItem,1);
          }
-         param4[0] += _loc9_;
-         param4[1] += _loc10_;
-         param4[2] += _loc12_;
-         param4[3] += _loc13_;
-         _loc7_.increaseEnergyRewardCounter(_loc13_);
-         var _loc14_:int = _loc7_.getBonusEnergy();
-         _loc5_.mScene.addLootReward(ItemManager.getItem("XP","Resource"),_loc9_,param1.getContainer());
-         _loc5_.mScene.addLootReward(ItemManager.getItem("Money","Resource"),_loc10_,param1.getContainer());
-         _loc5_.mScene.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc12_,param1.getContainer());
-         _loc5_.mScene.addLootReward(ItemManager.getItem("Energy","Resource"),_loc14_,param1.getContainer());
-         if(_loc8_)
+         param4[0] += _loc10_;
+         param4[1] += _loc11_;
+         param4[2] += _loc13_;
+         param4[3] += _loc14_;
+         _loc8_.increaseEnergyRewardCounter(_loc14_);
+         var _loc15_:int = _loc8_.getBonusEnergy();
+         _loc6_.mScene.addLootReward(ItemManager.getItem("XP","Resource"),_loc10_,param1.getContainer());
+         _loc6_.mScene.addLootReward(ItemManager.getItem("Money","Resource"),_loc11_,param1.getContainer());
+         _loc6_.mScene.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc13_,param1.getContainer());
+         _loc6_.mScene.addLootReward(ItemManager.getItem("Energy","Resource"),_loc15_,param1.getContainer());
+         if(_loc9_)
          {
             ++this.mKilledEnemyCount;
-            _loc15_ = (param1.mItem as TargetItem).getRandomItemDrop();
-            _loc5_.mScene.addLootReward(_loc15_,1,param1.getContainer());
+            _loc5_ = (param1.mItem as TargetItem).getRandomItemDrop();
+            _loc6_.mScene.addLootReward(_loc5_,1,param1.getContainer());
          }
-         if(_loc15_)
+         if(_loc5_)
          {
-            param2.push(ItemManager.getTableNameForItem(_loc15_));
-            param3.push(_loc15_.mId);
+            param2.push(ItemManager.getTableNameForItem(_loc5_));
+            param3.push(_loc5_.mId);
          }
          param1.reduceHealth(this.mItem.mDamage);
          param1.changeReactionState(EnemyUnit.REACT_STATE_WAIT_FOR_TIMER);
@@ -417,14 +424,16 @@
       
       private function attackInstallation(param1:EnemyInstallationObject, param2:Array, param3:Array, param4:Array) : Boolean
       {
-         var _loc11_:EnemyInstallationItem = null;
-         var _loc12_:int = 0;
-         var _loc13_:int = 0;
-         var _loc14_:int = 0;
-         var _loc15_:int = 0;
-         var _loc16_:int = 0;
-         var _loc17_:int = 0;
-         var _loc18_:Item = null;
+         var _loc13_:GameState = null;
+         var _loc17_:* = undefined;
+         var _loc5_:EnemyInstallationItem = null;
+         var _loc6_:int = 0;
+         var _loc7_:int = 0;
+         var _loc8_:int = 0;
+         var _loc9_:int = 0;
+         var _loc10_:int = 0;
+         var _loc11_:int = 0;
+         var _loc12_:Item = null;
          if(!param1 || !param1.isAlive())
          {
             Utils.LogError("Firemission: Enemyinstallation not found");
@@ -434,53 +443,54 @@
          {
             return false;
          }
-         var _loc5_:GameState;
-         var _loc6_:GamePlayerProfile = (_loc5_ = GameState.mInstance).mPlayerProfile;
-         var _loc7_:IsometricScene = _loc5_.mScene;
-         var _loc8_:int = this.mItem.mDamage;
-         var _loc9_:*;
-         var _loc10_:Boolean = !(_loc9_ = param1.getHealth() == 0) && param1.getHealth() - _loc8_ <= 0;
-         if(!_loc9_)
+         _loc13_ = GameState.mInstance;
+         var _loc14_:GamePlayerProfile = _loc13_.mPlayerProfile;
+         var _loc15_:IsometricScene = _loc13_.mScene;
+         var _loc16_:int = this.mItem.mDamage;
+         _loc17_ = param1.getHealth() == 0;
+         var _loc18_:Boolean = !_loc17_ && param1.getHealth() - _loc16_ <= 0;
+         if(!_loc17_)
          {
-            _loc12_ = (_loc11_ = param1.mItem as EnemyInstallationItem).mHitRewardXP;
-            _loc13_ = _loc11_.mHitRewardMoney;
-            _loc14_ = _loc11_.mHitRewardMaterial;
-            _loc15_ = _loc11_.mHitRewardSupplies;
-            _loc16_ = _loc11_.mHitRewardEnergy;
-            if(_loc10_)
+            _loc5_ = param1.mItem as EnemyInstallationItem;
+            _loc6_ = _loc5_.mHitRewardXP;
+            _loc7_ = _loc5_.mHitRewardMoney;
+            _loc8_ = _loc5_.mHitRewardMaterial;
+            _loc9_ = _loc5_.mHitRewardSupplies;
+            _loc10_ = _loc5_.mHitRewardEnergy;
+            if(_loc18_)
             {
-               _loc12_ += _loc11_.mKillRewardXP;
-               _loc13_ += _loc11_.mKillRewardMoney;
-               _loc15_ += _loc11_.mKillRewardSupplies;
-               _loc16_ += _loc11_.mKillRewardEnergy;
+               _loc6_ += _loc5_.mKillRewardXP;
+               _loc7_ += _loc5_.mKillRewardMoney;
+               _loc9_ += _loc5_.mKillRewardSupplies;
+               _loc10_ += _loc5_.mKillRewardEnergy;
                MissionManager.increaseCounter("KillWith",this.mItem,1);
             }
-            param4[0] += _loc12_;
-            param4[1] += _loc13_;
-            param4[2] += _loc15_;
-            param4[3] += _loc16_;
-            _loc6_.increaseEnergyRewardCounter(_loc16_);
-            _loc17_ = _loc6_.getBonusEnergy();
-            _loc7_.addLootReward(ItemManager.getItem("XP","Resource"),_loc12_,param1.getContainer());
-            _loc7_.addLootReward(ItemManager.getItem("Money","Resource"),_loc13_,param1.getContainer());
-            _loc7_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc15_,param1.getContainer());
-            _loc7_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc17_,param1.getContainer());
-            if(_loc10_)
+            param4[0] += _loc6_;
+            param4[1] += _loc7_;
+            param4[2] += _loc9_;
+            param4[3] += _loc10_;
+            _loc14_.increaseEnergyRewardCounter(_loc10_);
+            _loc11_ = _loc14_.getBonusEnergy();
+            _loc15_.addLootReward(ItemManager.getItem("XP","Resource"),_loc6_,param1.getContainer());
+            _loc15_.addLootReward(ItemManager.getItem("Money","Resource"),_loc7_,param1.getContainer());
+            _loc15_.addLootReward(ItemManager.getItem("Supplies","Resource"),_loc9_,param1.getContainer());
+            _loc15_.addLootReward(ItemManager.getItem("Energy","Resource"),_loc11_,param1.getContainer());
+            if(_loc18_)
             {
                ++this.mKilledEnemyCount;
-               _loc18_ = _loc11_.getRandomItemDrop();
-               _loc7_.addLootReward(_loc18_,1,param1.getContainer());
+               _loc12_ = _loc5_.getRandomItemDrop();
+               _loc15_.addLootReward(_loc12_,1,param1.getContainer());
                if(param1.mLastAttackDamage > 0)
                {
                   this.mLastAttackDamageInstallations.push(param1);
                }
             }
-            if(_loc18_)
+            if(_loc12_)
             {
-               param2.push(ItemManager.getTableNameForItem(_loc18_));
-               param3.push(_loc18_.mId);
+               param2.push(ItemManager.getTableNameForItem(_loc12_));
+               param3.push(_loc12_.mId);
             }
-            param1.reduceHealth(_loc8_);
+            param1.reduceHealth(_loc16_);
             param1.resetReactionTimer();
          }
          return true;
@@ -495,3 +505,4 @@
       }
    }
 }
+

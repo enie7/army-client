@@ -2,7 +2,6 @@ package game.items
 {
    public class ConstructionItem extends RepairableItem
    {
-       
       
       public var mIngredientRequiredTypes:Array;
       
@@ -39,6 +38,7 @@ package game.items
          this.mUnitCapIncrements.Infantry = int(param1.UnitCapIncrementInfantry);
          this.mUnitCapIncrements.Armor = int(param1.UnitCapIncrementArmor);
          this.mUnitCapIncrements.Artilery = int(param1.UnitCapIncrementArtillery);
+         this.mUnitCapIncrements.Lab = int(param1.UnitCapIncrementLab);
          this.mIngredientRequiredTypes = new Array();
          this.mIngredientRequiredAmounts = new Array();
          this.mRewardXP = param1.RewardXP;
@@ -55,3 +55,4 @@ package game.items
       }
    }
 }
+

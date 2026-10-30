@@ -1,4 +1,4 @@
-﻿package game.gui.inventory
+package game.gui.inventory
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
@@ -17,14 +17,13 @@
    public class InventoryDialog extends PopUpWindow
    {
       
+      private static var mState:int;
+      
       private static const STATE_INVENTORY:int = 0;
       
       private static const STATE_COLLECTIONS:int = 1;
       
-      private static var mState:int;
-      
       private static const PANEL_COUNT:int = 8;
-       
       
       private var mPlayer:GamePlayerProfile;
       
@@ -38,7 +37,7 @@
       
       private var mButtonNext:ArmyButton;
       
-      private var mPanels:Array;
+      private var mPanels:Array = new Array();
       
       private var mPage:int = 0;
       
@@ -50,10 +49,9 @@
       
       public function InventoryDialog()
       {
-         var _loc3_:MovieClip = null;
-         this.mPanels = new Array();
-         var _loc1_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_POPUPS_FULLSCREEN_NAME,"New_inventory_ipad");
-         mClip = new _loc1_();
+         var _loc1_:MovieClip = null;
+         var _loc2_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_POPUPS_FULLSCREEN_NAME,"New_inventory_ipad");
+         mClip = new _loc2_();
          super(mClip,false,false);
          this.mGame = GameState.mInstance;
          this.mPlayer = this.mGame.mPlayerProfile;
@@ -63,12 +61,12 @@
          this.mButtonPrev = Utils.createBasicButton(mClip,"left_arrow",this.prevPressed);
          this.mButtonNext = Utils.createBasicButton(mClip,"right_arrow",this.nextPressed);
          this.mButtonClose = Utils.createBasicButton(mClip,"Button_Cancel",this.closedPressed);
-         var _loc2_:int = 0;
-         while(_loc2_ < PANEL_COUNT)
+         var _loc3_:int = 0;
+         while(_loc3_ < PANEL_COUNT)
          {
-            _loc3_ = MovieClip(mClip.getChildByName("icon_inventory_item_" + (_loc2_ + 1)));
-            this.mPanels[_loc2_] = new InventoryItemPanel(_loc3_,this);
-            _loc2_++;
+            _loc1_ = MovieClip(mClip.getChildByName("icon_inventory_item_" + (_loc3_ + 1)));
+            this.mPanels[_loc3_] = new InventoryItemPanel(_loc1_,this);
+            _loc3_++;
          }
       }
       
@@ -78,12 +76,6 @@
          this.refresh();
          doOpeningTransition();
       }
-
-      /*
-      override public function scaleToScreen(): void {
-         // use default
-      }
-      */
       
       private function getItems() : Array
       {
@@ -126,23 +118,24 @@
       
       private function show() : void
       {
-         var _loc3_:InventoryItemPanel = null;
-         var _loc4_:int = 0;
-         var _loc1_:int = this.mPage * PANEL_COUNT;
+         var _loc1_:InventoryItemPanel = null;
          var _loc2_:int = 0;
-         while(_loc2_ < PANEL_COUNT)
+         var _loc3_:int = this.mPage * PANEL_COUNT;
+         var _loc4_:int = 0;
+         while(_loc4_ < PANEL_COUNT)
          {
-            _loc3_ = InventoryItemPanel(this.mPanels[_loc2_]);
-            if((_loc4_ = _loc2_ + _loc1_) < this.mInventoryItems.length / 2)
+            _loc1_ = InventoryItemPanel(this.mPanels[_loc4_]);
+            _loc2_ = _loc4_ + _loc3_;
+            if(_loc2_ < this.mInventoryItems.length / 2)
             {
-               _loc3_.show();
-               _loc3_.setData(this.mInventoryItems[_loc4_ * 2],this.mInventoryItems[_loc4_ * 2 + 1]);
+               _loc1_.show();
+               _loc1_.setData(this.mInventoryItems[_loc2_ * 2],this.mInventoryItems[_loc2_ * 2 + 1]);
             }
             else
             {
-               _loc3_.hide();
+               _loc1_.hide();
             }
-            _loc2_++;
+            _loc4_++;
          }
       }
       
@@ -273,3 +266,4 @@
       }
    }
 }
+

@@ -11,7 +11,6 @@ package game.items
    
    public class AreaItem extends ShopItem
    {
-       
       
       public var mX:int;
       
@@ -94,7 +93,8 @@ package game.items
       
       override public function isUnlocked() : Boolean
       {
-         return super.isUnlocked() && mId != "AreaNorthW" && mId != "AreaNorthC" && mId != "AreaNorthE";
+         return Boolean(super.isUnlocked()) && mId != "AreaNorthW" && mId != "AreaNorthC" && mId != "AreaNorthE";
       }
    }
 }
+

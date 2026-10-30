@@ -10,7 +10,6 @@ package
       private static const LIST_SEPARATOR:String = ",";
       
       public static const TEXTS_TABLE:String = "TID";
-       
       
       public function JsonParser()
       {
@@ -19,39 +18,40 @@ package
       
       public static function parseFile(param1:Object, param2:String) : void
       {
+         var _loc3_:Object = null;
          var _loc4_:Object = null;
          var _loc5_:Object = null;
-         var _loc6_:Object = null;
-         var _loc7_:String = null;
-         var _loc8_:Array = null;
-         var _loc9_:Object = null;
-         var _loc10_:RegExp = null;
-         var _loc3_:Object = JSONWrapper.decode(param2);
-         for(_loc4_ in _loc3_)
+         var _loc6_:String = null;
+         var _loc7_:Array = null;
+         var _loc8_:Object = null;
+         var _loc9_:RegExp = null;
+         var _loc10_:Object = JSONWrapper.decode(param2);
+         for(_loc3_ in _loc10_)
          {
-            param1[_loc4_] = new Object();
-            for(_loc5_ in _loc3_[_loc4_])
+            param1[_loc3_] = new Object();
+            for(_loc4_ in _loc10_[_loc3_])
             {
-               param1[_loc4_][_loc5_] = new Object();
-               for(_loc6_ in _loc3_[_loc4_][_loc5_])
+               param1[_loc3_][_loc4_] = new Object();
+               for(_loc5_ in _loc10_[_loc3_][_loc4_])
                {
-                  if((_loc7_ = String(_loc3_[_loc4_][_loc5_][_loc6_])) != null && _loc4_ != TEXTS_TABLE && _loc7_.search(LIST_SEPARATOR) != -1)
+                  _loc6_ = String(_loc10_[_loc3_][_loc4_][_loc5_]);
+                  if(_loc6_ != null && _loc3_ != TEXTS_TABLE && _loc6_.search(LIST_SEPARATOR) != -1)
                   {
-                     _loc8_ = _loc7_.split(LIST_SEPARATOR);
-                     for(_loc9_ in _loc8_)
+                     _loc7_ = _loc6_.split(LIST_SEPARATOR);
+                     for(_loc8_ in _loc7_)
                      {
-                        _loc8_[_loc9_] = trim(_loc8_[_loc9_]);
+                        _loc7_[_loc8_] = trim(_loc7_[_loc8_]);
                      }
-                     param1[_loc4_][_loc5_][_loc6_] = _loc8_;
+                     param1[_loc3_][_loc4_][_loc5_] = _loc7_;
                   }
                   else
                   {
-                     if(_loc4_ == TEXTS_TABLE)
+                     if(_loc3_ == TEXTS_TABLE)
                      {
-                        _loc10_ = /\\n/g;
-                        _loc7_ = _loc7_.replace(_loc10_,"\n");
+                        _loc9_ = /\\n/g;
+                        _loc6_ = _loc6_.replace(_loc9_,"\n");
                      }
-                     param1[_loc4_][_loc5_][_loc6_] = _loc7_;
+                     param1[_loc3_][_loc4_][_loc5_] = _loc6_;
                   }
                }
             }
@@ -60,61 +60,63 @@ package
       
       public static function link(param1:Object, param2:String) : void
       {
+         var _loc3_:Object = null;
          var _loc4_:Object = null;
-         var _loc5_:Object = null;
+         var _loc5_:int = 0;
          var _loc6_:int = 0;
-         var _loc7_:int = 0;
+         var _loc7_:Object = null;
          var _loc8_:Object = null;
          var _loc9_:Object = null;
          var _loc10_:Object = null;
          var _loc11_:Object = null;
-         var _loc12_:Object = null;
-         var _loc3_:Array = new Array();
-         for(_loc4_ in param1)
+         var _loc12_:Array = new Array();
+         for(_loc3_ in param1)
          {
-            for(_loc8_ in param1[_loc4_])
+            for(_loc7_ in param1[_loc3_])
             {
-               for(_loc9_ in param1[_loc4_][_loc8_])
+               for(_loc8_ in param1[_loc3_][_loc7_])
                {
-                  if((_loc10_ = param1[_loc4_][_loc8_][_loc9_]) is Array)
+                  _loc9_ = param1[_loc3_][_loc7_][_loc8_];
+                  if(_loc9_ is Array)
                   {
-                     for(_loc11_ in _loc10_)
+                     for(_loc10_ in _loc9_)
                      {
-                        createLink(param1,param2,_loc3_,_loc10_[_loc11_] as String,_loc4_,_loc8_,_loc9_,_loc11_);
+                        createLink(param1,param2,_loc12_,_loc9_[_loc10_] as String,_loc3_,_loc7_,_loc8_,_loc10_);
                      }
                   }
                   else
                   {
-                     createLink(param1,param2,_loc3_,_loc10_ as String,_loc4_,_loc8_,_loc9_);
+                     createLink(param1,param2,_loc12_,_loc9_ as String,_loc3_,_loc7_,_loc8_);
                   }
                }
             }
          }
-         _loc6_ = int(_loc3_.length);
-         _loc7_ = 0;
-         while(_loc7_ < _loc6_)
+         _loc5_ = int(_loc12_.length);
+         _loc6_ = 0;
+         while(_loc6_ < _loc5_)
          {
-            if((_loc5_ = _loc3_[_loc7_] as Object).refFieldName)
+            _loc4_ = _loc12_[_loc6_] as Object;
+            if(_loc4_.refFieldName)
             {
-               _loc12_ = param1[_loc5_.refTableName][_loc5_.refRowName][_loc5_.refFieldName];
+               _loc11_ = param1[_loc4_.refTableName][_loc4_.refRowName][_loc4_.refFieldName];
             }
-            else if(_loc5_.refRowName)
+            else if(_loc4_.refRowName)
             {
-               _loc12_ = param1[_loc5_.refTableName][_loc5_.refRowName];
-            }
-            else
-            {
-               _loc12_ = param1[_loc5_.refTableName];
-            }
-            if(_loc5_.arrayIndex != null)
-            {
-               param1[_loc5_.tableName][_loc5_.rowName][_loc5_.fieldName][_loc5_.arrayIndex] = _loc12_;
+               _loc11_ = param1[_loc4_.refTableName][_loc4_.refRowName];
             }
             else
             {
-               param1[_loc5_.tableName][_loc5_.rowName][_loc5_.fieldName] = _loc12_;
+               _loc11_ = param1[_loc4_.refTableName];
             }
-            _loc7_++;
+            if(_loc4_.arrayIndex != null)
+            {
+               param1[_loc4_.tableName][_loc4_.rowName][_loc4_.fieldName][_loc4_.arrayIndex] = _loc11_;
+            }
+            else
+            {
+               param1[_loc4_.tableName][_loc4_.rowName][_loc4_.fieldName] = _loc11_;
+            }
+            _loc6_++;
          }
       }
       
@@ -130,7 +132,8 @@ package
             _loc9_ = null;
             if(param4.charAt(0) == REFERENCE_TOKEN)
             {
-               if((_loc10_ = param4.split(REFERENCE_SEPARATOR)).length == 0 || _loc10_.length > 2)
+               _loc10_ = param4.split(REFERENCE_SEPARATOR);
+               if(_loc10_.length == 0 || _loc10_.length > 2)
                {
                   throw new Error("Invalid reference in " + param5 + " : " + param4);
                }
@@ -139,7 +142,8 @@ package
                {
                   throw new Error("Invalid reference in " + param5 + " : " + param4);
                }
-               (_loc9_ = new Object()).refTableName = _loc11_;
+               _loc9_ = new Object();
+               _loc9_.refTableName = _loc11_;
                if(_loc10_.length == 2)
                {
                   _loc12_ = _loc10_[1] as String;
@@ -180,7 +184,7 @@ package
          {
             _loc2_++;
          }
-         var _loc3_:int = param1.length - 1;
+         var _loc3_:* = int(param1.length - 1);
          while(param1.charCodeAt(_loc3_) < 33)
          {
             _loc3_--;
@@ -189,3 +193,4 @@ package
       }
    }
 }
+

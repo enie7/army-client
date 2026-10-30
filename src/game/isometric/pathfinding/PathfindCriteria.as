@@ -1,4 +1,4 @@
-﻿package game.isometric.pathfinding
+package game.isometric.pathfinding
 {
    import flash.geom.Point;
    import game.battlefield.MapData;
@@ -13,7 +13,6 @@
       private static const COST_ORTHOGONAL:Number = 1;
       
       private static const COST_DIAGONAL:Number = 1.4;
-       
       
       private var mScene:IsometricScene;
       
@@ -107,7 +106,7 @@
          param2.length = 0;
          var _loc4_:* = (this.mMoverType & IsometricCharacter.MOVER_TYPE_FRIENDLY_FLAG) > 0;
          var _loc5_:* = (this.mMoverType & IsometricCharacter.MOVER_TYPE_STEALTH_FLAG) > 0;
-         if(_loc4_ && !_loc5_ && param1.mOwner != MapData.TILE_OWNER_FRIENDLY)
+         if(Boolean(_loc4_) && Boolean(!_loc5_) && param1.mOwner != MapData.TILE_OWNER_FRIENDLY)
          {
             return;
          }
@@ -138,25 +137,25 @@
          if(this.mWithDiagonals)
          {
             _loc3_ = this.mScene.getCellAt(param1.mPosI + 1,param1.mPosJ - 1);
-            if(_loc3_ && this.isCellTerrainPassableForMover(_loc3_,this.mMoverType) && (_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_ || _loc5_))
+            if(Boolean(_loc3_) && Boolean(this.isCellTerrainPassableForMover(_loc3_,this.mMoverType)) && (Boolean(_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_) || Boolean(_loc5_)))
             {
                _loc3_.mPathCost = PathfindCriteria.COST_DIAGONAL;
                param2[param2.length] = _loc3_;
             }
             _loc3_ = this.mScene.getCellAt(param1.mPosI - 1,param1.mPosJ - 1);
-            if(_loc3_ && this.isCellTerrainPassableForMover(_loc3_,this.mMoverType) && (_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_ || _loc5_))
+            if(Boolean(_loc3_) && Boolean(this.isCellTerrainPassableForMover(_loc3_,this.mMoverType)) && (Boolean(_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_) || Boolean(_loc5_)))
             {
                _loc3_.mPathCost = PathfindCriteria.COST_DIAGONAL;
                param2[param2.length] = _loc3_;
             }
             _loc3_ = this.mScene.getCellAt(param1.mPosI + 1,param1.mPosJ + 1);
-            if(_loc3_ && this.isCellTerrainPassableForMover(_loc3_,this.mMoverType) && (_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_ || _loc5_))
+            if(Boolean(_loc3_) && Boolean(this.isCellTerrainPassableForMover(_loc3_,this.mMoverType)) && (Boolean(_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_) || Boolean(_loc5_)))
             {
                _loc3_.mPathCost = PathfindCriteria.COST_DIAGONAL;
                param2[param2.length] = _loc3_;
             }
             _loc3_ = this.mScene.getCellAt(param1.mPosI - 1,param1.mPosJ + 1);
-            if(_loc3_ && this.isCellTerrainPassableForMover(_loc3_,this.mMoverType) && (_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_ || _loc5_))
+            if(Boolean(_loc3_) && Boolean(this.isCellTerrainPassableForMover(_loc3_,this.mMoverType)) && (Boolean(_loc3_.mOwner == MapData.TILE_OWNER_FRIENDLY || !_loc4_) || Boolean(_loc5_)))
             {
                _loc3_.mPathCost = PathfindCriteria.COST_DIAGONAL;
                param2[param2.length] = _loc3_;
@@ -172,3 +171,4 @@
       }
    }
 }
+

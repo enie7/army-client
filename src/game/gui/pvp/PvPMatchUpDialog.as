@@ -1,4 +1,4 @@
-﻿package game.gui.pvp
+package game.gui.pvp
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
@@ -21,18 +21,12 @@
    
    public class PvPMatchUpDialog extends PopUpWindow
    {
-	  // Allies + recent tab have been hidden, refer to earlier version for the original code
       
       private static const PANEL_COUNT:int = 1;
       
       private static const TAB_BUTTON_SPACING:int = 3;
       
-      //private static const TAB_ALLIES:int = 0;
-      
       private static const TAB_PLAYERS:int = 0;
-      
-      //private static const TAB_RECENT:int = 2;
-       
       
       private var mButtonCancel:ArmyButton;
       
@@ -46,7 +40,7 @@
       
       private var mStatus:MovieClip;
       
-      private var mPanels:Array;
+      private var mPanels:Array = new Array();
       
       private var mTab:int;
       
@@ -74,58 +68,55 @@
       
       public function PvPMatchUpDialog()
       {
-         var _loc3_:TextField = null;
-         var _loc7_:ResizingButtonSelected = null;
-         var _loc8_:MovieClip = null;
-         this.mPanels = new Array();
-         var _loc1_:Class = DCResourceManager.getInstance().getSWFClass("swf/popups_pvp","popup_pvp");
-         super(new _loc1_(),true);
+         var _loc1_:TextField = null;
+         var _loc2_:ResizingButtonSelected = null;
+         var _loc3_:MovieClip = null;
+         var _loc4_:Class = DCResourceManager.getInstance().getSWFClass("swf/popups_pvp","popup_pvp");
+         super(new _loc4_(),true);
          this.mButtonCancel = Utils.createBasicButton(mClip,"Button_Cancel",this.closeClicked);
          this.mButtonScrollUp = Utils.createBasicButton(mClip,"Button_Scroll_Up",this.upPressed);
          this.mButtonScrollDown = Utils.createBasicButton(mClip,"Button_Scroll_Down",this.downPressed);
-         var _loc2_:Friend = FriendsCollection.smFriends.GetThePlayer();
+         var _loc5_:Friend = FriendsCollection.smFriends.GetThePlayer();
          this.mStatus = mClip.getChildByName("PvP_Status") as MovieClip;
-         _loc3_ = this.mStatus.getChildByName("Text_Description") as TextField;
-         _loc3_.text = GameState.getText("PVP_BADASS_STATUS");
-         _loc3_ = this.mStatus.getChildByName("Text_Description_Wins") as TextField;
-         _loc3_.text = GameState.getText("PVP_WINS");
-         _loc3_ = this.mStatus.getChildByName("Text_Name") as TextField;
-         _loc3_.text = _loc2_.mName;
+         _loc1_ = this.mStatus.getChildByName("Text_Description") as TextField;
+         _loc1_.text = GameState.getText("PVP_BADASS_STATUS");
+         _loc1_ = this.mStatus.getChildByName("Text_Description_Wins") as TextField;
+         _loc1_.text = GameState.getText("PVP_WINS");
+         _loc1_ = this.mStatus.getChildByName("Text_Name") as TextField;
+         _loc1_.text = _loc5_.mName;
          this.mHeader = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip,"",TextFieldAutoSize.LEFT);
          this.mHeader.setText(GameState.getText("PVP_MATCHUP_TITLE"));
          this.mTabButtons = new Array();
-         var _loc4_:int = 1;
-         while(_loc4_ <= 5)
+         var _loc6_:int = 1;
+         while(_loc6_ <= 5)
          {
-            _loc7_ = Utils.createResizingButtonSelected(mClip,"PvP_Tab_0" + _loc4_,this.tabButtonPressed);
-            if(_loc4_ <= 1)
+            _loc2_ = Utils.createResizingButtonSelected(mClip,"PvP_Tab_0" + _loc6_,this.tabButtonPressed);
+            if(_loc6_ <= 1)
             {
-               _loc7_.setPool(this.mTabButtons);
-               _loc7_.setAllowDeselection(false);
+               _loc2_.setPool(this.mTabButtons);
+               _loc2_.setAllowDeselection(false);
             }
             else
             {
-               _loc7_.setVisible(false);
+               _loc2_.setVisible(false);
             }
-            _loc4_++;
+            _loc6_++;
          }
-         var _loc5_:Sprite = this.mStatus.getChildByName("Thumb") as Sprite;
-         if(_loc2_ && _loc2_.mPicID != null && _loc2_.mPicID != "")
+         var _loc7_:Sprite = this.mStatus.getChildByName("Thumb") as Sprite;
+         if(Boolean(_loc5_) && Boolean(_loc5_.mPicID != null) && _loc5_.mPicID != "")
          {
-            IconLoader.addIconPicture(_loc5_,_loc2_.mPicID);
+            IconLoader.addIconPicture(_loc7_,_loc5_.mPicID);
          }
          this.mButtonLeaderboard = Utils.createResizingIconButton(this.mStatus,"Button_Leaderboard",null);
          this.mButtonLeaderboard.setVisible(false);
-         //(this.mTabButtons[0] as ResizingButtonSelected).setText(GameState.getText("PVP_ALLIES"));
          (this.mTabButtons[0] as ResizingButtonSelected).setText(GameState.getText("PVP_PLAYER"));
-         //(this.mTabButtons[2] as ResizingButtonSelected).setText(GameState.getText("PVP_RECENT"));
          (this.mTabButtons[0] as ResizingButtonSelected).select();
-         var _loc6_:int = 0;
-         while(_loc6_ < PANEL_COUNT)
+         var _loc8_:int = 0;
+         while(_loc8_ < PANEL_COUNT)
          {
-            _loc8_ = mClip.getChildByName("Slot_PvP_0" + (_loc6_ + 1)) as MovieClip;
-            this.mPanels[_loc6_] = new PvPOpponentPanel(_loc8_,this);
-            _loc6_++;
+            _loc3_ = mClip.getChildByName("Slot_PvP_0" + (_loc8_ + 1)) as MovieClip;
+            this.mPanels[_loc8_] = new PvPOpponentPanel(_loc3_,this);
+            _loc8_++;
          }
          this.mScrollbar = mClip.getChildByName("Scrollbar") as MovieClip;
          this.mScrollbarBg = this.mScrollbar.getChildByName("Scrollbar_Bg") as MovieClip;
@@ -137,14 +128,18 @@
       
       public function Activate(param1:Function, param2:Function) : void
       {
-         var _loc5_:TextField = null;
+         var _loc5_:MovieClip = null;
+         var _loc3_:TextField = null;
          mDoneCallback = param1;
          this.mCombatSetupCallBack = param2;
-         var _loc3_:GamePlayerProfile = GameState.mInstance.mPlayerProfile;
-         var _loc4_:MovieClip;
-         (_loc5_ = (_loc4_ = this.mStatus.getChildByName("Rank_Icon") as MovieClip).getChildByName("Text_PvP_Rank") as TextField).text = _loc3_.mBadassLevel.toString();
-         (_loc5_ = this.mStatus.getChildByName("Text_PvP_Rank") as TextField).text = _loc3_.getBadassName();
-         (_loc5_ = this.mStatus.getChildByName("Text_Wins") as TextField).text = _loc3_.mBadassWins.toString();
+         var _loc4_:GamePlayerProfile = GameState.mInstance.mPlayerProfile;
+         _loc5_ = this.mStatus.getChildByName("Rank_Icon") as MovieClip;
+         _loc3_ = _loc5_.getChildByName("Text_PvP_Rank") as TextField;
+         _loc3_.text = _loc4_.mBadassLevel.toString();
+         _loc3_ = this.mStatus.getChildByName("Text_PvP_Rank") as TextField;
+         _loc3_.text = _loc4_.getBadassName();
+         _loc3_ = this.mStatus.getChildByName("Text_Wins") as TextField;
+         _loc3_.text = _loc4_.mBadassWins.toString();
          var _loc6_:int = 1;
          while(_loc6_ < this.mTabButtons.length)
          {
@@ -152,12 +147,9 @@
             _loc6_++;
          }
          this.mAllTabs = new Array();
-         //this.mAllTabs.push(FriendsCollection.smFriends.getPlayingFriendsExcludingTutor());
          this.mAllTabs.push(PvPOpponentCollection.smCollection.mOpponents);
          this.mAllTabs.push(PvPOpponentCollection.smCollection.mRecentAttacks);
-         //(this.mAllTabs[TAB_ALLIES] as Array).sort(this.sortOpponents);
          (this.mAllTabs[TAB_PLAYERS] as Array).sort(this.sortOpponents);
-         //(this.mAllTabs[TAB_RECENT] as Array).sort(this.sortOpponents);
          this.setTab(TAB_PLAYERS);
          doOpeningTransition();
       }
@@ -232,23 +224,24 @@
       
       private function setScreen() : void
       {
-         var _loc3_:PvPOpponentPanel = null;
-         var _loc4_:int = 0;
-         var _loc1_:int = this.mPage * PANEL_COUNT;
+         var _loc1_:PvPOpponentPanel = null;
          var _loc2_:int = 0;
-         while(_loc2_ < PANEL_COUNT)
+         var _loc3_:int = this.mPage * PANEL_COUNT;
+         var _loc4_:int = 0;
+         while(_loc4_ < PANEL_COUNT)
          {
-            _loc3_ = PvPOpponentPanel(this.mPanels[_loc2_]);
-            if((_loc4_ = _loc2_ + _loc1_) < this.mCurrentTab.length)
+            _loc1_ = PvPOpponentPanel(this.mPanels[_loc4_]);
+            _loc2_ = _loc4_ + _loc3_;
+            if(_loc2_ < this.mCurrentTab.length)
             {
-               _loc3_.show();
-               _loc3_.setData(this.mCurrentTab[_loc4_],false);
+               _loc1_.show();
+               _loc1_.setData(this.mCurrentTab[_loc2_],false);
             }
             else
             {
-               _loc3_.hide();
+               _loc1_.hide();
             }
-            _loc2_++;
+            _loc4_++;
          }
       }
       
@@ -286,8 +279,9 @@
       
       protected function mouseMove(param1:MouseEvent) : void
       {
-         var _loc2_:Number = NaN;
          var _loc3_:int = 0;
+         var _loc2_:Number = NaN;
+         _loc3_ = 0;
          var _loc4_:int = 0;
          if(param1.buttonDown)
          {
@@ -296,7 +290,8 @@
             this.mScrollSlider.x += _loc2_;
             this.mScrollSlider.x = Math.max(this.mScrollSliderDefaultX,this.mScrollSlider.x);
             this.mScrollSlider.x = Math.min(this.mScrollSliderDefaultX + _loc3_,this.mScrollSlider.x);
-            if((_loc4_ = (this.mScrollSlider.x - this.mScrollSliderDefaultX + (this.mScrollSlider.width >> 1)) * (this.mPageMax - 1) / _loc3_) != this.mPage)
+            _loc4_ = (this.mScrollSlider.x - this.mScrollSliderDefaultX + (this.mScrollSlider.width >> 1)) * (this.mPageMax - 1) / _loc3_;
+            if(_loc4_ != this.mPage)
             {
                this.mPage = _loc4_;
                this.setScreen();
@@ -324,3 +319,4 @@
       }
    }
 }
+

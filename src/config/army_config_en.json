@@ -406,7 +406,7 @@
         },
         "NC2_C3_DESC": {
             "ID": "NC2_C3_DESC",
-            "en": "Go throught this defense line to progress futher!"
+            "en": "Go through this defense line to progress futher!"
         },
         "NC2_C4_TITLE": {
             "ID": "NC2_C4_TITLE",
@@ -620,6 +620,10 @@
             "ID": "NE2_C2_DESC",
             "en": "Collect resourses, get supplies, heal troops! Don't waste your time!"
         },
+        "NE2_C2_COMP": {
+            "ID": "NE2_C2_DESC",
+            "en": "You doing great, Commander!"
+        },
         "NE2_C3_TITLE": {
             "ID": "NE2_C3_TITLE",
             "en": "Clear the land"
@@ -630,11 +634,15 @@
         },
         "NE2_C4_TITLE": {
             "ID": "NE2_C4_TITLE",
-            "en": "Invansion..?"
+            "en": "Invasion..?"
         },
         "NE2_C4_DESC": {
             "ID": "NE2_C4_DESC",
             "en": "Additional Crimson Units on the frontline...clear them out!"
+        },
+        "NE2_C4_COMP": {
+            "ID": "NE2_C4_DESC",
+            "en": "Great job Commander!"
         },
         "NE2_C1_OBJC_11_TITLE": {
             "ID": "NE2_C1_OBJC_11_TITLE",
@@ -842,7 +850,7 @@
         },
         "OUTRO_NE2_DIALOG_7": {
             "ID": "OUTRO_NE2_DIALOG_7",
-            "en": "Be careful Ms. President...we have to have eyes open. I have bed feeling that they are right. This won't be last time seeing them on Homeland..."
+            "en": "Be careful Ms. President...we have to keep our eyes open. I have bad feeling that they are right. This won't be the last time seeing them on Homeland..."
         },
         "OUTRO_NE2_DIALOG_8": {
             "ID": "OUTRO_NE2_DIALOG_8",
@@ -1756,6 +1764,42 @@
             "ID": "SHOP_TAB_BUYCASH",
             "en": "Currency"
         },
+        "SHOP_TAB_BUNDLES": {
+            "ID": "SHOP_TAB_BUNDLES",
+            "en": "Bundles"
+        },
+        "BUNDLE_01": {
+            "ID": "BUNDLE_01",
+            "en": "Flame Assault Bundle"
+        },
+        "BUNDLE_01_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "en": "Get two exclusive Flame Force squads and additional 15 Ally Reports to help you on the front!"
+        },
+        "BUNDLE_02": {
+            "ID": "BUNDLE_01",
+            "en": "Pack Booster Bundle"
+        },
+        "BUNDLE_02_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "en": "Get few value packs to help you push more on the frontline!"
+        },
+        "BUNDLE_03": {
+            "ID": "BUNDLE_01",
+            "en": "Intel Bundle"
+        },
+        "BUNDLE_03_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "en": "Get additional intels and ally reports for better value!"
+        },
+        "BUNDLE_04": {
+            "ID": "BUNDLE_01",
+            "en": "Material Bundle"
+        },
+        "BUNDLE_04_DESC": {
+            "ID": "BUNDLE_01_DESC",
+            "en": "Get 10 of each material for better value to expand your base!"
+        },
         "HFE_PLOT": {
             "ID": "HFE_PLOT",
             "en": "Drop Zone"
@@ -2010,7 +2054,7 @@
         },
         "BUILDING_TESTSITE_DESC": {
             "ID": "BUILDING_TESTSITE_DESC",
-            "en": "Unlocks Rocket Battery\\nAllows 2 more artillery units"
+            "en": "Unlocks Rocket Battery\\nAllows 3 more artillery units"
         },
         "UNLOCK_BOOTCAMP": {
             "ID": "UNLOCK_BOOTCAMP",
@@ -2050,7 +2094,7 @@
         },
         "UNIT_SPECIAL_FORCES_DESC": {
             "ID": "UNIT_SPECIAL_FORCES_DESC",
-            "en": "Special Infantry Unit\\nSpecial:\\nStealth (Can move behind enemy lines)"
+            "en": "Special Infantry Unit\\nSpecial: Stealth\\n(Can move behind enemy lines)"
         },
         "UNIT_ARMORED_CAR": {
             "ID": "UNIT_ARMORED_CAR",
@@ -2090,7 +2134,7 @@
         },
         "UNIT_PREMIUM_MOBILE_ROCKET_BATTERY_DESC": {
             "ID": "UNIT_PREMIUM_MOBILE_ROCKET_BATTERY_DESC",
-            "en": "Elite Rocket Battery"
+            "en": "Elite Rocket Battery\\nSpecial:\\nCan't be fully destroyed"
         },
         "UNIT_ELITE_INFANTRY": {
             "ID": "UNIT_ELITE_INFANTRY",
@@ -2098,7 +2142,15 @@
         },
         "UNIT_ELITE_INFANTRY_DESC": {
             "ID": "UNIT_ELITE_INFANTRY_DESC",
-            "en": "Special Force operators"
+            "en": "Special Force operators\\nSpecial:\\nCan't be fully destroyed"
+        },
+        "UNIT_FLAME_INFANTRY": {
+            "ID": "UNIT_ELITE_INFANTRY",
+            "en": "Flame Force"
+        },
+        "UNIT_FLAME_INFANTRY_DESC": {
+            "ID": "UNIT_ELITE_INFANTRY_DESC",
+            "en": "Special Flame operators\\nSpecial:\\nCan't be fully destroyed"
         },
         "UNIT_ELITE_MAIN_BATTLE_TANK": {
             "ID": "UNIT_ELITE_MAIN_BATTLE_TANK",
@@ -2106,7 +2158,7 @@
         },
         "UNIT_ELITE_MAIN_BATTLE_TANK_DESC": {
             "ID": "UNIT_ELITE_MAIN_BATTLE_TANK_DESC",
-            "en": "Elite Tank"
+            "en": "Elite Tank\\nSpecial:\\nCan't be fully destroyed"
         },
         "UNIT_PREMIUM_ELITELANDKREUZER": {
             "ID": "UNIT_PREMIUM_ELITELANDKREUZER",
@@ -2114,7 +2166,7 @@
         },
         "UNIT_PREMIUM_ELITELANDKREUZER_DESC": {
             "ID": "UNIT_PREMIUM_ELITELANDKREUZER_DESC",
-            "en": "Elite Landkreuzer"
+            "en": "Elite Landkreuzer\\nSpecial:\\nCan't be fully destroyed"
         },
         "ENERGYREFILL_LARGE": {
             "ID": "ENERGYREFILL_LARGE",
@@ -3246,7 +3298,7 @@
         },
         "UNIT_SNIPER_DESC": {
             "ID": "UNIT_SNIPER_DESC",
-            "en": "Extreme range"
+            "en": "Extreme range\\nSpecial:\\nCan't be fully destroyed"
         },
         "CAMPAIGN_WINDOW_TITLE": {
             "ID": "CAMPAIGN_WINDOW_TITLE",
@@ -3275,6 +3327,10 @@
         "CHAR_VALIANT": {
             "ID": "CHAR_VALIANT",
             "en": "Lieutenant O'Neill"
+        },
+        "CHAR_COLOSSAL": {
+            "ID": "CHAR_COLOSSAL",
+            "en": "Crimson Colossal Lady"
         },
         "CHAR_VETERAN": {
             "ID": "CHAR_VETERAN",
@@ -5610,7 +5666,7 @@
         },
         "MISSION_CAMPAIGN_W_1_OBJECTIVE_5": {
             "ID": "MISSION_CAMPAIGN_W_1_OBJECTIVE_5",
-            "en": "Destroy the Enemy Battle Fortress"
+            "en": "Destroy the Enemy Command Bunkers"
         },
         "CAMPAIGN_W_1_MISSION_COMPLETION_1": {
             "ID": "CAMPAIGN_W_1_MISSION_COMPLETION_1",
@@ -6016,9 +6072,13 @@
             "ID": "MENU_DESC_UNIT_ARTILLERY",
             "en": "You have reached the maximum Artillery Unit Capacity.\\n\\nConstruct Arsenals or Test Sites to increase the Artillery Unit Capacity and get more units!"
         },
+        "MENU_DESC_UNIT_LABS": {
+            "ID": "MENU_DESC_UNIT_LABS",
+            "en": "You have reached the maximum Lab Unit Capacity.\\nYou can have only one of each lab unit activated."
+        },
         "MENU_DESC_BUY_MONEY": {
             "ID": "MENU_DESC_BUY_MONEY",
-            "en": "Buy Cash with Facebook Credits"
+            "en": "Buy Cash with Gold Bars"
         },
         "MENU_HEADER_SERVER_ERROR": {
             "ID": "MENU_HEADER_SERVER_ERROR",
@@ -7970,7 +8030,11 @@
         },
         "MAP_TOOLTIP_COMING_SOON": {
             "ID": "MAP_TOOLTIP_COMING_SOON",
-            "en": "Coming soon!"
+            "en": "To be determinated!"
+        },
+        "MAP_TOOLTIP_COMING_SOON_DESC": {
+            "ID": "MAP_TOOLTIP_COMING_SOON_DESC",
+            "en": "Test"
         },
         "REQUEST_ITEM_TEXT": {
             "ID": "REQUEST_ITEM_TEXT",
@@ -8124,6 +8188,30 @@
             "ID": "BUILDING_DRIVE_WATER_3_DESC",
             "en": "Get %U water"
         },
+        "BUILDING_DRIVE_ENERGY_1": {
+            "ID": "BUILDING_DRIVE_ENERGY_1",
+            "en": "Energy Supplies"
+        },
+        "BUILDING_DRIVE_ENERGY_1_DESC": {
+            "ID": "BUILDING_DRIVE_ENERGY_1_DESC",
+            "en": "Get 15 energy"
+        },
+        "BUILDING_DRIVE_ENERGY_2": {
+            "ID": "BUILDING_DRIVE_ENERGY_2",
+            "en": "Energy Supplies"
+        },
+        "BUILDING_DRIVE_ENERGY_2_DESC": {
+            "ID": "BUILDING_DRIVE_ENERGY_2_DESC",
+            "en": "Get 30 energy"
+        },
+        "BUILDING_DRIVE_ENERGY_3": {
+            "ID": "BUILDING_DRIVE_ENERGY_3",
+            "en": "Energy Supplies"
+        },
+        "BUILDING_DRIVE_ENERGY_3_DESC": {
+            "ID": "BUILDING_DRIVE_ENERGY_3_DESC",
+            "en": "Get 60 energy"
+        },
         "BUTTON_HIRE": {
             "ID": "BUTTON_HIRE",
             "en": "Hire"
@@ -8270,7 +8358,7 @@
         },
         "UNIT_PREMIUM_COMMANDO_DESC": {
             "ID": "UNIT_PREMIUM_COMMANDO_DESC",
-            "en": "One Man, One Desire!"
+            "en": "One Man, One Desire!\\nSpecial:\\nCan't be fully destroyed"
         },
         "CHAR_PATRUS_PRAVUS": {
             "ID": "CHAR_PATRUS_PRAVUS",
@@ -11302,7 +11390,7 @@
         },
         "MATERIAL_TESTTUBE_DESC": {
             "ID": "MATERIAL_TESTTUBE_DESC",
-            "en": "Dropped by enemies in Versus mode"
+            "en": "Dropped by enemies"
         },
         "BUILDING_RESEARCH_LAB": {
             "ID": "BUILDING_RESEARCH_LAB",
@@ -11338,11 +11426,15 @@
         },
         "UNIT_RESEARCH_CHOPPER_TITLE": {
             "ID": "UNIT_RESEARCH_CHOPPER_TITLE",
-            "en": "Assault Helicopter"
+            "en": "Assault Chopper"
         },
         "UNIT_RESEARCH_CHOPPER_DESC": {
             "ID": "UNIT_RESEARCH_CHOPPER_DESC",
             "en": "FREE WITH TRGALA DIFFERENCE, COME ON, TAKE IT!:D"
+        },
+        "UNIT_RESEARCH_CHOPPER_DESC_TEMP": {
+            "ID": "UNIT_RESEARCH_CHOPPER_DESC_TEMP",
+            "en": "A highly versatile unit and must-have for any respectable army!\\nSpecial: Flying\\n(moves past all obstacles)"
         },
         "RESEARCH_TECH2_TITLE": {
             "ID": "RESEARCH_TECH2_TITLE",
@@ -11546,11 +11638,11 @@
         },
         "MAP_TOOLTIP_SNOW_DESC": {
             "ID": "MAP_TOOLTIP_SNOW_DESC",
-            "en": "North Island, a cold and harsh winter island located exactly 400 miles northeast of your Homeland. These strong but peaceful people are now under the pressure of the Red Empire."
+            "en": "North Island, a cold and harsh winter island located exactly 400 miles northeast of your Homeland. These strong but peaceful people are now under the pressure of the Crimson Empire."
         },
         "MAP_TOOLTIP_SNOW_LOCKED": {
             "ID": "MAP_TOOLTIP_SNOW_LOCKED",
-            "en": "Requirement:\\nReach Prestige level 30 in VS mode\\n\\nOr unlock with 100 Army Gold\\n\\nNorth Island, a cold and harsh winter island located exactly 400 miles northeast of your Homeland. These strong but peaceful people are now under the pressure of the Red Empire."
+            "en": "Requirement:\\nReach level 30\\n\\nNorth Island, a cold and harsh winter island located exactly 400 miles northeast of your Homeland. These strong but peaceful people are now under the pressure of the Crimson Empire."
         },
         "BUILDING_STATUS_PRODUCING_TOWN_SUPPLIES": {
             "ID": "BUILDING_STATUS_PRODUCING_TOWN_SUPPLIES",
@@ -11574,7 +11666,7 @@
         },
         "MENU_DESC_UNIT_CAP_SNOW": {
             "ID": "MENU_DESC_UNIT_CAP_SNOW",
-            "en": "You have reached the maximum Unit Capacity. This map has fixed unit capacities. Sell or relocate units to make room for better ones."
+            "en": "You have reached the maximum Unit Capacity. This map has fixed unit capacities. Sell or relocate to make room for other units."
         },
         "SNOWMAP_UNLOCK": {
             "ID": "SNOWMAP_UNLOCK",
@@ -11598,7 +11690,7 @@
         },
         "SNOW_MAP_TITLE_W": {
             "ID": "SNOW_MAP_TITLE_W",
-            "en": "West Troms"
+            "en": "Western Troms"
         },
         "SNOW_MAP_TITLE_C": {
             "ID": "SNOW_MAP_TITLE_C",
@@ -11606,7 +11698,7 @@
         },
         "SNOW_MAP_TITLE_E": {
             "ID": "SNOW_MAP_TITLE_E",
-            "en": "East Kalmar"
+            "en": "Eastern Kalmar"
         },
         "SNOW_MAP_TITLE_NW": {
             "ID": "SNOW_MAP_TITLE_NW",
@@ -11614,7 +11706,7 @@
         },
         "SNOW_MAP_TITLE_N": {
             "ID": "SNOW_MAP_TITLE_N",
-            "en": "North Ostrog"
+            "en": "Northern Ostrog"
         },
         "SNOW_MAP_TITLE_NE": {
             "ID": "SNOW_MAP_TITLE_NE",
@@ -11770,7 +11862,7 @@
         },
         "MOUSEOVER_ENEMY_ELITE_GUARDSTATION": {
             "ID": "MOUSEOVER_ENEMY_ELITE_GUARDSTATION",
-            "en": "Elite Guard Garrison"
+            "en": "Elite Guard Station"
         },
         "MOUSEOVER_ENEMY_ELITE_SNIPER": {
             "ID": "MOUSEOVER_ENEMY_ELITE_SNIPER",
@@ -11786,7 +11878,7 @@
         },
         "MOUSEOVER_ENEMY_DROIDSTATION": {
             "ID": "MOUSEOVER_ENEMY_DROIDSTATION",
-            "en": "Droid Garrison"
+            "en": "Droid Station"
         },
         "MOUSEOVER_ENEMY_SEA_TOWER_MACHINEGUN": {
             "ID": "MOUSEOVER_ENEMY_SEA_TOWER_MACHINEGUN",
@@ -11798,7 +11890,7 @@
         },
         "MOUSEOVER_ENEMY_SEA_PLATFORM_FORT": {
             "ID": "MOUSEOVER_ENEMY_SEA_PLATFORM_FORT",
-            "en": "Battle Fortress"
+            "en": "War Fortress"
         },
         "MOUSEOVER_ENEMY_SEA_GENERATOR": {
             "ID": "MOUSEOVER_ENEMY_SEA_GENERATOR",
@@ -11826,23 +11918,23 @@
         },
         "DIALOGUE_AREA_SNOW_S_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_S_INTRO1",
-            "en": "The situation is serious! We need air support and reinforcements!"
+            "en": "The situation is critical! We need air support and reinforcements!"
         },
         "DIALOGUE_AREA_SNOW_S_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_S_INTRO2",
-            "en": "This looks serious, Commander! It could turn our toughest battle yet!"
+            "en": "This looks serious Commander! This might turn out to be our toughest fights yet!"
         },
         "DIALOGUE_AREA_SNOW_S_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_S_INTRO3",
-            "en": "I see Vile's Red Bulldozers have finished. Be careful with them! They can devastate your defense irreversibly."
+            "en": "I see Vile has finished the Crimson Bulldozers. Watch out for them! They are able to pulverize your defenses beyond repair."
         },
         "DIALOGUE_AREA_SNOW_S_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_S_INTRO4",
-            "en": "Send reinforcements, liberate the coastal city, and gain trust!"
+            "en": "Send in reinforcements, liberate that coastal city and get a foothold!"
         },
         "DIALOGUE_AREA_SNOW_S_INTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_S_INTRO5",
-            "en": "The environment is too harsh for our buildings. We won't be able to construct normal buildings here, but we can establish defenses."
+            "en": "The environment is too grim for our buildings. We won't be able to build normal buildings here, but we can set up defenses."
         },
         "SNOW_S_C1_NAME": {
             "ID": "SNOW_S_C1_NAME",
@@ -11850,15 +11942,15 @@
         },
         "SNOW_S_C1_DESC": {
             "ID": "SNOW_S_C1_DESC",
-            "en": "Send reinforcements, liberate the coastal city, and gain trust! TIP: The Red Bulldozer has a new special skill type: it permanently destroys defense structures."
+            "en": "Send in reinforcements, liberate that coastal city and get a foothold! TIP: The Crimson Bulldozer has a new type of special ability: it destroys defense structures permanently."
         },
         "SNOW_S_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_S_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Red Bulldozers"
+            "en": "Destroy Crimson Bulldozers"
         },
         "SNOW_S_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_S_C1_OBJECTIVE2_TITLE",
-            "en": "Destroy the Elite Droids"
+            "en": "Destroy Elite Droids"
         },
         "SNOW_S_C1_OBJECTIVE3_TITLE": {
             "ID": "SNOW_S_C1_OBJECTIVE3_TITLE",
@@ -11866,35 +11958,35 @@
         },
         "DIALOGUE_AREA_SNOW_S_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_S_OUTRO1",
-            "en": "Thank you, Commander! We've gained trust, but I have worse news: Black Fox is missing in action."
+            "en": "Thank you Commander! We have gained a foothold, but there's more bad news: Black Fox is missing in action."
         },
         "DIALOGUE_AREA_SNOW_S_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_S_OUTRO2",
-            "en": "Our plans are being thwarted again, aren't they? I won't be so kind this time. And don't waste your precious elite soldiers dreaming of finding Black Fox."
+            "en": "Here again to foil my plans, are we? This time i won't be so gentle. And don't dream of finding your precious elite soldier, Black Fox."
         },
         "DIALOGUE_AREA_SNOW_S_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_S_OUTRO3",
-            "en": "Commander, based on my experiences with the Red Empire, I'm confident that Black Fox is alive and is being held in Maximum Security Prison for interrogation."
+            "en": "Commander, based on my experience with the Crimson Empire, I'm quite sure that Black Fox is alive and kept in a Maximum Security Prison for interrogation."
         },
         "DIALOGUE_AREA_SNOW_S_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_S_OUTRO4",
-            "en": "We have no time to waste. Black Fox must be found, and there are still many civilians waiting to be rescued."
+            "en": "We've got no time to waste. Black Fox must be found and there are more civilians to rescue."
         },
         "DIALOGUE_AREA_SNOW_S_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_S_OUTRO5",
-            "en": "Enter the store and buy a piece of the map. Let's start by securing the southern coast."
+            "en": "Go to the shop and buy a map piece! Let's start by securing the southern coast."
         },
         "SNOW_S_SUPPLY_CITY_MISSION_TITLE": {
             "ID": "SNOW_S_SUPPLY_CITY_MISSION_TITLE",
-            "en": "Buy materials from the local people!"
+            "en": "Buy supplies from the locals!"
         },
         "SNOW_S_SUPPLY_CITY_MISSION_DESC": {
             "ID": "SNOW_S_SUPPLY_CITY_MISSION_DESC",
-            "en": "The economy of this island is based on exports. They have a lot of materials but need cash. Provide cash to the local villages, towns, and cities to produce materials."
+            "en": "This island is dependent on export to run it's economy. They have plenty of supplies but are in need of cash. Provide cash to the local villages, towns, and cities to produce supplies."
         },
         "SNOW_S_SUPPLY_CITY_OBJECTIVE_TITLE": {
             "ID": "SNOW_S_SUPPLY_CITY_OBJECTIVE_TITLE",
-            "en": "Pay cash to the local city for them to produce materials."
+            "en": "Pay cash to the local city to produce supplies."
         },
         "SNOW_S_SUPPLY_CITY_OBJECTIVE_DESC": {
             "ID": "SNOW_S_SUPPLY_CITY_OBJECTIVE_DESC",
@@ -11902,39 +11994,39 @@
         },
         "SNOW_S_SUPPLY_CITY_MISSION_COMPL": {
             "ID": "SNOW_S_SUPPLY_CITY_MISSION_COMPL",
-            "en": "Good job! Keep the local economy rising and active!"
+            "en": "Good job! Keep the local economy up and running!"
         },
         "DIALOGUE_AREA_SNOW_SW_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_SW_INTRO1",
-            "en": "Well, well, we meet again. Are you here to ruin my profitable businesses again?"
+            "en": "Well well, we meet again. Are you here to ruin my lucrative businesses again?"
         },
         "DIALOGUE_AREA_SNOW_SW_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_SW_INTRO2",
-            "en": "Fierce! When civilians are under pressure, you can't trust Fierce, the man behind it all."
+            "en": "Fierce! When there's civilians under oppression, you can count on Fierce being the man behind it."
         },
         "DIALOGUE_AREA_SNOW_SW_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_SW_INTRO3",
-            "en": "All the enemy defenses on this island are super strong. These are elite versions of what you've seen before."
+            "en": "All the enemy defenses on this island are super charged. They are elite versions of the ones you've seen so far."
         },
         "DIALOGUE_AREA_SNOW_SW_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_SW_INTRO4",
-            "en": "Break through this defense line and destroy these droids. There's also a town that needs to be liberated."
+            "en": "Breach that defensive line and take out those droids. There's also a civilian town to liberate."
         },
         "SNOW_SW_C1_NAME": {
             "ID": "SNOW_SW_C1_NAME",
-            "en": "The Usual Stuff"
+            "en": "Business as usual"
         },
         "SNOW_SW_C1_DESC": {
             "ID": "SNOW_SW_C1_DESC",
-            "en": "Governor James Fierce is once again oppressing the local people and must be stopped. TIP: Droid garrisons frequently appear on the island. New Elite Droids regularly emerge from them."
+            "en": "Governor James Fierce is oppressing the locals again and needs to be stopped. TIP: Droid stations appear frequently on this island. They will spawn new Elite Droids at regular intervals."
         },
         "SNOW_SW_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_SW_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Elite Droids"
+            "en": "Destroy Elite Droids"
         },
         "SNOW_SW_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_SW_C1_OBJECTIVE2_TITLE",
-            "en": "Destroy the Droid Garrisons"
+            "en": "Destroy the Droid Stations"
         },
         "SNOW_SW_C1_OBJECTIVE3_TITLE": {
             "ID": "SNOW_SW_C1_OBJECTIVE3_TITLE",
@@ -11942,39 +12034,39 @@
         },
         "DIALOGUE_AREA_SNOW_SW_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_SW_OUTRO1",
-            "en": "You're really bad at your job, aren't you? Don't you have any respect for hard-earned profits?"
+            "en": "You're really bad at your job, aren't you? Don't you have any respect for my business?"
         },
         "DIALOGUE_AREA_SNOW_SW_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_SW_OUTRO2",
-            "en": "You're wasting your breath, Fierce! What you're doing isn't business – it's oppression and slavery!"
+            "en": "Spare your words Fierce! What you do is not business – it's oppression and slavery!"
         },
         "DIALOGUE_AREA_SNOW_SW_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_SW_OUTRO3",
-            "en": "Well, well, someone's getting bored. I think I'll continue my work in the north. Pravus! Watch out for these barbaric killers."
+            "en": "My my, someone's in a bad mood. I guess I'll continue with my business up north. Pravus! Take care of these uncivilized thugs."
         },
         "DIALOGUE_AREA_SNOW_SW_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_SW_OUTRO4",
-            "en": "With pleasure, sir! I hope you enjoy my new inventions, Commander, because there's more to come!"
+            "en": "With pleasure sir! I hope you like my new inventions Commander, because there's plenty more to come!"
         },
         "DIALOGUE_AREA_SNOW_SW_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_SW_OUTRO5",
-            "en": "We must continue our campaign! After securing the southern coast, we should move north to the central regions."
+            "en": "We must continue our campaign! Once we've cleaned the south coast, we should proceed northwards to the central regions."
         },
         "DIALOGUE_AREA_SNOW_SE_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_SE_INTRO1",
-            "en": "*TSSK* Criminals *TSSK* have taken over the *TSSK* rity prison *TSSK*"
+            "en": "*TSSK* Crims *TSSK* captured *TSSK* rity prison *TSSK*"
         },
         "DIALOGUE_AREA_SNOW_SE_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_SE_INTRO2",
-            "en": "A garbled message from Black Fox. So he's still alive!"
+            "en": "A scrambled transmission from Black Fox. So that means she's still alive!"
         },
         "DIALOGUE_AREA_SNOW_SE_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_SE_INTRO3",
-            "en": "We have no time to waste. Black Fox must be found. Perhaps he's in one of these Maximum Security Prisons."
+            "en": "We've got no time to waste. Black Fox must be found. Maybe she's in one of those Maximum Security Prisons."
         },
         "DIALOGUE_AREA_SNOW_SE_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_SE_INTRO4",
-            "en": "HRRRR! The Blue wimps have shown up again! Taste some Bulldozer, you wimps!!!"
+            "en": "GRRRR! The Blue wimps are here again! Taste some Bulldozer, you wimps!!!"
         },
         "SNOW_SE_C1_NAME": {
             "ID": "SNOW_SE_C1_NAME",
@@ -11982,15 +12074,15 @@
         },
         "SNOW_SE_C1_DESC": {
             "ID": "SNOW_SE_C1_DESC",
-            "en": "Secure the area and destroy these Maximum Security Prisons. Maybe we'll find Black Fox there."
+            "en": "Secure the area and destroy those Maximum Security Prisons. Maybe we'll find Black Fox there."
         },
         "SNOW_SE_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_SE_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Red Bulldozers"
+            "en": "Destroy Crimson Bulldozers"
         },
         "SNOW_SE_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_SE_C1_OBJECTIVE2_TITLE",
-            "en": "Destroy the Elite Guard Garrisons"
+            "en": "Destroy Elite Guard Stations"
         },
         "SNOW_SE_C1_OBJECTIVE3_TITLE": {
             "ID": "SNOW_SE_C1_OBJECTIVE3_TITLE",
@@ -11998,39 +12090,39 @@
         },
         "DIALOGUE_AREA_SNOW_SE_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_SE_OUTRO1",
-            "en": "HOAHHH! You've angered McDuff! We need more Bulldozers!"
+            "en": "GWAAAH! You make McDuff angry! We need more Bulldozers!"
         },
         "DIALOGUE_AREA_SNOW_SE_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_SE_OUTRO2",
-            "en": "Always the blockhead."
+            "en": "Dumb as a rock as always"
         },
         "DIALOGUE_AREA_SNOW_SE_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_SE_OUTRO3",
-            "en": "Forget this bully, we have a mission to complete. O'Neil: Is there any information on where Black Fox is?"
+            "en": "Ignore that bully, we have a mission to complete. O'Neil: any information on the whereabouts of Black Fox?"
         },
         "DIALOGUE_AREA_SNOW_SE_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_SE_OUTRO4",
-            "en": "Black Fox isn't here, but we've rescued his two Commandos. They say other Prison buildings have been placed in the northern regions. I'm sure Black Fox is in one of them."
+            "en": "No Black Fox here, but we rescued two of her Commandos. They told us that they spotted more Prison buildings in the areas up north. I'm sure Black Fox is in one of them."
         },
         "DIALOGUE_AREA_SNOW_SE_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_SE_OUTRO5",
-            "en": "Then we should move north. After securing the southern coast, we can proceed to the central regions."
+            "en": "Then northward we must move. After securing the southern coast we can proceed to the central regions."
         },
         "DIALOGUE_AREA_SNOW_W_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_W_INTRO1",
-            "en": "You've done this before. Let's see how much you like these new Elite Machine Gun Towers"
+            "en": "You've made it this far. Let's see how you like these brand new Elite Machine Gun Towers"
         },
         "DIALOGUE_AREA_SNOW_W_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_W_INTRO2",
-            "en": "Commander, these towers look very powerful. We should proceed carefully."
+            "en": "Commander, those towers look very powerful. We must advance carefully."
         },
         "DIALOGUE_AREA_SNOW_W_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_W_INTRO3",
-            "en": "There's a small island with a prison on it. Look how well it's guarded! Maybe Black Fox is there?"
+            "en": "There's a small island with a prison on it. Look how heavily it's guarded! Maybe Black Fox is there?"
         },
         "DIALOGUE_AREA_SNOW_W_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_W_INTRO4",
-            "en": "This could be very good. Form a good strategy, secure this area, and destroy that prison building."
+            "en": "It could very well be. Form a good strategy, secure this area and destroy that prison building."
         },
         "SNOW_W_C1_NAME": {
             "ID": "SNOW_W_C1_NAME",
@@ -12038,11 +12130,11 @@
         },
         "SNOW_W_C1_DESC": {
             "ID": "SNOW_W_C1_DESC",
-            "en": "Watch out for these Elite Machine Gun Turrets. Secure the area and see if the Black Fox is on this prison island!"
+            "en": "Watch out for those Elite Machine Gun Towers. Secure the area and find out if Black Fox is on that prison island!"
         },
         "SNOW_W_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_W_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Elite Red Rocketeers"
+            "en": "Destroy Elite Crimson Rocketeers"
         },
         "SNOW_W_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_W_C1_OBJECTIVE2_TITLE",
@@ -12054,55 +12146,55 @@
         },
         "DIALOGUE_AREA_SNOW_W_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_W_OUTRO1",
-            "en": "You're getting on my nerves. At least your precious Black Fox is with us. You'll never find him!"
+            "en": "You're getting on my nerves. At least we still have your precious Black Fox. You will never find her!"
         },
         "DIALOGUE_AREA_SNOW_W_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_W_OUTRO2",
-            "en": "Your days are numbered, Vile. We'll destroy your forces and find the Black Fox. Not a stone will be left unturned!"
+            "en": "Your days are numbered Vile. We will take down your troops and find Black Fox. No stone will be left unturned!"
         },
         "DIALOGUE_AREA_SNOW_W_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_W_OUTRO3",
-            "en": "The Special Forces are holding the prisoner and there are some clues about where the Black Fox might be."
+            "en": "The Special Forces that where held prisoner had some clues on the whereabouts of Black Fox."
         },
         "DIALOGUE_AREA_SNOW_W_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_W_OUTRO4",
-            "en": "Before they were captured, they saw the Black Fox being taken to an island in the north."
+            "en": "Before they were captured, they saw Black Fox being taken to a prison island up north."
         },
         "DIALOGUE_AREA_SNOW_W_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_W_OUTRO5",
-            "en": "Then that's where we're headed. After securing the central areas, buy a piece of the map from the northern region and continue the expedition!"
+            "en": "Then that's where we'll be heading next. After securing the central regions, buy a map piece from the northern area to continue the campaign!"
         },
         "DIALOGUE_AREA_SNOW_C_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_C_INTRO1",
-            "en": "Oh, look who we have here? I hope you like my new droids because there are plenty more where those came from."
+            "en": "Oooh, here already? I hope you like my droids because there's plenty of them here."
         },
         "DIALOGUE_AREA_SNOW_C_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_C_INTRO2",
-            "en": "Commander, let's hurry and destroy these droids."
+            "en": "Commander, let's move with haste and take down those droids."
         },
         "DIALOGUE_AREA_SNOW_C_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_C_INTRO3",
-            "en": "There are a lot of these Droid Garrisons in this area. They all seem to be following some sort of pattern. If we can figure it out, we might use it to our advantage."
+            "en": "There are a lot of those Droid Stations in this area. They all seem to be following some sort of pattern. If we can figure it out, we might use it to our advantage."
         },
         "DIALOGUE_AREA_SNOW_C_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_C_INTRO4",
-            "en": "Let's clear out these droids. And look, there's a well-guarded prison over there. Slim chance, but maybe the Black Fox is inside."
+            "en": "Let's clear out those droids. And look, there's a heavily guarded prison there as well. Maybe there's a small chance Black Fox is there."
         },
         "SNOW_C_C1_NAME": {
             "ID": "SNOW_C_C1_NAME",
-            "en": "Droid Intimidation"
+            "en": "Droid Menace"
         },
         "SNOW_C_C1_DESC": {
             "ID": "SNOW_C_C1_DESC",
-            "en": "We need to get rid of these troublesome droids before they take over everything."
+            "en": "We must get rid of those pestering droids before they fill the land."
         },
         "SNOW_C_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_C_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Elite Droids"
+            "en": "Destroy Elite Droids"
         },
         "SNOW_C_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_C_C1_OBJECTIVE2_TITLE",
-            "en": "Destroy the Elite Guard Garrisons"
+            "en": "Destroy Elite Guard Stations"
         },
         "SNOW_C_C1_OBJECTIVE3_TITLE": {
             "ID": "SNOW_C_C1_OBJECTIVE3_TITLE",
@@ -12114,35 +12206,35 @@
         },
         "DIALOGUE_AREA_SNOW_C_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_C_OUTRO2",
-            "en": "You'd better head back to the building, fake doctor."
+            "en": "Better head back to your headquarters, failed scientist."
         },
         "DIALOGUE_AREA_SNOW_C_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_C_OUTRO3",
-            "en": "Oh, spill your insults, traitor. You haven't seen my last creations yet."
+            "en": "Oh spare your insults traitor. You haven't seen my best creations yet."
         },
         "DIALOGUE_AREA_SNOW_C_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_C_OUTRO4",
-            "en": "The prison was just a supply depot, but I believe we're on the right track to finding the Black Fox."
+            "en": "The prison was just a supply depot, but I believe we're on the right track of finding Black Fox."
         },
         "DIALOGUE_AREA_SNOW_C_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_C_OUTRO5",
-            "en": "I agree. After securing the central areas, we should continue our expedition north."
+            "en": "I agree. Once we've secured the central regions, we will continue our campaign to the northern regions."
         },
         "DIALOGUE_AREA_SNOW_E_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_E_INTRO1",
-            "en": "Enough with this child's play. It's time to take action! Pravus, are the towers ready?"
+            "en": "Enough of this child's play. It's time to start the action! Pravus, are the towers ready?"
         },
         "DIALOGUE_AREA_SNOW_E_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_E_INTRO2",
-            "en": "Yes, my lord! The towers and Bulldozers are ready for action."
+            "en": "Yes my lord! The towers and Bulldozers are ready for action."
         },
         "DIALOGUE_AREA_SNOW_E_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_E_INTRO3",
-            "en": "HOAHHH! Like McDuff Bulldozers! BRRRM BRRMM! VUHAHAA!"
+            "en": "GRRAAAH! McDuff like Bulldozers! BRRRM BRRMM! GWAHAHAA!"
         },
         "DIALOGUE_AREA_SNOW_E_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_E_INTRO4",
-            "en": "This won't be an easy fight. These Missile Towers seem to work a little differently. Study them and come up with a strategy to defeat them."
+            "en": "This will not be an easy fight. Those Missile Towers seem to work a bit differently. Inspect them and form a strategy to take them down."
         },
         "SNOW_E_C1_NAME": {
             "ID": "SNOW_E_C1_NAME",
@@ -12150,11 +12242,11 @@
         },
         "SNOW_E_C1_DESC": {
             "ID": "SNOW_E_C1_DESC",
-            "en": "The Red Empire has invented a new type of Missile Tower. We need to strategize and destroy them. Also, check out these prisons. There's a chance the Black Fox might be somewhere around there."
+            "en": "The Crimson Empire has devised some new type of Missile Tower. We must form a strategy and take them down. Also check out those prisons. There's a chance Black Fox is in there somewhere."
         },
         "SNOW_E_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_E_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Red Bulldozers"
+            "en": "Destroy Crimson Bulldozers"
         },
         "SNOW_E_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_E_C1_OBJECTIVE2_TITLE",
@@ -12166,51 +12258,51 @@
         },
         "DIALOGUE_AREA_SNOW_E_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_E_OUTRO1",
-            "en": "HOOOOAAAAAH! McDuff is ANGRYYYY!!!"
+            "en": "GRRRAAAHHH!!! McDuff ANGRYYYY!!!"
         },
         "DIALOGUE_AREA_SNOW_E_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_E_OUTRO2",
-            "en": "You make me laugh, McDuff!"
+            "en": "You make me laugh Mc Duff!"
         },
         "DIALOGUE_AREA_SNOW_E_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_E_OUTRO3",
-            "en": "Stop playing games! Any news from the prisons, O'Neill?"
+            "en": "Quit playing around! Any news from the prisons O'Neill?"
         },
         "DIALOGUE_AREA_SNOW_E_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_E_OUTRO4",
-            "en": "The news is negative, my Lord. The infantry units were grateful for our rescue but didn't tell us anything new. It's best we move on."
+            "en": "Negative sir, the infantry units are grateful that we rescued them but they don't have anything new to tell us. We better move on."
         },
         "DIALOGUE_AREA_SNOW_E_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_E_OUTRO5",
-            "en": "After securing the central areas, we'll continue our expedition north."
+            "en": "Once we've secured the central regions, we will continue our campaign to the northern regions."
         },
         "DIALOGUE_AREA_SNOW_NW_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_NW_INTRO1",
-            "en": "You won't give up, will you? Are you coming to ruin my work again?"
+            "en": "You just don't give up, do you? Come to ruin my businesses again?"
         },
         "DIALOGUE_AREA_SNOW_NW_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_NW_INTRO2",
-            "en": "Indeed we are. Your days are numbered, James Fierce. It's time to end your oppression."
+            "en": "Indeed we are. Your days are numbered James Fierce. It's time to put an end to your oppression."
         },
         "DIALOGUE_AREA_SNOW_NW_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_NW_INTRO3",
-            "en": "Oh, save your breath, traitor! If it weren't for your treacherous acts, this business would have thrived."
+            "en": "Oh, spare your words traitor! If it weren't for your traitorous acts, business would be flourishing."
         },
         "DIALOGUE_AREA_SNOW_NW_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_NW_INTRO4",
-            "en": "Less talk, more action! We must secure this area and destroy this prison."
+            "en": "Less talk, more action! We need to secure this area and destroy that prison."
         },
         "SNOW_NW_C1_NAME": {
             "ID": "SNOW_NW_C1_NAME",
-            "en": "No Fierce. Don't be crazy."
+            "en": "No Fierce. No Distractions."
         },
         "SNOW_NW_C1_DESC": {
             "ID": "SNOW_NW_C1_DESC",
-            "en": "End Fierce's oppression and liberate the city. Destroy this prison while you're at it."
+            "en": "Make an end to Fierce's oppression and liberate that city. Destroy that prison while you're at it."
         },
         "SNOW_NW_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_NW_C1_OBJECTIVE1_TITLE",
-            "en": "Destroy the Tesla Coil"
+            "en": "Destroy Elite Tesla Coils"
         },
         "SNOW_NW_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_NW_C1_OBJECTIVE2_TITLE",
@@ -12222,7 +12314,7 @@
         },
         "DIALOGUE_AREA_SNOW_NW_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_NW_OUTRO1",
-            "en": "Well, well, I must admit I really hate you. I'd better find a new place where I can work in peace."
+            "en": "Well, well, I must admit I really hate you. I will find a new place where I can continue with my businesses."
         },
         "DIALOGUE_AREA_SNOW_NW_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_NW_OUTRO2",
@@ -12230,19 +12322,19 @@
         },
         "DIALOGUE_AREA_SNOW_NW_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_NW_OUTRO3",
-            "en": "I don't think Fierce will be bothering us again anytime soon."
+            "en": "I don't think Fierce will be bothering us anytime soon."
         },
         "DIALOGUE_AREA_SNOW_NW_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_NW_OUTRO4",
-            "en": "The locals are grateful for our help, but we must continue the fight."
+            "en": "The locals are grateful for our help but we must continue our fight."
         },
         "DIALOGUE_AREA_SNOW_NW_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_NW_OUTRO5",
-            "en": "The Red Empire won't give up on this island. After securing the northern regions, we'll be better off and can protect the civilians."
+            "en": "The Crimson Empire does not give up on this island. After securing the northern areas, we better stay and protect the civilians."
         },
         "DIALOGUE_AREA_SNOW_N_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_N_INTRO1",
-            "en": "This is impossible! You shouldn't even be here. Pravus, get those towers ready and watch out for intruders."
+            "en": "This is impossible! You can't be here already. Pravus, prepare those towers and take care of the intruders."
         },
         "DIALOGUE_AREA_SNOW_N_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_N_INTRO2",
@@ -12250,11 +12342,11 @@
         },
         "DIALOGUE_AREA_SNOW_N_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_N_INTRO3",
-            "en": "Commander, these are the islands the Special Forces mentioned. The Black Fox must be held in one of these prisons."
+            "en": "Commander, those are the islands the Special Forces talked about. Black Fox must be located in one of those prisons."
         },
         "DIALOGUE_AREA_SNOW_N_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_N_INTRO4",
-            "en": "Then we have no time to waste. Destroy these defenses and find the Black Fox."
+            "en": "Then we have no time to waste. Destroy those defenses and find Black Fox."
         },
         "SNOW_N_C1_NAME": {
             "ID": "SNOW_N_C1_NAME",
@@ -12262,7 +12354,7 @@
         },
         "SNOW_N_C1_DESC": {
             "ID": "SNOW_N_C1_DESC",
-            "en": "Our intelligence suggests that the Black Fox is being held here as a prisoner. Find him, rescue the locals, and destroy this pollution-spreading generator."
+            "en": "Our intel tells that Black Fox is held prisoner here. Find her, save the locals and destroy that polluting generator"
         },
         "SNOW_N_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_N_C1_OBJECTIVE1_TITLE",
@@ -12270,7 +12362,7 @@
         },
         "SNOW_N_C1_OBJECTIVE2_TITLE": {
             "ID": "SNOW_N_C1_OBJECTIVE2_TITLE",
-            "en": "Destroy the Prison Holding the Black Fox"
+            "en": "Destroy the Prison with Black Fox in it"
         },
         "SNOW_N_C1_OBJECTIVE3_TITLE": {
             "ID": "SNOW_N_C1_OBJECTIVE3_TITLE",
@@ -12278,39 +12370,39 @@
         },
         "DIALOGUE_AREA_SNOW_N_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_N_OUTRO1",
-            "en": "Thank you for not letting me lose hope, Commander!"
+            "en": "Thank you Commander for not giving up hope on me!"
         },
         "DIALOGUE_AREA_SNOW_N_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_N_OUTRO2",
-            "en": "We could never have done this. You're one of our best soldiers and an invaluable friend."
+            "en": "We would never do that. You're one of our best soldiers and an invaluable friend."
         },
         "DIALOGUE_AREA_SNOW_N_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_N_OUTRO3",
-            "en": "It's so good to have you back, Black Fox."
+            "en": "It's good to have you back Black Fox."
         },
         "DIALOGUE_AREA_SNOW_N_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_N_OUTRO4",
-            "en": "I owe you my life. I will fight by your side until the end!"
+            "en": "I'm in your debt. I will fight along your side to the end!"
         },
         "DIALOGUE_AREA_SNOW_N_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_N_OUTRO5",
-            "en": "Get me off this island so I can help you defeat these Reds."
+            "en": "Deploy me and let me help you out in taking out those Crimsons."
         },
         "DIALOGUE_AREA_SNOW_NE_INTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_NE_INTRO1",
-            "en": "I've had enough of this with you! You may have done this so far, but you'll never get past my War Fortresses."
+            "en": "I've had it with you! You might have made it this far but you'll never breach my War Fortress."
         },
         "DIALOGUE_AREA_SNOW_NE_INTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_NE_INTRO2",
-            "en": "My lord, the towers and War Fortresses are fully prepared. They won't let this place survive."
+            "en": "My lord, the towers and the War Fortress are fully operational. They will never leave this place alive."
         },
         "DIALOGUE_AREA_SNOW_NE_INTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_NE_INTRO3",
-            "en": "That better be true, Pravus, or I'll hold you personally responsible."
+            "en": "That better be true Pravus or I'll hold you personally responsible."
         },
         "DIALOGUE_AREA_SNOW_NE_INTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_NE_INTRO4",
-            "en": "This is our chance. Vile himself is inside this fortress."
+            "en": "This is our chance. Vile is personally inside that fortress."
         },
         "SNOW_NE_C1_NAME": {
             "ID": "SNOW_NE_C1_NAME",
@@ -12318,7 +12410,7 @@
         },
         "SNOW_NE_C1_DESC": {
             "ID": "SNOW_NE_C1_DESC",
-            "en": "Destroy the War Fortress and the surrounding defense towers to liberate this village from the Red Empire's oppression."
+            "en": "Destroy the War Fortress and the surrounding defense towers and save that village from the oppression of the Crimson Empire."
         },
         "SNOW_NE_C1_OBJECTIVE1_TITLE": {
             "ID": "SNOW_NE_C1_OBJECTIVE1_TITLE",
@@ -12338,143 +12430,143 @@
         },
         "DIALOGUE_AREA_SNOW_NE_OUTRO1": {
             "ID": "DIALOGUE_AREA_SNOW_NE_OUTRO1",
-            "en": "Praaavuuus! Get out of my sight, what kind of scientist are you!"
+            "en": "Praaavuuus! Get over here you worthless excuse for a scientist!"
         },
         "DIALOGUE_AREA_SNOW_NE_OUTRO2": {
             "ID": "DIALOGUE_AREA_SNOW_NE_OUTRO2",
-            "en": "Y-Y-Yes, M-My Lord!"
+            "en": "Y-Y-Yes, my L-Lord!"
         },
         "DIALOGUE_AREA_SNOW_NE_OUTRO3": {
             "ID": "DIALOGUE_AREA_SNOW_NE_OUTRO3",
-            "en": "Well done commander, maybe you won this battle, but we will meet again. My forces will continue to crush this island until nothing but ruins remain."
+            "en": "Well well commander, you might have won this battle but we will meet again. My troops will keep on hammering this island until there's nothing but ash left."
         },
         "DIALOGUE_AREA_SNOW_NE_OUTRO4": {
             "ID": "DIALOGUE_AREA_SNOW_NE_OUTRO4",
-            "en": "Good job Commander, but I'm afraid Vile is right."
+            "en": "Good job Commander but I'm afraid Vile is right."
         },
         "DIALOGUE_AREA_SNOW_NE_OUTRO5": {
             "ID": "DIALOGUE_AREA_SNOW_NE_OUTRO5",
-            "en": "Red Empire forces are swarming from the northern shores and the skies. We must hold the defense line and protect the civilians."
+            "en": "The Crimson Empire troops are pouring down from the northern shores and from the sky. We have to hold the defensive line and protect the civilians."
         },
         "SNOW_END_MISSION_TITLE1": {
             "ID": "SNOW_END_MISSION_TITLE1",
-            "en": "Defend the Line I"
+            "en": "Hold the Line I"
         },
         "SNOW_END_MISSION_TITLE2": {
             "ID": "SNOW_END_MISSION_TITLE2",
-            "en": "Defend the Line II"
+            "en": "Hold the Line II"
         },
         "SNOW_END_MISSION_TITLE3": {
             "ID": "SNOW_END_MISSION_TITLE3",
-            "en": "Defend the Line III"
+            "en": "Hold the Line III"
         },
         "SNOW_END_MISSION_TITLE4": {
             "ID": "SNOW_END_MISSION_TITLE4",
-            "en": "Defend the Line IV"
+            "en": "Hold the Line IV"
         },
         "SNOW_END_MISSION_TITLE5": {
             "ID": "SNOW_END_MISSION_TITLE5",
-            "en": "Defend the Line V"
+            "en": "Hold the Line V"
         },
         "SNOW_END_MISSION_TITLE6": {
             "ID": "SNOW_END_MISSION_TITLE6",
-            "en": "Defend the Line VI"
+            "en": "Hold the Line VI"
         },
         "SNOW_END_MISSION_TITLE7": {
             "ID": "SNOW_END_MISSION_TITLE7",
-            "en": "Defend the Line VII"
+            "en": "Hold the Line VII"
         },
         "SNOW_END_MISSION_TITLE8": {
             "ID": "SNOW_END_MISSION_TITLE8",
-            "en": "Defend the Line VIII"
+            "en": "Hold the Line VIII"
         },
         "SNOW_END_MISSION_TITLE9": {
             "ID": "SNOW_END_MISSION_TITLE9",
-            "en": "Defend the Line IX"
+            "en": "Hold the Line IX"
         },
         "SNOW_END_MISSION_TITLE10": {
             "ID": "SNOW_END_MISSION_TITLE10",
-            "en": "Defend the Line X"
+            "en": "Hold the Line X"
         },
         "SNOW_END_MISSION_TITLE11": {
             "ID": "SNOW_END_MISSION_TITLE11",
-            "en": "Defend the Line XI"
+            "en": "Hold the Line XI"
         },
         "SNOW_END_MISSION_TITLE12": {
             "ID": "SNOW_END_MISSION_TITLE12",
-            "en": "Defend the Line XII"
+            "en": "Hold the Line XII"
         },
         "SNOW_END_MISSION_TITLE13": {
             "ID": "SNOW_END_MISSION_TITLE13",
-            "en": "Defend the Line XIII"
+            "en": "Hold the Line XIII"
         },
         "SNOW_END_MISSION_TITLE14": {
             "ID": "SNOW_END_MISSION_TITLE14",
-            "en": "Defend the Line XIV"
+            "en": "Hold the Line XIV"
         },
         "SNOW_END_MISSION_TITLE15": {
             "ID": "SNOW_END_MISSION_TITLE15",
-            "en": "Defend the Line XV"
+            "en": "Hold the Line XV"
         },
         "SNOW_END_MISSION_DESC1": {
             "ID": "SNOW_END_MISSION_DESC1",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC2": {
             "ID": "SNOW_END_MISSION_DESC2",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC3": {
             "ID": "SNOW_END_MISSION_DESC3",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC4": {
             "ID": "SNOW_END_MISSION_DESC4",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC5": {
             "ID": "SNOW_END_MISSION_DESC5",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC6": {
             "ID": "SNOW_END_MISSION_DESC6",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC7": {
             "ID": "SNOW_END_MISSION_DESC7",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC8": {
             "ID": "SNOW_END_MISSION_DESC8",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC9": {
             "ID": "SNOW_END_MISSION_DESC9",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC10": {
             "ID": "SNOW_END_MISSION_DESC10",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC11": {
             "ID": "SNOW_END_MISSION_DESC11",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC12": {
             "ID": "SNOW_END_MISSION_DESC12",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC13": {
             "ID": "SNOW_END_MISSION_DESC13",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC14": {
             "ID": "SNOW_END_MISSION_DESC14",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_DESC15": {
             "ID": "SNOW_END_MISSION_DESC15",
-            "en": "The Red Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
+            "en": "The Crimson Empire will not leave this island alone. We must hold the defense line and protect the civilians. And we need to be careful against those paratroopers!"
         },
         "SNOW_END_MISSION_COMPL1": {
             "ID": "SNOW_END_MISSION_COMPL1",
@@ -12662,7 +12754,7 @@
         },
         "UNIT_ROCKETEER_DESC": {
             "ID": "UNIT_ROCKETEER_DESC",
-            "en": "Go where no one has gone before!\\n\\nSpecial:\\nFlight (passes through all obstacles).\\nElite (Completely indestructible)"
+            "en": "To boldly go where no one has gone before!\\nSpecial: Flying\\n(moves past all obstacles)\\nCan't be fully destroyed"
         },
         "TOURNAMENT_HUNT_TANKS_NAME": {
             "ID": "TOURNAMENT_HUNT_TANKS_NAME",
@@ -12899,6 +12991,122 @@
         "BUILDING_GOLD_FACTORY_DESC": {
             "ID": "BUILDING_GOLD_FACTORY_DESC",
             "en": "Generates 3 Gold every 8 hours"
+        },
+        "BUILDING_POWER_PLANT": {
+            "ID": "BUILDING_GOLD_FACTORY",
+            "en": "Power Plant"
+        },
+        "BUILDING_POWER_PLANT_DESC": {
+            "ID": "BUILDING_GOLD_FACTORY_DESC",
+            "en": "Use this power plant to produce additional energy to help you fight on the frontlines!"
+        },
+        "UNIT_SOLDIER": {
+            "ID": "UNIT_INFANTRY",
+            "en": "Soldier"
+        },
+        "UNIT_SOLDIER_DESC": {
+            "ID": "UNIT_INFANTRY_DESC",
+            "en": "Basic combat unit"
+        },
+        "AREA_RESEARCH_UNLOCK": {
+            "ID": "AREA_RESEARCH_UNLOCK",
+            "en": "Unlock Research Lab!"
+        },
+        "AREA_RESEARCH_UNLOCK_DESC": {
+            "ID": "AREA_RESEARCH_UNLOCK_DESC",
+            "en": "Go to the shop and buy the Research Lab to unlock brand new unit type!"
+        },
+        "AREA_RESEARCH_UNLOCK_COMPL": {
+            "ID": "AREA_RESEARCH_UNLOCK_COMPL",
+            "en": "Great job Commander! Now just to finish this brand new building to unlock new unit type!"
+        },
+        "RESEARCH_LAB_TITLE": {
+            "ID": "RESEARCH_LAB_TITLE",
+            "en": "Buy the Research Lab"
+        },
+        "RESEARCH_LAB_DESC": {
+            "ID": "RESEARCH_LAB_DESC",
+            "en": "Go to the shop and buy the Reseach Lab under the Buildings tab"
+        },
+        "RESEARCH_LAB_DIALOG": {
+            "ID": "RESEARCH_LAB_DIALOG",
+            "en": "Looks like we need brand new resourses to finish this Research Lab. Find Test Tubes and finish this to unlock brand new unit type!"
+        },
+        "RESEARCH_LAB_FINISH_TITLE": {
+            "ID": "RESEARCH_LAB_FINISH_TITLE",
+            "en": "Finish Research Lab!"
+        },
+        "RESEARCH_LAB_FINISH_DESC": {
+            "ID": "RESEARCH_LAB_FINISH_DESC",
+            "en": "Finish the Research Lab to unlock brand new unit type!"
+        },
+        "AREA_RESEARCH_FINISH": {
+            "ID": "AREA_RESEARCH_UNLOCK",
+            "en": "Finish the Research Lab!"
+        },
+        "AREA_RESEARCH_FINISH_DESC": {
+            "ID": "AREA_RESEARCH_FINISH_DESC",
+            "en": "Finish the Research Lab!"
+        },
+        "AREA_RESEARCH_FINISH_COMPL": {
+            "ID": "AREA_RESEARCH_FINISH_COMPL",
+            "en": "Great job Commander! With Research Lab finished, you unlocked brand new unit type. Lab units! You can now buy your first lab unit in the shop!"
+        },
+        "RESEARCH_LAB_DIALOG2": {
+            "ID": "RESEARCH_LAB_DIALOG2",
+            "en": "Well done Commander! You just unlocked brand new unit type! LAB UNITS! Reseach Lab unlocks brand new units that will help you on the frontline. Let's buy first one: Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER": {
+            "ID": "ASSAULT_CHOPPER",
+            "en": "First Lab Unit: Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_DESC": {
+            "ID": "ASSAULT_CHOPPER_DESC",
+            "en": "Let's buy your first lab unit!"
+        },
+        "ASSAULT_CHOPPER_COMPL": {
+            "ID": "ASSAULT_CHOPPER_COMPL",
+            "en": "Look at this beauty. Say hello to Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_TITLE": {
+            "ID": "ASSAULT_CHOPPER_TITLE",
+            "en": "Buy a Assault Chopper"
+        },
+        "ASSAULT_CHOPPER_DESC2": {
+            "ID": "ASSAULT_CHOPPER_DESC2",
+            "en": "Let's buy Assault Chopper!"
+        },
+        "RESEARCH_LAB_DIALOG3": {
+            "ID": "RESEARCH_LAB_DIALOG3",
+            "en": "Isn't she beautiful? Let's test it right away, should we?"
+        },
+        "ASSAULT_CHOPPER_KILL": {
+            "ID": "ASSAULT_CHOPPER_KILL",
+            "en": "Test Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_KILL_DESC": {
+            "ID": "ASSAULT_CHOPPER_KILL_DESC",
+            "en": "Let's test this unit on the frontline!"
+        },
+        "ASSAULT_CHOPPER_KILL_COMPL": {
+            "ID": "ASSAULT_CHOPPER_KILL_COMPL",
+            "en": "That was some amazing work with that, Commander!"
+        },
+        "ASSAULT_CHOPPER_KILL_TITLE": {
+            "ID": "ASSAULT_CHOPPER_KILL_TITLE",
+            "en": "Kill enemy units with Assault Chopper!"
+        },
+        "ASSAULT_CHOPPER_KILL_DESC2": {
+            "ID": "ASSAULT_CHOPPER_KILL_DESC2",
+            "en": "Kill some enemies with Assault Chopper"
+        },
+        "RESEARCH_LAB_DIALOG4": {
+            "ID": "RESEARCH_LAB_DIALOG4",
+            "en": "Well done! We hope this beauty will serve you well on the frontline!"
+        },
+        "RESEARCH_LAB_DIALOG5": {
+            "ID": "RESEARCH_LAB_DIALOG5",
+            "en": "Until next time Commander, our engineers are back in the lab, I heard they found some blueprints for more lab units.."
         }
     }
 }

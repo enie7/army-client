@@ -13,7 +13,6 @@ package game.gui.popups
    
    public class HiddenErrorWindow extends PopUpWindow
    {
-       
       
       private var mButtonSkip:ResizingButton;
       
@@ -27,24 +26,27 @@ package game.gui.popups
       
       public function Activate(param1:Function, param2:String, param3:String) : void
       {
+         var _loc6_:TextField = null;
          var _loc4_:StylizedHeaderClip = null;
-         var _loc7_:TextFormat = null;
+         var _loc5_:TextFormat = null;
          this.mButtonCancel = Utils.createBasicButton(mClip,"Button_Cancel",this.okClicked);
          this.mButtonCancel.setVisible(false);
          this.mButtonSkip = Utils.createResizingButton(mClip,"Button_Skip",this.okClicked);
          this.mButtonSkip.setText(GameState.getText("BUTTON_OK"));
          mDoneCallback = param1;
-         (_loc4_ = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip)).setText(param2);
-         var _loc5_:TextField;
-         var _loc6_:int = (_loc5_ = mClip.getChildByName("Text_Description") as TextField).height;
-         _loc5_.autoSize = TextFieldAutoSize.CENTER;
-         _loc5_.text = param3;
-         _loc5_.defaultTextFormat = _loc5_.getTextFormat();
-         while(_loc5_.height > _loc6_ && _loc5_.defaultTextFormat.size > 6)
+         _loc4_ = new StylizedHeaderClip(mClip.getChildByName("Header") as MovieClip);
+         _loc4_.setText(param2);
+         _loc6_ = mClip.getChildByName("Text_Description") as TextField;
+         var _loc7_:int = _loc6_.height;
+         _loc6_.autoSize = TextFieldAutoSize.CENTER;
+         _loc6_.text = param3;
+         _loc6_.defaultTextFormat = _loc6_.getTextFormat();
+         while(_loc6_.height > _loc7_ && _loc6_.defaultTextFormat.size > 6)
          {
-            (_loc7_ = _loc5_.defaultTextFormat).size = int(_loc7_.size) - 1;
-            _loc5_.defaultTextFormat = _loc7_;
-            _loc5_.text = param3;
+            _loc5_ = _loc6_.defaultTextFormat;
+            _loc5_.size = int(_loc5_.size) - 1;
+            _loc6_.defaultTextFormat = _loc5_;
+            _loc6_.text = param3;
          }
       }
       
@@ -54,3 +56,4 @@ package game.gui.popups
       }
    }
 }
+

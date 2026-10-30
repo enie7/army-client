@@ -12,7 +12,6 @@ package game.gameElements
    {
       
       private static const LAUNCH_DELAY_MS:int = 200;
-       
       
       private var G:Number;
       
@@ -32,19 +31,21 @@ package game.gameElements
       
       public function ArtilleryRound(param1:Renderable, param2:Number, param3:Number)
       {
-         var _loc7_:DCResourceManager = null;
+         var _loc4_:DCResourceManager = null;
+         var _loc8_:String = null;
+         _loc4_ = null;
          super(param1,param2,param3);
          this.mPos = new Vector3D();
          this.mTimer = 0;
          mouseEnabled = false;
          mouseChildren = false;
-         var _loc4_:Number = param2 - this.x + Utils.randRange(-10,10);
-         var _loc5_:Number = param3 - this.y + Utils.randRange(-10,10);
-         var _loc6_:Point = new Point(_loc4_,_loc5_);
-         this.G = 2 + (_loc6_.length / SceneLoader.GRID_CELL_SIZE - 1) * 0.3;
-         this.mBearingAngle = Math.atan2(_loc4_,-_loc5_) - Math.PI / 2;
+         var _loc5_:Number = param2 - this.x + Utils.randRange(-10,10);
+         var _loc6_:Number = param3 - this.y + Utils.randRange(-10,10);
+         var _loc7_:Point = new Point(_loc5_,_loc6_);
+         this.G = 2 + (_loc7_.length / SceneLoader.GRID_CELL_SIZE - 1) * 0.3;
+         this.mBearingAngle = Math.atan2(_loc5_,-_loc6_) - Math.PI / 2;
          this.mElevAngle = Math.PI / 10 * 4;
-         this.mVel = Math.sqrt(this.G * _loc6_.length / Math.sin(2 * this.mElevAngle));
+         this.mVel = Math.sqrt(this.G * _loc7_.length / Math.sin(2 * this.mElevAngle));
          this.mTrail = new Array();
          this.mV = new Vector3D();
          this.mPos = new Vector3D();
@@ -53,11 +54,11 @@ package game.gameElements
          this.mV.y = Math.sin(this.mBearingAngle) * this.mVel * Math.cos(this.mElevAngle);
          this.mTrail.push(0);
          this.mTrail.push(0);
-         _loc7_ = DCResourceManager.getInstance();
-         var _loc8_:String = Config.SWF_EFFECTS_NAME;
+         _loc4_ = DCResourceManager.getInstance();
+         _loc8_ = Config.SWF_EFFECTS_NAME;
          if(FeatureTuner.USE_ROCKET_EFFECT)
          {
-            if(_loc7_.isLoaded(_loc8_))
+            if(_loc4_.isLoaded(_loc8_))
             {
                mGraphicsLoaded = true;
                this.addMissile();
@@ -66,10 +67,10 @@ package game.gameElements
             {
                mGraphicsLoaded = false;
                mLoadingCallbackEventType = _loc8_ + DCResourceManager.EVENT_COMPLETE_SINGLE_FILE;
-               _loc7_.addEventListener(mLoadingCallbackEventType,LoadingFinished,false,0,true);
-               if(!_loc7_.isAddedToLoadingList(_loc8_))
+               _loc4_.addEventListener(mLoadingCallbackEventType,LoadingFinished,false,0,true);
+               if(!_loc4_.isAddedToLoadingList(_loc8_))
                {
-                  _loc7_.load(Config.DIR_DATA + _loc8_ + ".swf",_loc8_,null,false);
+                  _loc4_.load(Config.DIR_DATA + _loc8_ + ".swf",_loc8_,null,false);
                }
             }
          }
@@ -97,7 +98,7 @@ package game.gameElements
          var _loc5_:Number = NaN;
          var _loc6_:Number = NaN;
          var _loc7_:Number = NaN;
-         var _loc8_:int = 0;
+         var _loc8_:* = 0;
          var _loc9_:Number = NaN;
          var _loc10_:Number = NaN;
          if(!mGraphicsLoaded || mProjectile == null)
@@ -156,7 +157,7 @@ package game.gameElements
             graphics.clear();
             graphics.lineStyle(4,14540253);
             graphics.moveTo(this.mTrail[this.mTrail.length - 2],this.mTrail[this.mTrail.length - 1]);
-            _loc8_ = this.mTrail.length - 3;
+            _loc8_ = int(this.mTrail.length - 3);
             while(_loc8_ > 0)
             {
                graphics.lineStyle(4,14540253,_loc8_ / (this.mTrail.length - 3));
@@ -193,3 +194,4 @@ package game.gameElements
       }
    }
 }
+

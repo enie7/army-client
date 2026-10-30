@@ -20,6 +20,10 @@ package game.gui
    public class CursorManager
    {
       
+      private static var mInstance:CursorManager;
+      
+      private static var mAllowInstantiation:Boolean;
+      
       public static const CURSOR_TYPE_MOVE_UNIT:int = 0;
       
       public static const CURSOR_TYPE_ATTACK_1:int = 1;
@@ -100,11 +104,6 @@ package game.gui
       
       public static const CURSOR_TYPE_DISABLED:int = 39;
       
-      private static var mInstance:CursorManager;
-      
-      private static var mAllowInstantiation:Boolean;
-       
-      
       private const CURSOR_TYPE_NAMES:Array = new Array("cursor_moveunits_1x1","cursor_attack_1x1","cursor_attack_2x2","cursor_attack_3x3","cursor_attack_4x4","cursor_sell_1x1","cursor_sell_2x2","cursor_sell_3x3","cursor_sell_4x4","cursor_place_1x1","cursor_place_2x2","cursor_place_3x3","cursor_place_4x4","cursor_select_1x1","cursor_select_2x2","cursor_select_3x3","cursor_select_4x4","cursor_repair_1x1","cursor_repair_2x2","cursor_repair_3x3","cursor_repair_4x4","cursor_powerup_01","cursor_powerup_02","cursor_powerup_03","cursor_powerup_04","cursor_powerup_06","cursor_place_1x1","cursor_place_2x2","cursor_place_3x3","cursor_place_4x4","cursor_redeploy_1x1","cursor_select_special_2x1","cursor_select_special_4x1","cursor_select_special_4x2","cursor_select_special_3x2","cursor_attack_special_2x1","cursor_attack_special_4x1","cursor_attack_special_4x2","cursor_attack_special_3x2","grid_disabled");
       
       private var mMouseCursorImage:MovieClip;
@@ -113,13 +112,12 @@ package game.gui
       
       private var mCurrentCursorType:int = -1;
       
-      private var mPointTmp:Point;
+      private var mPointTmp:Point = new Point();
       
       private var mCursorPosition:GridCell = null;
       
       public function CursorManager()
       {
-         this.mPointTmp = new Point();
          super();
          if(!mAllowInstantiation)
          {
@@ -145,196 +143,214 @@ package game.gui
       
       public function initCursorImages() : void
       {
-         var _loc2_:MovieClip = null;
-         var _loc5_:Class = null;
+         var _loc1_:MovieClip = null;
+         var _loc2_:Class = null;
          this.mCursors = new Array();
-         var _loc1_:DCResourceManager = DCResourceManager.getInstance();
-         var _loc3_:Sprite = GameState.mInstance.mScene.mSceneHud;
-         var _loc4_:int = 0;
-         while(_loc4_ < this.CURSOR_TYPE_NAMES.length)
+         var _loc3_:DCResourceManager = DCResourceManager.getInstance();
+         var _loc4_:Sprite = GameState.mInstance.mScene.mSceneHud;
+         var _loc5_:int = 0;
+         while(_loc5_ < this.CURSOR_TYPE_NAMES.length)
          {
-            if(_loc5_ = _loc1_.getSWFClass(Config.SWF_INTERFACE_NAME,this.CURSOR_TYPE_NAMES[_loc4_]))
+            _loc2_ = _loc3_.getSWFClass(Config.SWF_INTERFACE_NAME,this.CURSOR_TYPE_NAMES[_loc5_]);
+            if(_loc2_)
             {
-               _loc2_ = new _loc5_() as MovieClip;
-               _loc2_.mouseEnabled = false;
-               _loc2_.mouseChildren = false;
-               this.mCursors.push(_loc2_);
+               _loc1_ = new _loc2_() as MovieClip;
+               _loc1_.mouseEnabled = false;
+               _loc1_.mouseChildren = false;
+               this.mCursors.push(_loc1_);
             }
-            _loc4_++;
+            _loc5_++;
          }
       }
       
       public function addCursorImage(param1:int, param2:Boolean, param3:int = 0) : void
       {
+         var _loc27_:Sprite = null;
          var _loc4_:Sprite = null;
+         var _loc5_:MovieClip = null;
+         var _loc6_:TextField = null;
          var _loc7_:MovieClip = null;
-         var _loc8_:TextField = null;
+         var _loc8_:MovieClip = null;
          var _loc9_:MovieClip = null;
-         var _loc10_:MovieClip = null;
-         var _loc11_:MovieClip = null;
-         var _loc12_:TextField = null;
-         var _loc13_:int = 0;
-         var _loc14_:GridCell = null;
-         var _loc15_:PlayerUnit = null;
-         var _loc16_:PlayerInstallationObject = null;
-         var _loc17_:ConstructionObject = null;
-         var _loc18_:ResourceBuildingObject = null;
-         var _loc19_:DecorationObject = null;
-         var _loc20_:IsometricScene = null;
-         var _loc21_:MovieClip = null;
-         var _loc22_:TextField = null;
+         var _loc10_:TextField = null;
+         var _loc11_:int = 0;
+         var _loc12_:GridCell = null;
+         var _loc13_:PlayerUnit = null;
+         var _loc14_:PlayerInstallationObject = null;
+         var _loc15_:ConstructionObject = null;
+         var _loc16_:ResourceBuildingObject = null;
+         var _loc17_:DecorationObject = null;
+         var _loc18_:IsometricScene = null;
+         var _loc19_:MovieClip = null;
+         var _loc20_:TextField = null;
+         var _loc21_:int = 0;
+         var _loc22_:MovieClip = null;
          var _loc23_:int = 0;
-         var _loc24_:MovieClip = null;
+         var _loc24_:int = 0;
          var _loc25_:int = 0;
-         var _loc26_:int = 0;
-         var _loc27_:int = 0;
          if(this.mCurrentCursorType == param1)
          {
             return;
          }
          this.mCurrentCursorType = param1;
          _loc4_ = GameState.mInstance.mScene.mMapGUIEffectsLayer.mTopLayer;
-         var _loc5_:MovieClip = this.mCursors[this.mCurrentCursorType] as MovieClip;
-         var _loc6_:Sprite;
-         (_loc6_ = GameState.mInstance.mScene.mSceneHud).addChild(_loc5_);
+         var _loc26_:MovieClip = this.mCursors[this.mCurrentCursorType] as MovieClip;
+         _loc27_ = GameState.mInstance.mScene.mSceneHud;
+         _loc27_.addChild(_loc26_);
          if(param1 == CURSOR_TYPE_SELECT_1)
          {
-            _loc8_ = (_loc7_ = _loc5_.getChildByName("Movement_Cost_Energy") as MovieClip).getChildByName("Text_Field_Value") as TextField;
+            _loc5_ = _loc26_.getChildByName("Movement_Cost_Energy") as MovieClip;
+            _loc6_ = _loc5_.getChildByName("Text_Field_Value") as TextField;
             if(param3 != 0)
             {
-               _loc8_.text = String(param3);
-               _loc7_.visible = true;
+               _loc6_.text = String(param3);
+               _loc5_.visible = true;
             }
             else
             {
-               _loc7_.visible = false;
+               _loc5_.visible = false;
             }
          }
          else if(param1 >= CURSOR_TYPE_REPAIR_1 && param1 <= CURSOR_TYPE_REPAIR_4)
          {
-            _loc9_ = _loc5_.getChildByName("Repair_Active") as MovieClip;
-            _loc10_ = _loc5_.getChildByName("Repair_Disabled") as MovieClip;
-            _loc9_.visible = !param2;
-            _loc10_.visible = param2;
-            _loc12_ = (_loc11_ = _loc5_.getChildByName("Supply_Cost") as MovieClip).getChildByName("Text_Amount") as TextField;
+            _loc7_ = _loc26_.getChildByName("Repair_Active") as MovieClip;
+            _loc8_ = _loc26_.getChildByName("Repair_Disabled") as MovieClip;
+            _loc7_.visible = !param2;
+            _loc8_.visible = param2;
+            _loc9_ = _loc26_.getChildByName("Supply_Cost") as MovieClip;
+            _loc10_ = _loc9_.getChildByName("Text_Amount") as TextField;
             if(param2)
             {
-               _loc11_.visible = false;
+               _loc9_.visible = false;
             }
             else
             {
-               _loc13_ = 0;
-               if((_loc14_ = GameState.mInstance.mScene.getTileUnderMouse()).mCharacter)
+               _loc11_ = 0;
+               _loc12_ = GameState.mInstance.mScene.getTileUnderMouse();
+               if(_loc12_.mCharacter)
                {
-                  _loc11_.visible = true;
-                  if((_loc13_ = (_loc15_ = _loc14_.mCharacter as PlayerUnit).getHealCostSupplies()) > 0)
+                  _loc9_.visible = true;
+                  _loc13_ = _loc12_.mCharacter as PlayerUnit;
+                  _loc11_ = _loc13_.getHealCostSupplies();
+                  if(_loc11_ > 0)
                   {
-                     _loc12_.text = _loc15_.getHealCostSupplies().toString();
+                     _loc10_.text = _loc13_.getHealCostSupplies().toString();
                   }
                   else
                   {
-                     _loc11_.visible = false;
+                     _loc9_.visible = false;
                   }
                }
-               else if(_loc14_.mObject)
+               else if(_loc12_.mObject)
                {
-                  if(_loc14_.mObject is PlayerInstallationObject)
+                  if(_loc12_.mObject is PlayerInstallationObject)
                   {
-                     _loc13_ = (_loc16_ = _loc14_.mObject as PlayerInstallationObject).getHealCostSupplies();
+                     _loc14_ = _loc12_.mObject as PlayerInstallationObject;
+                     _loc11_ = _loc14_.getHealCostSupplies();
                   }
-                  else if(_loc14_.mObject is ConstructionObject)
+                  else if(_loc12_.mObject is ConstructionObject)
                   {
-                     _loc13_ = (_loc17_ = _loc14_.mObject as ConstructionObject).getHealCostSupplies();
+                     _loc15_ = _loc12_.mObject as ConstructionObject;
+                     _loc11_ = _loc15_.getHealCostSupplies();
                   }
-                  else if(_loc14_.mObject is ResourceBuildingObject)
+                  else if(_loc12_.mObject is ResourceBuildingObject)
                   {
-                     _loc13_ = (_loc18_ = _loc14_.mObject as ResourceBuildingObject).getHealCostSupplies();
+                     _loc16_ = _loc12_.mObject as ResourceBuildingObject;
+                     _loc11_ = _loc16_.getHealCostSupplies();
                   }
-                  else if(_loc14_.mObject is DecorationObject)
+                  else if(_loc12_.mObject is DecorationObject)
                   {
-                     _loc13_ = (_loc19_ = _loc14_.mObject as DecorationObject).getHealCostSupplies();
+                     _loc17_ = _loc12_.mObject as DecorationObject;
+                     _loc11_ = _loc17_.getHealCostSupplies();
                   }
-                  if(_loc13_ > 0)
+                  if(_loc11_ > 0)
                   {
-                     _loc12_.text = _loc13_.toString();
-                     _loc11_.visible = true;
+                     _loc10_.text = _loc11_.toString();
+                     _loc9_.visible = true;
                   }
                   else
                   {
-                     _loc11_.visible = false;
+                     _loc9_.visible = false;
                   }
                }
             }
          }
          else if(param1 >= CURSOR_TYPE_RELOCATE_1 && param1 <= CURSOR_TYPE_RELOCATE_4)
          {
-            (_loc11_ = _loc5_.getChildByName("Supply_Cost") as MovieClip).visible = false;
+            _loc9_ = _loc26_.getChildByName("Supply_Cost") as MovieClip;
+            _loc9_.visible = false;
          }
          else if(param1 >= CURSOR_TYPE_RELOCATE_WITH_COST_1 && param1 <= CURSOR_TYPE_RELOCATE_WITH_COST_4)
          {
-            _loc12_ = (_loc11_ = _loc5_.getChildByName("Supply_Cost") as MovieClip).getChildByName("Text_Amount") as TextField;
+            _loc9_ = _loc26_.getChildByName("Supply_Cost") as MovieClip;
+            _loc10_ = _loc9_.getChildByName("Text_Amount") as TextField;
             if(param2)
             {
-               _loc11_.visible = false;
+               _loc9_.visible = false;
             }
             else
             {
-               _loc20_ = GameState.mInstance.mScene;
-               _loc13_ = 0;
-               if(_loc20_.mObjectBeingMoved)
+               _loc18_ = GameState.mInstance.mScene;
+               _loc11_ = 0;
+               if(_loc18_.mObjectBeingMoved)
                {
-                  if(_loc20_.mObjectBeingMovedStartX != _loc20_.mObjectBeingMoved.mX || _loc20_.mObjectBeingMovedStartY != _loc20_.mObjectBeingMoved.mY)
+                  if(_loc18_.mObjectBeingMovedStartX != _loc18_.mObjectBeingMoved.mX || _loc18_.mObjectBeingMovedStartY != _loc18_.mObjectBeingMoved.mY)
                   {
-                     _loc13_ = _loc20_.mObjectBeingMoved.getMoveCostSupplies();
+                     _loc11_ = _loc18_.mObjectBeingMoved.getMoveCostSupplies();
                   }
-               }
-               else if((_loc14_ = _loc20_.getTileUnderMouse()).mObject)
-               {
-                  _loc13_ = _loc14_.mObject.getMoveCostSupplies();
-               }
-               if(_loc13_ > 0)
-               {
-                  _loc12_.text = _loc13_.toString();
-                  _loc11_.visible = true;
                }
                else
                {
-                  _loc11_.visible = false;
+                  _loc12_ = _loc18_.getTileUnderMouse();
+                  if(_loc12_.mObject)
+                  {
+                     _loc11_ = _loc12_.mObject.getMoveCostSupplies();
+                  }
+               }
+               if(_loc11_ > 0)
+               {
+                  _loc10_.text = _loc11_.toString();
+                  _loc9_.visible = true;
+               }
+               else
+               {
+                  _loc9_.visible = false;
                }
             }
          }
          else if(param1 == CURSOR_TYPE_REDEPLOY)
          {
-            _loc22_ = (_loc21_ = _loc5_.getChildByName("Supply_Cost") as MovieClip).getChildByName("Text_Amount") as TextField;
-            _loc20_ = GameState.mInstance.mScene;
-            _loc23_ = 0;
-            if(Boolean((_loc14_ = _loc20_.getTileUnderMouse()).mCharacter) && _loc14_.mCharacter is PlayerUnit)
+            _loc19_ = _loc26_.getChildByName("Supply_Cost") as MovieClip;
+            _loc20_ = _loc19_.getChildByName("Text_Amount") as TextField;
+            _loc18_ = GameState.mInstance.mScene;
+            _loc21_ = 0;
+            if(Boolean((_loc12_ = _loc18_.getTileUnderMouse()).mCharacter) && _loc12_.mCharacter is PlayerUnit)
             {
-               _loc23_ = PlayerUnitItem(PlayerUnit(_loc14_.mCharacter).mItem).mPickupCostSupplies;
+               _loc21_ = PlayerUnitItem(PlayerUnit(_loc12_.mCharacter).mItem).mPickupCostSupplies;
             }
-            if(_loc23_ > 0)
+            if(_loc21_ > 0)
             {
-               _loc22_.text = _loc23_.toString();
-               _loc21_.visible = true;
+               _loc20_.text = _loc21_.toString();
+               _loc19_.visible = true;
             }
             else
             {
-               _loc21_.visible = false;
+               _loc19_.visible = false;
             }
          }
          if(param2)
          {
-            _loc24_ = this.mCursors[CURSOR_TYPE_DISABLED] as MovieClip;
-            _loc25_ = (this.mCursors[this.mCurrentCursorType] as MovieClip).width / GameState.mInstance.mScene.mGridDimX;
-            _loc26_ = GameState.mInstance.mScene.getLeftUpperXOfCell(this.mCursorPosition);
-            _loc27_ = GameState.mInstance.mScene.getLeftUpperYOfCell(this.mCursorPosition);
-            _loc24_.scaleX = 1;
-            _loc24_.scaleY = 1;
-            _loc24_.x = _loc26_ + _loc25_ / 2 * GameState.mInstance.mScene.mGridDimX;
-            _loc24_.y = _loc27_ + _loc25_ / 2 * GameState.mInstance.mScene.mGridDimY;
-            _loc24_.scaleX = _loc25_;
-            _loc24_.scaleY = _loc25_;
-            _loc4_.addChild(_loc24_);
+            _loc22_ = this.mCursors[CURSOR_TYPE_DISABLED] as MovieClip;
+            _loc23_ = (this.mCursors[this.mCurrentCursorType] as MovieClip).width / GameState.mInstance.mScene.mGridDimX;
+            _loc24_ = GameState.mInstance.mScene.getLeftUpperXOfCell(this.mCursorPosition);
+            _loc25_ = GameState.mInstance.mScene.getLeftUpperYOfCell(this.mCursorPosition);
+            _loc22_.scaleX = 1;
+            _loc22_.scaleY = 1;
+            _loc22_.x = _loc24_ + _loc23_ / 2 * GameState.mInstance.mScene.mGridDimX;
+            _loc22_.y = _loc25_ + _loc23_ / 2 * GameState.mInstance.mScene.mGridDimY;
+            _loc22_.scaleX = _loc23_;
+            _loc22_.scaleY = _loc23_;
+            _loc4_.addChild(_loc22_);
          }
       }
       
@@ -358,26 +374,26 @@ package game.gui
       
       public function setPos(param1:GridCell) : void
       {
-         var _loc3_:MovieClip = null;
-         var _loc4_:int = 0;
+         var _loc2_:MovieClip = null;
+         var _loc3_:int = 0;
          if(param1 == this.mCursorPosition)
          {
             return;
          }
          this.mCursorPosition = param1;
-         var _loc2_:int = 0;
-         while(_loc2_ < this.mCursors.length)
+         var _loc4_:int = 0;
+         while(_loc4_ < this.mCursors.length)
          {
-            (this.mCursors[_loc2_] as MovieClip).x = GameState.mInstance.mScene.getCenterPointXOfCell(param1);
-            (this.mCursors[_loc2_] as MovieClip).y = GameState.mInstance.mScene.getCenterPointYOfCell(param1);
-            _loc2_++;
+            (this.mCursors[_loc4_] as MovieClip).x = GameState.mInstance.mScene.getCenterPointXOfCell(param1);
+            (this.mCursors[_loc4_] as MovieClip).y = GameState.mInstance.mScene.getCenterPointYOfCell(param1);
+            _loc4_++;
          }
          if(this.mCurrentCursorType != -1)
          {
-            _loc3_ = this.mCursors[CURSOR_TYPE_DISABLED] as MovieClip;
-            _loc4_ = (this.mCursors[this.mCurrentCursorType] as MovieClip).width / GameState.mInstance.mScene.mGridDimX;
-            _loc3_.x += (_loc4_ - 1) / 2 * GameState.mInstance.mScene.mGridDimX;
-            _loc3_.y += (_loc4_ - 1) / 2 * GameState.mInstance.mScene.mGridDimY;
+            _loc2_ = this.mCursors[CURSOR_TYPE_DISABLED] as MovieClip;
+            _loc3_ = (this.mCursors[this.mCurrentCursorType] as MovieClip).width / GameState.mInstance.mScene.mGridDimX;
+            _loc2_.x += (_loc3_ - 1) / 2 * GameState.mInstance.mScene.mGridDimX;
+            _loc2_.y += (_loc3_ - 1) / 2 * GameState.mInstance.mScene.mGridDimY;
          }
       }
       
@@ -404,3 +420,4 @@ package game.gui
       }
    }
 }
+

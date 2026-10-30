@@ -7,7 +7,6 @@ package game.isometric
    
    public class GridCell
    {
-       
       
       public var mPosI:int;
       
@@ -24,6 +23,8 @@ package game.isometric
       public var mBorderEdgeBits:int;
       
       public var mType:int;
+      
+      public var mShoreType:String;
       
       public var mOwner:int;
       
@@ -43,7 +44,7 @@ package game.isometric
       
       public var mParent:GridCell;
       
-      public var mDynamicObjects:Array;
+      public var mDynamicObjects:Array = new Array();
       
       public var mNeighborActionAvailable:Boolean;
       
@@ -51,7 +52,6 @@ package game.isometric
       
       public function GridCell(param1:int, param2:int)
       {
-         this.mDynamicObjects = new Array();
          super();
          this.mPosI = param1;
          this.mPosJ = param2;
@@ -66,3 +66,4 @@ package game.isometric
       }
    }
 }
+

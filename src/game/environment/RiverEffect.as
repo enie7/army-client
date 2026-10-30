@@ -2,6 +2,7 @@ package game.environment
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
+   import flash.utils.getDefinitionByName;
    import game.battlefield.MapData;
    import game.isometric.GridCell;
    import game.isometric.SceneLoader;
@@ -13,12 +14,12 @@ package game.environment
       private static var mGoodClips:Array;
       
       private static var mBadClips:Array;
-       
       
       public function RiverEffect(param1:Array)
       {
-         var _loc2_:Class = null;
          var _loc3_:GridCell = null;
+         var _loc2_:Class = null;
+         _loc3_ = null;
          var _loc4_:Array = null;
          var _loc5_:MapData = null;
          var _loc6_:GridCell = null;
@@ -38,13 +39,7 @@ package game.environment
                _loc2_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Bg_RiverTile_Shine_01");
                mGoodClips.push(_loc2_);
                mBadClips = new Array();
-               _loc2_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Bg_BadRiverTile_Bubbles_03");
-               mBadClips.push(_loc2_);
-               _loc2_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Bg_BadRiverTile_Bubbles_02");
-               mBadClips.push(_loc2_);
                _loc2_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Bg_BadRiverTile_Bubbles_05");
-               mBadClips.push(_loc2_);
-               _loc2_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Bg_BadRiverTile_Bubbles_01");
                mBadClips.push(_loc2_);
             }
             _loc3_ = param1[int(Math.random() * param1.length)];
@@ -57,7 +52,9 @@ package game.environment
             {
                _loc4_ = mBadClips;
             }
-            if(!(_loc6_ = (_loc5_ = GameState.mInstance.mMapData).getNeighbourUp(_loc3_)) || _loc6_.mType != MapData.TILE_TYPE_RIVER)
+            _loc5_ = GameState.mInstance.mMapData;
+            _loc6_ = _loc5_.getNeighbourUp(_loc3_);
+            if(!_loc6_ || _loc6_.mType != MapData.TILE_TYPE_RIVER)
             {
                mClip = new _loc4_[2 + _loc3_.mPosJ % 2]();
             }
@@ -92,3 +89,4 @@ package game.environment
       }
    }
 }
+

@@ -1,4 +1,4 @@
-﻿package com.dchoc.magicbox.track
+package com.dchoc.magicbox.track
 {
    import air.net.URLMonitor;
    import flash.events.Event;
@@ -13,7 +13,6 @@
    {
       
       private static const TIME_OUT:int = 3;
-       
       
       private var attempts:int = 0;
       
@@ -116,7 +115,8 @@
       
       private function checkSuccess(param1:Tracking) : Function
       {
-         var tracking:Tracking = param1;
+         var tracking:Tracking = null;
+         tracking = param1;
          return function(param1:ResultEvent):void
          {
             var _loc2_:* = undefined;
@@ -135,7 +135,8 @@
                trace(param1.result.toString());
                _loc2_ = param1.result.toString();
                _loc3_ = _loc2_.slice(10,_loc2_.length - 1);
-               if((_loc4_ = JSON.parse(_loc3_)).status != 200)
+               _loc4_ = JSON.parse(_loc3_);
+               if(_loc4_.status != 200)
                {
                   trace("Message failed due with an error of " + _loc4_);
                }
@@ -230,3 +231,4 @@
       }
    }
 }
+
