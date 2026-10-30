@@ -18,6 +18,14 @@ package game.render
    import game.isometric.IsometricScene;
    import game.states.GameState;
    import game.utils.FrameProfiler;
+   import flash.display.PNGEncoderOptions;
+   import flash.utils.ByteArray;
+   import flash.filesystem.File;
+   import flash.filesystem.FileMode;
+   import flash.filesystem.FileStream;
+   import flash.desktop.NativeApplication;
+   import game.render.timeline.TimelineGallery;
+   import game.render.timeline.TimelineLibrary;
    import starling.core.Starling;
    import starling.display.Image;
    import starling.display.Sprite;
@@ -81,6 +89,8 @@ package game.render
       private var mFailed:Boolean = false;
 
       private var mPoint:Point = new Point();
+
+      private var mGallery:TimelineGallery;
 
       // Presentation rate. Above 40 (the game's frame and logic rate), extra
       // frames are presented between Flash frames from a pacing timer, with
@@ -159,6 +169,112 @@ package game.render
          return sInstance != null && sInstance.mRoot != null && !sInstance.mFailed;
       }
 
+      // Page to open the timeline gallery on once Starling is up (-1: don't).
+      public static var galleryAtStart:int = -1;
+
+      // Gallery pages still to save as PNGs (--gallery-shots), and when next.
+      public static var galleryShots:int = 0;
+
+      // Keep shooting the same page (--gallery-hold), to compare over time.
+      public static var galleryHold:Boolean = false;
+
+      private var mShotCount:int = 0;
+
+      private var mNextShot:int = 0;
+
+      // Development aid: open / close / page the timeline gallery.
+      public static function toggleGallery() : void
+      {
+         if(sInstance == null || sInstance.mRoot == null)
+         {
+            return;
+         }
+         if(sInstance.mGallery)
+         {
+            sInstance.mGallery.dispose();
+            sInstance.mGallery = null;
+         }
+         else if(TimelineLibrary.instance)
+         {
+            sInstance.mGallery = new TimelineGallery(sInstance.mStage,sInstance.mRoot,TimelineLibrary.instance);
+         }
+      }
+
+      // Save what the gallery shows (GPU stage with the Flash layer over it),
+      // three seconds after each page opens, then page on; quit when done.
+      private function galleryShot() : void
+      {
+         var now:int = getTimer();
+         if(this.mNextShot == 0)
+         {
+            this.mNextShot = now + 3000;
+         }
+         if(now < this.mNextShot)
+         {
+            return;
+         }
+         var shot:BitmapData = new BitmapData(this.mStage.stageWidth,this.mStage.stageHeight,false,0);
+         this.mStarling.stage.drawToBitmapData(shot);
+         shot.draw(this.mStage);
+         var bytes:ByteArray = shot.encode(shot.rect,new PNGEncoderOptions());
+         shot.dispose();
+         var file:File = File.applicationStorageDirectory.resolvePath("gallery-" + this.mGallery.pageIndex + (galleryHold ? "-t" + this.mShotCount++ : "") + ".png");
+         var out:FileStream = new FileStream();
+         out.open(file,FileMode.WRITE);
+         out.writeBytes(bytes);
+         out.close();
+         trace("[gallery] saved " + file.nativePath);
+         // The frame log, then paging / quitting, happen at EXIT_FRAME.
+         this.mNextShot = int.MAX_VALUE;
+         var header:String = "page " + this.mGallery.pageIndex + " shot " + this.mShotCount + "\n";
+         this.mGallery.describeAtExitFrame(function(text:String):void
+         {
+            var log:FileStream = new FileStream();
+            log.open(File.applicationStorageDirectory.resolvePath("gallery-frames.txt"),FileMode.APPEND);
+            log.writeUTFBytes(header + text);
+            try
+            {
+               afterGalleryShot();
+            }
+            catch(e:Error)
+            {
+               log.writeUTFBytes("ERROR " + e.getStackTrace() + "\n" + e + "\n");
+            }
+            log.close();
+         });
+      }
+
+      private function afterGalleryShot() : void
+      {
+         if(--galleryShots <= 0)
+         {
+            var out:FileStream = new FileStream();
+            var pages:Vector.<BitmapData> = this.mGallery.atlas.pageBitmaps;
+            for(var i:int = 0; i < pages.length; i++)
+            {
+               var bytes:ByteArray = pages[i].encode(pages[i].rect,new PNGEncoderOptions());
+               out.open(File.applicationStorageDirectory.resolvePath("gallery-atlas-" + i + ".png"),FileMode.WRITE);
+               out.writeBytes(bytes);
+               out.close();
+            }
+            NativeApplication.nativeApplication.exit();
+            return;
+         }
+         if(!galleryHold)
+         {
+            this.mGallery.page(1);
+         }
+         this.mNextShot = getTimer() + (galleryHold ? 700 : 3000);
+      }
+
+      public static function pageGallery(delta:int) : void
+      {
+         if(sInstance && sInstance.mGallery)
+         {
+            sInstance.mGallery.page(delta);
+         }
+      }
+
       // Cache activity since the last call, for the profiler.
       public static function takeStats() : String
       {
@@ -188,6 +304,11 @@ package game.render
             this.mPacer.addEventListener(TimerEvent.TIMER,this.onPacer);
             this.mPacer.start();
          }
+         if(galleryAtStart >= 0)
+         {
+            toggleGallery();
+            pageGallery(galleryAtStart);
+         }
       }
 
       private function onPacer(event:TimerEvent) : void
@@ -207,6 +328,14 @@ package game.render
          }
          this.mLastPresent = getTimer();
          ++this.mPresents;
+         if(this.mGallery)
+         {
+            this.mGallery.tick();
+            if(galleryShots > 0)
+            {
+               this.galleryShot();
+            }
+         }
          if(this.mHasWorld)
          {
             var span:Number = this.mCurTime - this.mPrevTime;

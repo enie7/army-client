@@ -1,6 +1,7 @@
 package game.characters
 {
    import flash.display.MovieClip;
+   import game.utils.TimelinePauser;
    import flash.events.Event;
    import flash.events.MouseEvent;
    import game.actions.AcceptHelpTrainPlayerUnitAction;
@@ -545,6 +546,16 @@ package game.characters
                if(param1 != _loc3_.visible)
                {
                   _loc3_.visible = param1;
+                  // A hidden warning would keep looping (and rebuilding its
+                  // children) unseen; pause it while hidden.
+                  if(param1)
+                  {
+                     TimelinePauser.resume(_loc3_);
+                  }
+                  else
+                  {
+                     TimelinePauser.pause(_loc3_);
+                  }
                   hintsChanged();
                }
             }

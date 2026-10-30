@@ -15,7 +15,14 @@ package game.utils
    import flash.filesystem.FileMode;
    import flash.filesystem.FileStream;
    import flash.profiler.showRedrawRegions;
+   import flash.sampler.NewObjectSample;
+   import flash.sampler.clearSamples;
+   import flash.sampler.getSamples;
+   import flash.sampler.pauseSampling;
+   import flash.sampler.startSampling;
+   import flash.sampler.stopSampling;
    import flash.system.Capabilities;
+   import flash.system.System;
    import flash.ui.Keyboard;
    import flash.utils.Dictionary;
    import flash.utils.getQualifiedClassName;
@@ -62,6 +69,19 @@ package game.utils
 
       private static var sListening:Boolean = false;
 
+      // Heap tracking: each drop in System.totalMemoryNumber is a collection.
+      private static var sLastHeap:Number = 0;
+
+      private static var sCollections:int = 0;
+
+      private static var sAllocUntil:int = 0;
+
+      private static var sAllocAt:int = 0;
+
+      private static var sFreed:Number = 0;
+
+      private static var sGrown:Number = 0;
+
       // Call once at startup.
       public static function init() : void
       {
@@ -106,6 +126,29 @@ package game.utils
          if(event.arguments.indexOf("--profile") >= 0)
          {
             ENABLED = true;
+         }
+         // --alloc-sample=N: sample allocations for 2s, N seconds after launch
+         // (debugger runtime only; same as Shift+A, for when keys don't reach adl).
+         for each(var arg:String in event.arguments)
+         {
+            if(arg.indexOf("--alloc-sample=") == 0)
+            {
+               sAllocAt = getTimer() + int(arg.substr(15)) * 1000;
+            }
+            // --gallery=N: open the timeline gallery on page N at startup.
+            if(arg.indexOf("--gallery=") == 0)
+            {
+               WorldRenderer.galleryAtStart = int(arg.substr(10));
+            }
+            // --gallery-shots=K: save K gallery pages as PNGs, then quit.
+            if(arg.indexOf("--gallery-shots=") == 0)
+            {
+               WorldRenderer.galleryShots = int(arg.substr(16));
+            }
+            if(arg == "--gallery-hold")
+            {
+               WorldRenderer.galleryHold = true;
+            }
          }
          if(ENABLED)
          {
@@ -184,6 +227,25 @@ package game.utils
             log("off-stage world " + (WorldRenderer.offstage ? "on" : "off"));
             return;
          }
+         if(ENABLED && shiftKey && keyCode == Keyboard.A && Capabilities.isDebugger && sAllocUntil == 0)
+         {
+            // flash.sampler only works in a debugger runtime (adl).
+            clearSamples();
+            startSampling();
+            sAllocUntil = getTimer() + 500;
+            log("allocation sampling for 0.5s");
+            return;
+         }
+         if(ENABLED && shiftKey && keyCode == Keyboard.G)
+         {
+            WorldRenderer.toggleGallery();
+            return;
+         }
+         if(ENABLED && shiftKey && (keyCode == Keyboard.RIGHTBRACKET || keyCode == Keyboard.LEFTBRACKET))
+         {
+            WorldRenderer.pageGallery(keyCode == Keyboard.RIGHTBRACKET ? 1 : -1);
+            return;
+         }
          if(ENABLED && shiftKey && keyCode == Keyboard.I)
          {
             inspectUnderMouse();
@@ -255,6 +317,66 @@ package game.utils
                {
                }
             }
+         }
+      }
+
+      // Summarise allocation samples (Shift+A): bytes by type, and by the
+      // innermost game function on the allocating stack.
+      private static function reportAllocations() : void
+      {
+         // Pause, not stop: stopSampling() discards what was collected.
+         pauseSampling();
+         var byType:Object = {};
+         var bySite:Object = {};
+         var total:Number = 0;
+         var count:int = 0;
+         for each(var sample:Object in getSamples())
+         {
+            var alloc:NewObjectSample = sample as NewObjectSample;
+            if(alloc == null)
+            {
+               continue;
+            }
+            var size:Number = alloc.size;
+            total += size;
+            ++count;
+            var type:String = alloc.type ? getQualifiedClassName(alloc.type) : "?";
+            byType[type] = Number(byType[type] || 0) + size;
+            var site:String = "(no stack)";
+            if(alloc.stack)
+            {
+               var frames:Array = [];
+               for(var i:int = 0; i < alloc.stack.length && frames.length < 3; i++)
+               {
+                  var name:String = String(alloc.stack[i].name);
+                  if(name.indexOf("flash.") != 0 && name.indexOf("FrameProfiler") < 0)
+                  {
+                     frames.push(name);
+                  }
+               }
+               site = frames.join(" < ") || String(alloc.stack[0].name);
+            }
+            bySite[site] = Number(bySite[site] || 0) + size;
+         }
+         stopSampling();
+         clearSamples();
+         log("allocations in 0.5s: " + count + " objects, " + (total / 1048576).toFixed(1) + "MB");
+         logTop("  by type", byType, total);
+         logTop("  by site", bySite, total);
+      }
+
+      private static function logTop(title:String, table:Object, total:Number) : void
+      {
+         var rows:Array = [];
+         for(var key:String in table)
+         {
+            rows.push({"key":key,"bytes":table[key]});
+         }
+         rows.sortOn("bytes",Array.NUMERIC | Array.DESCENDING);
+         log(title + ":");
+         for(var i:int = 0; i < Math.min(15,rows.length); i++)
+         {
+            log("    " + (rows[i].bytes / 1048576).toFixed(2) + "MB (" + (100 * rows[i].bytes / total).toFixed(0) + "%) " + rows[i].key);
          }
       }
 
@@ -430,6 +552,33 @@ package game.utils
             sFrames++;
          }
          sLastFrame = now;
+         var heap:Number = System.totalMemoryNumber;
+         if(sLastHeap > 0)
+         {
+            if(heap < sLastHeap)
+            {
+               ++sCollections;
+               sFreed += sLastHeap - heap;
+            }
+            else
+            {
+               sGrown += heap - sLastHeap;
+            }
+         }
+         sLastHeap = heap;
+         if(sAllocAt > 0 && now >= sAllocAt && Capabilities.isDebugger)
+         {
+            sAllocAt = 0;
+            clearSamples();
+            startSampling();
+            sAllocUntil = now + 500;
+            log("allocation sampling for 0.5s");
+         }
+         if(sAllocUntil > 0 && now >= sAllocUntil)
+         {
+            sAllocUntil = 0;
+            reportAllocations();
+         }
          if(!sListening && stage != null)
          {
             stage.addEventListener(Event.EXIT_FRAME,onExitFrame);
@@ -471,6 +620,10 @@ package game.utils
                }
             }
             line += " || our ENTER_FRAME " + (sHandlers / sFrames).toFixed(1) + "ms | timelines " + (sConstruct / sFrames).toFixed(1) + "ms | frame scripts " + (sScripts / sFrames).toFixed(1) + "ms | render+idle " + (sAfterExit / sFrames).toFixed(1) + "ms || " + WorldRenderer.takeStats();
+            log("  heap " + (heap / 1048576).toFixed(0) + "MB, allocated " + (sGrown / 1048576 / ((now - sReportStart) / 1000)).toFixed(1) + "MB/s, " + sCollections + " collections freeing " + (sFreed / 1048576).toFixed(0) + "MB, process " + (System.privateMemory / 1048576).toFixed(0) + "MB");
+            sCollections = 0;
+            sFreed = 0;
+            sGrown = 0;
             sAfterExit = 0;
             sHandlers = 0;
             sConstruct = 0;

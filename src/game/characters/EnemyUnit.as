@@ -2,6 +2,7 @@ package game.characters
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
+   import game.utils.TimelinePauser;
    import flash.display.Sprite;
    import flash.events.Event;
    import flash.events.MouseEvent;
@@ -1105,6 +1106,16 @@ package game.characters
                   if(param1 != _loc5_.visible)
                   {
                      _loc5_.visible = param1;
+                     // A hidden warning would keep looping (and rebuilding its
+                     // children) unseen; pause it while hidden.
+                     if(param1)
+                     {
+                        TimelinePauser.resume(_loc5_);
+                     }
+                     else
+                     {
+                        TimelinePauser.pause(_loc5_);
+                     }
                      hintsChanged();
                   }
                }

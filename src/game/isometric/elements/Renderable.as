@@ -4,6 +4,7 @@ package game.isometric.elements
    import flash.display.DisplayObject;
    import flash.display.Graphics;
    import flash.display.MovieClip;
+   import game.utils.TimelinePauser;
    import flash.display.Sprite;
    import flash.events.Event;
    import flash.events.MouseEvent;
@@ -659,11 +660,19 @@ package game.isometric.elements
       
       protected function updateAnimation(param1:Boolean, param2:Boolean) : void
       {
+         var next:MovieClip = this.mAnimationController.getAnimation();
          if(this.mContainer.numChildren > 0)
          {
-            this.mContainer.removeChildAt(0);
+            // The outgoing state clip leaves the display list but would keep
+            // playing (and rebuilding its looping hints) unseen; pause it.
+            var previous:MovieClip = this.mContainer.removeChildAt(0) as MovieClip;
+            if(previous != null && previous != next)
+            {
+               TimelinePauser.pause(previous);
+            }
          }
-         this.mContainer.addChildAt(this.mAnimationController.getAnimation(),0);
+         TimelinePauser.resume(next);
+         this.mContainer.addChildAt(next,0);
          if(param1)
          {
             this.mAnimationController.stopCurrentAnimation();

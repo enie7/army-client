@@ -1,5 +1,6 @@
 ﻿package game.isometric.characters {
 	import flash.display.MovieClip;
+	import game.utils.TimelinePauser;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.DisplayObject;
 	import flash.utils.getQualifiedClassName;
@@ -123,6 +124,15 @@
 		// then show the art's "99/99 x99" again. While it is shown, the values
 		// are re-applied every update.
 		private var mAttentionShown: Boolean;
+
+		// Whether this unit's hint animations are running: only while the unit
+		// is on screen. Culled units keep their current clip on a timeline
+		// (game logic waits on its labels), but the looping hints on it rebuild
+		// their children every loop, which with hundreds of off-screen units
+		// was a large share of all garbage. Nothing reads the hints' frames.
+		private var mHintsRunning: Boolean = true;
+
+		private var mHintsChecked: Boolean = false;
 
 		private var mSafetyTimer: int;
 
@@ -362,6 +372,37 @@
 			super.updateAnimation(param1, param2);
 			this.mUpdateHintHealth = true;
 			this.mUpdateHintPower = true;
+			// A different clip is current now; apply the hint state to it.
+			this.mHintsChecked = false;
+		}
+
+		private function setHintsRunning(running: Boolean): void {
+			this.mHintsRunning = running;
+			this.mHintsChecked = true;
+			if (!mAnimationController) {
+				return;
+			}
+			var clip: MovieClip = mAnimationController.getCurrentAnimation();
+			for (var i: int = 0; i < clip.numChildren; i++) {
+				var part: MovieClip = clip.getChildAt(i) as MovieClip;
+				if (part == null) {
+					continue;
+				}
+				for each (var name: String in ["Hint_Health_Friendly", "Hint_Health_Friendly_Attention"]) {
+					var hint: MovieClip = part.getChildByName(name) as MovieClip;
+					if (hint) {
+						if (running) {
+							TimelinePauser.resume(hint);
+						} else {
+							TimelinePauser.pause(hint);
+						}
+					}
+				}
+			}
+			if (running) {
+				// Hints may have been rebuilt while away; show the real values.
+				this.hintsChanged();
+			}
 		}
 	
 		public function setUpdateHintPower(param1: Boolean): void {
@@ -594,6 +635,10 @@
 		public function update(param1: int): void {
 			var _loc2_: TextEffect = null;
 			var _loc3_: MovieClip = null;
+			var onScreen: Boolean = mContainer.parent != null && mContainer.visible;
+			if (onScreen != this.mHintsRunning || !this.mHintsChecked) {
+				this.setHintsRunning(onScreen);
+			}
 			if (this.mUpdateHintHealth || this.mAttentionShown) {
 				this.updateHintHealth();
 			}

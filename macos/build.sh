@@ -45,10 +45,13 @@ $AIR_SDK/bin/amxmlc \
   -define=CONFIG::BUILD_FOR_AIR,true \
   -define=CONFIG::NOT_BUILD_FOR_AIR,false \
   -define=CONFIG::BUILD_FOR_MOBILE_AIR,false \
-  ${PROFILE:+-compiler.omit-trace-statements=false} -swf-version=51 -default-size 1280 752 -default-frame-rate 40 \
+  ${PROFILE:+-compiler.omit-trace-statements=false} ${PROFILE:+$([[ $PROFILE == debug ]] && echo -debug=true)} -swf-version=51 -default-size 1280 752 -default-frame-rate 40 \
   -o $OUT/code.swf $SRC/iArmyAir.as > $OUT/compile.log 2>&1 \
-  || { grep -A3 'Error:' $OUT/compile.log | head -60; echo "compile failed: $OUT/compile.log"; exit 1; }
+  || { grep -B1 -A3 -i 'error' $OUT/compile.log | head -60 || true; echo "compile failed: $OUT/compile.log"; exit 1; }
 echo "compiled $OUT/code.swf"
+
+# Timelines of the world art, for the GPU timeline player.
+python3 $TOOLS/timelines.py $RELEASE_SWF $SRC/config/army_config_base.json $OUT/timelines.json
 
 # 3. Art fixes, then put the new code in front of the release code.
 python3 $TOOLS/patch_art.py $RELEASE_SWF $OUT/art.swf
@@ -73,13 +76,13 @@ if [[ ! -f $OUT/cert.p12 ]]; then
 fi
 STAGE=$OUT/stage
 rm -rf $STAGE && mkdir -p $STAGE
-cp $OUT/ArmyAttack.swf $HERE/app.xml $STAGE/
+cp $OUT/ArmyAttack.swf $HERE/app.xml $OUT/timelines.json $STAGE/
 cp -R $SRC/config $SRC/data $SRC/AppIconsForPublish $STAGE/
 rm -rf $STAGE/config/dev
 APP="$OUT/Army Attack.app"
 rm -rf $APP
 (cd $STAGE && $ADT -package -storetype pkcs12 -keystore $OUT/cert.p12 -storepass "$(cat $OUT/cert.pass)" \
-  -target bundle $APP app.xml -extdir $OUT/ext ArmyAttack.swf config data AppIconsForPublish)
+  -target bundle $APP app.xml -extdir $OUT/ext ArmyAttack.swf timelines.json config data AppIconsForPublish)
 
 # 6. Ad-hoc code signature so macOS will launch it locally.
 xattr -cr $APP

@@ -3,6 +3,7 @@ package game.characters
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
+   import game.utils.TimelinePauser;
    import flash.events.Event;
    import game.isometric.elements.Renderable;
    
@@ -117,6 +118,23 @@ package game.characters
             _loc11_++;
          }
          this.mCurrentAnimation = 0;
+         this.pauseHiddenAnimations();
+      }
+
+      // New art starts playing at once; only the current state's clip is on
+      // screen, so pause the others until Renderable.updateAnimation shows
+      // them (see TimelinePauser).
+      private function pauseHiddenAnimations() : void
+      {
+         var i:int = 0;
+         while(i < this.mAnimations.length)
+         {
+            if(i != this.mCurrentAnimation)
+            {
+               TimelinePauser.pause(this.mAnimations[i] as MovieClip);
+            }
+            i++;
+         }
       }
       
       public function LoadingFinished(param1:Event) : void
@@ -150,6 +168,7 @@ package game.characters
             }
             _loc8_++;
          }
+         this.pauseHiddenAnimations();
          if(this.mIsPlaying)
          {
             this.playCurrentAnimation();

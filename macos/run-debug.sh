@@ -3,7 +3,7 @@
 # trace() output and runtime errors printed to the terminal and to
 # macos/build/debug.log. Run macos/build.sh first.
 #
-# usage: AIR_SDK=/path/to/AIRSDK_MacOS macos/run-debug.sh
+# usage: AIR_SDK=/path/to/AIRSDK_MacOS macos/run-debug.sh [game arguments...]
 set -euo pipefail
 
 OUT=${0:A:h}/build
@@ -16,4 +16,4 @@ rm -rf $EXT && mkdir -p $EXT/DiscordRPC.ane
 unzip -q $OUT/ext/DiscordRPC.ane -d $EXT/DiscordRPC.ane
 
 cd $OUT/stage
-$AIR_SDK/bin/adl -profile extendedDesktop -extdir $EXT app.xml . 2>&1 | tee $OUT/debug.log
+$AIR_SDK/bin/adl -profile extendedDesktop -extdir $EXT app.xml . -- "$@" 2>&1 | tee $OUT/debug.log

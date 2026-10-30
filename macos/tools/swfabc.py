@@ -181,6 +181,121 @@ def abc_definitions(abc):
     return scripts
 
 
+def frame_stops(abc):
+    """Timeline frame scripts: {'pkg.Class': [frame, ...]} for every frameN
+    method (Animate's naming, frame N is index N-1) whose body calls stop()."""
+    r = _Reader(abc)
+    r.u16(); r.u16()
+    for _ in range(max(0, r.u30() - 1)): r.u30()
+    for _ in range(max(0, r.u30() - 1)): r.u30()
+    n_doubles = max(0, r.u30() - 1)
+    r.p += 8 * n_doubles
+    strs = ['']
+    for _ in range(max(0, r.u30() - 1)):
+        n = r.u30()
+        strs.append(r.b[r.p:r.p + n].decode('utf8', 'replace'))
+        r.p += n
+    ns = ['']
+    for _ in range(max(0, r.u30() - 1)):
+        r.u8()
+        ns.append(strs[r.u30()])
+    for _ in range(max(0, r.u30() - 1)):
+        for _ in range(r.u30()): r.u30()
+    mn = [None]
+    for _ in range(max(0, r.u30() - 1)):
+        k = r.u8()
+        if k in (0x07, 0x0d):
+            a = r.u30(); b = r.u30(); mn.append((ns[a], strs[b]))
+        elif k in (0x0f, 0x10):
+            mn.append((None, strs[r.u30()]))
+        elif k in (0x11, 0x12):
+            mn.append(None)
+        elif k in (0x09, 0x0e):
+            b = r.u30(); r.u30(); mn.append((None, strs[b]))
+        elif k in (0x1b, 0x1c):
+            r.u30(); mn.append(None)
+        elif k == 0x1d:
+            r.u30()
+            for _ in range(r.u30()): r.u30()
+            mn.append(None)
+        else:
+            raise ValueError('unknown multiname kind 0x%x' % k)
+    for _ in range(r.u30()):
+        pc = r.u30(); r.u30()
+        for _ in range(pc): r.u30()
+        r.u30()
+        flags = r.u8()
+        if flags & 0x08:
+            for _ in range(r.u30()): r.u30(); r.u8()
+        if flags & 0x80:
+            for _ in range(pc): r.u30()
+    for _ in range(r.u30()):
+        r.u30()
+        for _ in range(r.u30()): r.u30(); r.u30()
+
+    def traits():
+        methods = {}
+        for _ in range(r.u30()):
+            name = r.u30()
+            kind = r.u8()
+            k = kind & 0x0f
+            if k in (0, 6):
+                r.u30(); r.u30()
+                if r.u30(): r.u8()
+            else:
+                r.u30(); idx = r.u30()
+                if k == 1 and mn[name]:
+                    methods[mn[name][1]] = idx
+            if kind & 0x40:
+                for _ in range(r.u30()): r.u30()
+        return methods
+
+    n_inst = r.u30()
+    classes = []
+    for _ in range(n_inst):
+        name = mn[r.u30()]; r.u30()
+        flags = r.u8()
+        if flags & 0x08: r.u30()
+        for _ in range(r.u30()): r.u30()
+        r.u30()
+        classes.append(('%s.%s' % name if name[0] else name[1], traits()))
+    for _ in range(n_inst):
+        r.u30(); traits()
+    for _ in range(r.u30()):
+        r.u30(); traits()
+    bodies = {}
+    for _ in range(r.u30()):
+        method = r.u30()
+        r.u30(); r.u30(); r.u30(); r.u30()
+        n = r.u30()
+        bodies[method] = r.b[r.p:r.p + n]
+        r.p += n
+        for _ in range(r.u30()):
+            r.u30(); r.u30(); r.u30(); r.u30(); r.u30()
+        traits()
+
+    def calls_stop(code):
+        # callpropvoid (0x4f) / callproperty (0x46) on 'stop' with no arguments.
+        for i, op in enumerate(code):
+            if op in (0x4f, 0x46):
+                c = _Reader(code, i + 1)
+                try:
+                    m = mn[c.u30()]
+                    if m and m[1] == 'stop' and c.u30() == 0:
+                        return True
+                except (IndexError, ValueError):
+                    pass
+        return False
+
+    out = {}
+    for cls, methods in classes:
+        frames = sorted(int(m[5:]) for m, idx in methods.items()
+                        if m[:5] == 'frame' and m[5:].isdigit() and calls_stop(bodies.get(idx, b'')))
+        if frames:
+            out[cls] = frames
+    return out
+
+
 def doabc_payload(body, data_off, data_len, code):
     """Return the raw ABC bytes of a DoABC (82) or DoABC1 (72) tag."""
     if code == 72:
