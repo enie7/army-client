@@ -5436,14 +5436,21 @@ package game.states
       
       public function setAnimations(param1:Boolean) : void
       {
-         var _loc2_:* = undefined;
          this.mAnimationsOn = param1;
          Cookie.saveCookieVariable(Config.COOKIE_SETTINGS_NAME,Config.COOKIE_SETTINGS_NAME_ANIMATION,param1);
-         _loc2_ = this.mHUD.generateSaveJson();
-         (PopUpManager.getPopUp(PauseDialog) as PauseDialog).loadProgress(_loc2_);
-         (PopUpManager.getPopUp(SettingsDialogClass) as SettingsDialogClass).closeSettingsAuto();
-         (PopUpManager.getPopUp(PauseDialog) as PauseDialog).closePauseMenuAuto();
-         this.mScene.mCamera.moveTo(this.mScene.mCamera.getCameraX() + 1,this.mScene.mCamera.getCameraY() + 1);
+         // 23.2 reloaded the whole map from a save and closed the settings and
+         // pause menus to apply this, which dropped the player into the game.
+         // Apply it to the buildings in place instead.
+         if(this.mScene)
+         {
+            for each(var element:Object in this.mScene.mAllElements)
+            {
+               if(element is HFEObject)
+               {
+                  (element as HFEObject).applyAnimationSetting();
+               }
+            }
+         }
       }
       
       public function isAnimationsOn() : Boolean

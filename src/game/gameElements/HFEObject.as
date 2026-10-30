@@ -103,6 +103,27 @@
 			}
 		}
 
+		// Apply the animations setting to an already loaded building: freeze or
+		// resume the idle "Animation" child shown in the normal (frame 1) state.
+		public function applyAnimationSetting(): void {
+			if (!mGraphicsLoaded) {
+				return;
+			}
+			var stateMc: MovieClip = getContainer().getChildAt(0) as MovieClip;
+			if (stateMc == null || stateMc.currentFrame != 1) {
+				return;
+			}
+			var animationMc: MovieClip = stateMc.getChildByName("Animation") as MovieClip;
+			if (animationMc == null) {
+				return;
+			}
+			if (GameState.mInstance.isAnimationsOn()) {
+				animationMc.play();
+			} else {
+				animationMc.gotoAndStop(3);
+			}
+		}
+
 		override public function setHealth(param1: int): void {
 			var _loc2_: int = Math.max(0, Math.min(mMaxHealth, param1));
 			mHealth = _loc2_;

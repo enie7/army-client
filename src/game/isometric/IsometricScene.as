@@ -61,6 +61,7 @@ package game.isometric
    import game.sound.ArmySoundManager;
    import game.states.GameState;
    import game.utils.EffectController;
+   import game.utils.FrameProfiler;
    
    public class IsometricScene
    {
@@ -3235,6 +3236,13 @@ package game.isometric
       
       public function update(param1:int) : void
       {
+         FrameProfiler.begin("scene");
+         this.updateScene(param1);
+         FrameProfiler.end("scene");
+      }
+      
+      private function updateScene(param1:int) : void
+      {
          var _loc2_:int = 0;
          var _loc3_:GridCell = null;
          var _loc4_:int = 0;
@@ -3297,7 +3305,9 @@ package game.isometric
          }
          if(!Config.DISABLE_SORT)
          {
+            FrameProfiler.begin("sort");
             this.sortAll(Boolean(_loc11_) || this.mMouseScrolling || Boolean(this.mObjectBeingMoved),_loc11_);
+            FrameProfiler.end("sort");
          }
          if(_loc12_ != this.mPreviousCell)
          {
@@ -3380,7 +3390,9 @@ package game.isometric
          }
          if(_loc13_)
          {
+            FrameProfiler.begin("tilemap");
             this.mTilemapGraphic.updateTilemap();
+            FrameProfiler.end("tilemap");
          }
          this.mEffectController.update(param1);
          if(this.mEffectPending)
@@ -3468,7 +3480,9 @@ package game.isometric
             this.mContainer.y = _loc6_;
             this.mSceneHud.x = _loc5_;
             this.mSceneHud.y = _loc6_;
-            this.mTilemapGraphic.updateTilemap();
+            FrameProfiler.begin("tilemap");
+            this.mTilemapGraphic.updateTilemap(true);
+            FrameProfiler.end("tilemap");
          }
       }
       
@@ -3503,6 +3517,13 @@ package game.isometric
             }
             _loc9_++;
          }
+      }
+      
+      // Display container of the floor hit area; the GPU renderer forwards
+      // world mouse input to it.
+      public function getFloorContainer() : Sprite
+      {
+         return this.mFloor ? this.mFloor.getContainer() : null;
       }
       
       public function addFloorToScene() : void

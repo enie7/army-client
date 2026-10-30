@@ -24,11 +24,19 @@ mkdir -p $OUT
 $AIR_SDK/bin/acompc -source-path $HERE/stubs -include-sources $HERE/stubs \
   -output $OUT/stubs.swc > $OUT/stubs.log 2>&1 || { cat $OUT/stubs.log; exit 1; }
 
+# Starling (Stage3D renderer for the world), pinned, fetched on first build.
+STARLING_TAG=v2.8
+STARLING=$OUT/starling
+if [[ ! -d $STARLING/starling/src ]]; then
+  git clone -q --depth 1 --branch $STARLING_TAG https://github.com/Gamua/Starling-Framework.git $STARLING
+fi
+
 # 2. Compile the game code. Timeline classes (src/*_fla) are only referenced
 #    from the SWF's symbol table, never from code, so include them by name.
 SYMBOL_CLASSES=$(cd $SRC && find . -path './*_fla/*.as' | sed 's|^\./||; s|\.as$||; s|/|.|g' | sort | paste -sd, -)
 $AIR_SDK/bin/amxmlc \
   -source-path+=$SRC \
+  -source-path+=$STARLING/starling/src \
   -includes=$SYMBOL_CLASSES \
   -external-library-path+=$OUT/stubs.swc \
   -external-library-path+=$SRC/DiscordRPC.ane \
@@ -37,7 +45,7 @@ $AIR_SDK/bin/amxmlc \
   -define=CONFIG::BUILD_FOR_AIR,true \
   -define=CONFIG::NOT_BUILD_FOR_AIR,false \
   -define=CONFIG::BUILD_FOR_MOBILE_AIR,false \
-  -swf-version=51 -default-size 1280 752 -default-frame-rate 40 \
+  ${PROFILE:+-compiler.omit-trace-statements=false} -swf-version=51 -default-size 1280 752 -default-frame-rate 40 \
   -o $OUT/code.swf $SRC/iArmyAir.as > $OUT/compile.log 2>&1 \
   || { grep -A3 'Error:' $OUT/compile.log | head -60; echo "compile failed: $OUT/compile.log"; exit 1; }
 echo "compiled $OUT/code.swf"

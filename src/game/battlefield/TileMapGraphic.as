@@ -267,6 +267,17 @@ package game.battlefield
       
       public var mFogBmp:Bitmap;
       
+      // Bumped whenever mFieldBmp/mFogBmp are repainted; the GPU renderer
+      // re-uploads them when it changes.
+      public var mRedrawCount:int = 0;
+      
+      // Set while the GPU renderer draws the ground and fog itself, from
+      // world-space chunks (drawWorldChunk). Camera moves then cost no CPU
+      // redraw at all; real changes bump mContentVersion instead.
+      public var mGpuGround:Boolean = false;
+      
+      public var mContentVersion:int = 0;
+      
       private var mFogBmpData:BitmapData;
       
       private var mTargetBitmap:Bitmap;
@@ -450,8 +461,20 @@ package game.battlefield
          }
       }
       
-      public function updateTilemap() : void
+      // cameraOnly: called because the camera moved, not because the map, fog
+      // or zoom changed.
+      public function updateTilemap(cameraOnly:Boolean = false) : void
       {
+         if(this.mGpuGround)
+         {
+            if(!cameraOnly)
+            {
+               ++this.mContentVersion;
+            }
+            this.updateWorldSpaceExtras();
+            return;
+         }
+         ++this.mRedrawCount;
          var _loc1_:int = 0;
          var _loc2_:MovieClip = null;
          var _loc3_:Class = null;
@@ -480,6 +503,19 @@ package game.battlefield
          smTempPoint = this.mScene.mContainer.globalToLocal(smTempPoint);
          var _loc9_:Rectangle = getVisibleArea();
          this.drawArea(_loc9_.left,_loc9_.top,_loc9_.right,_loc9_.bottom);
+         this.updateWorldSpaceExtras();
+      }
+      
+      // Things updateTilemap maintains besides the two bitmaps: enemy units
+      // shown under the cloud border, and the sea waves along the visible coast.
+      private function updateWorldSpaceExtras() : void
+      {
+         var _loc1_:int = 0;
+         var _loc2_:MovieClip = null;
+         var _loc3_:Class = null;
+         var _loc4_:int = 0;
+         var _loc5_:int = 0;
+         var _loc9_:Rectangle = getVisibleArea();
          this.updateUnderCloudEnemyUnits();
          if(FeatureTuner.USE_SEA_WAVES_EFFECT)
          {
@@ -505,6 +541,54 @@ package game.battlefield
                this.mWaveContainer.x = _loc9_.left * this.mScene.mGridDimX;
             }
          }
+      }
+      
+      // Draw the ground and fog for the world-space pixel rectangle at
+      // (originX, originY) into `field` and `fog`, at the current zoom, using
+      // the same per-cell drawing as the on-screen bitmaps. drawArea places
+      // cells relative to the scene container's screen position, so that is
+      // pointed at the chunk origin for the duration of the call.
+      public function drawWorldChunk(field:BitmapData, fog:BitmapData, originX:int, originY:int) : void
+      {
+         var container:Sprite = this.mScene.mContainer;
+         var cellW:Number = this.mScene.mGridDimX * container.scaleX;
+         var cellH:Number = this.mScene.mGridDimY * container.scaleY;
+         // One cell of margin: transitions and edges spill over cell bounds.
+         var left:int = Math.max(0,Math.floor(originX / cellW) - 1);
+         var top:int = Math.max(0,Math.floor(originY / cellH) - 1);
+         var right:int = Math.min(this.mScene.mSizeX,Math.ceil((originX + field.width) / cellW) + 1);
+         var bottom:int = Math.min(this.mScene.mSizeY,Math.ceil((originY + field.height) / cellH) + 1);
+         var savedX:Number = container.x;
+         var savedY:Number = container.y;
+         var savedField:BitmapData = this.mFieldBmp.bitmapData;
+         var savedFog:BitmapData = this.mFogBmp.bitmapData;
+         field.fillRect(field.rect,0);
+         fog.fillRect(fog.rect,0);
+         container.x = -originX;
+         container.y = -originY;
+         this.mFieldBmp.bitmapData = field;
+         this.mFogBmp.bitmapData = fog;
+         try
+         {
+            if(right > left && bottom > top)
+            {
+               this.drawArea(left,top,right,bottom);
+            }
+         }
+         finally
+         {
+            this.mFieldBmp.bitmapData = savedField;
+            this.mFogBmp.bitmapData = savedFog;
+            container.x = savedX;
+            container.y = savedY;
+         }
+      }
+      
+      // Size of the whole map in screen pixels at the current zoom.
+      public function getWorldPixelSize() : Point
+      {
+         var container:Sprite = this.mScene.mContainer;
+         return new Point(Math.ceil(this.mScene.mSizeX * this.mScene.mGridDimX * container.scaleX),Math.ceil(this.mScene.mSizeY * this.mScene.mGridDimY * container.scaleY));
       }
       
       public function createBitmaps() : void

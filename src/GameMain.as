@@ -10,6 +10,10 @@ package
    import game.gui.popups.PopUpManager;
    import game.isometric.elements.Element;
    import game.net.ErrorObject;
+   import game.utils.FrameProfiler;
+   import game.render.WorldRenderer;
+   import flash.desktop.NativeApplication;
+   import flash.events.InvokeEvent;
    import game.net.MyServer;
    import game.states.FSMState;
    import game.states.GameLoadingFirst;
@@ -46,6 +50,8 @@ package
          this.messages = [];
          this.messages_big = [];
          super();
+         FrameProfiler.init();
+         NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE,this.onInvoke);
          this.runUnitTests();
          this.mStateMachine = new StateMachine(this);
          this.gameState = new GameState(this.mStateMachine);
@@ -61,6 +67,7 @@ package
       
       private function keyDown(param1:KeyboardEvent) : void
       {
+         FrameProfiler.handleKey(param1.keyCode,param1.shiftKey,GameState.mInstance ? GameState.mInstance.mRootNode : null);
          this.gameState.keyDown(param1);
       }
       
@@ -77,9 +84,27 @@ package
       private function onEnterFrame(param1:Event) : void
       {
          var _loc2_:int = getTimer() - this.mGameTime;
+         FrameProfiler.frame(stage);
          if(_loc2_ > 0)
          {
+            FrameProfiler.begin("logic");
             this.logicUpdate(_loc2_);
+            FrameProfiler.end("logic");
+         }
+         WorldRenderer.init(stage);
+         FrameProfiler.begin("gpu");
+         WorldRenderer.update();
+         FrameProfiler.end("gpu");
+         FrameProfiler.enterFrameDone();
+      }
+      
+      // --cpu-render keeps the whole game on the Flash renderer (for comparison).
+      private function onInvoke(param1:InvokeEvent) : void
+      {
+         NativeApplication.nativeApplication.removeEventListener(InvokeEvent.INVOKE,this.onInvoke);
+         if(param1.arguments.indexOf("--cpu-render") >= 0)
+         {
+            WorldRenderer.disabled = true;
          }
       }
       
