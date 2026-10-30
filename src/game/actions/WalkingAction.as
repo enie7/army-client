@@ -135,7 +135,7 @@ package game.actions
             _loc5_ = _loc3_.mMovementRewardEnergy;
             _loc2_.increaseEnergyRewardCounter(_loc5_);
             _loc6_ = _loc2_.getBonusEnergy();
-            _loc7_ = mActor.getContainer().getChildAt(0);
+            _loc7_ = (mActor as PlayerUnit).getView().art;
             _loc1_.mScene.addLootReward(ItemManager.getItem("XP","Resource"),_loc4_,_loc7_);
             _loc1_.mScene.addLootReward(ItemManager.getItem("Energy","Resource"),_loc6_,_loc7_);
             _loc8_ = mActor.getCell();

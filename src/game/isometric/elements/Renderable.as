@@ -4,7 +4,6 @@ package game.isometric.elements
    import flash.display.DisplayObject;
    import flash.display.Graphics;
    import flash.display.MovieClip;
-   import game.utils.TimelinePauser;
    import flash.display.Sprite;
    import flash.events.Event;
    import flash.events.MouseEvent;
@@ -17,6 +16,8 @@ package game.isometric.elements
    import game.characters.EnemyUnit;
    import game.gameElements.PermanentHFEObject;
    import game.gui.TooltipHealth;
+   import game.render.view.FlashView;
+   import game.render.view.ObjectView;
    import game.isometric.GridCell;
    import game.isometric.IsometricScene;
    import game.isometric.ToScreen;
@@ -40,7 +41,8 @@ package game.isometric.elements
       
       protected var mTileSize:Vector3D;
       
-      protected var mAnimationController:AnimationController;
+      // The object's art; see ObjectView.
+      protected var mView:ObjectView;
       
       protected var mSoundTrasform:SoundTransform;
       
@@ -103,6 +105,7 @@ package game.isometric.elements
          this.mTileSize = new Vector3D(1,1,1);
          super(param1,param2,param4);
          this.mContainer = new DisplayContainer(this);
+         this.mView = new FlashView(this,this.mContainer);
          this.mGraphicsLoaded = true;
          this.mMovable = false;
          this.mRotatable = false;
@@ -167,8 +170,7 @@ package game.isometric.elements
       
       public function addSprite(param1:DisplayObject) : void
       {
-         this.removeSprite();
-         this.mContainer.addChildAt(param1,0);
+         this.mView.setArt(param1);
       }
       
       public function graphicsLoaded(param1:Sprite) : void
@@ -178,10 +180,12 @@ package game.isometric.elements
       
       public function removeSprite() : void
       {
-         if(this.mContainer.numChildren > 0)
-         {
-            this.mContainer.removeChildAt(0);
-         }
+         this.mView.clearArt();
+      }
+
+      public function getView() : ObjectView
+      {
+         return this.mView;
       }
       
       public function isMovable() : Boolean
@@ -544,11 +548,7 @@ package game.isometric.elements
             this.mLowHealthIcon = null;
          }
          this.mContainer.graphics.clear();
-         if(this.mAnimationController)
-         {
-            this.mAnimationController.destroy();
-            this.mAnimationController = null;
-         }
+         this.mView.destroy();
          this.mListenerObjectClicked = null;
          this.mListenerObjectMouseOut = null;
          this.mListenerObjectMouseOver = null;
@@ -626,8 +626,7 @@ package game.isometric.elements
       
       protected function initAnimations(param1:Array) : void
       {
-         this.mAnimationController = new AnimationController(this);
-         this.mAnimationController.loadAnimations(param1);
+         this.mView.loadAnimations(param1);
       }
       
       public function startAction() : void
@@ -640,7 +639,7 @@ package game.isometric.elements
       
       public function setAnimationAction(param1:int, param2:Boolean = true, param3:Boolean = false) : Boolean
       {
-         if(this.mAnimationController.setAnimation(param1))
+         if(this.mView.setAnimation(param1))
          {
             this.updateAnimation(param2,param3);
             return true;
@@ -650,47 +649,27 @@ package game.isometric.elements
       
       public function setAnimationDirection(param1:int) : void
       {
-         this.mAnimationController.setDirection(param1);
+         this.mView.setDirection(param1);
       }
       
       public function getCurrentAnimationIndex() : int
       {
-         return this.mAnimationController.getCurrentAnimationIndex();
+         return this.mView.animationIndex;
       }
       
       protected function updateAnimation(param1:Boolean, param2:Boolean) : void
       {
-         var next:MovieClip = this.mAnimationController.getAnimation();
-         if(this.mContainer.numChildren > 0)
-         {
-            // The outgoing state clip leaves the display list but would keep
-            // playing (and rebuilding its looping hints) unseen; pause it.
-            var previous:MovieClip = this.mContainer.removeChildAt(0) as MovieClip;
-            if(previous != null && previous != next)
-            {
-               TimelinePauser.pause(previous);
-            }
-         }
-         TimelinePauser.resume(next);
-         this.mContainer.addChildAt(next,0);
-         if(param1)
-         {
-            this.mAnimationController.stopCurrentAnimation();
-         }
-         else if(param2)
-         {
-            this.mAnimationController.playCurrentAnimation();
-         }
+         this.mView.showAnimation(param1,param2);
       }
       
       public function stopAnimation() : void
       {
-         this.mAnimationController.stopCurrentAnimation();
+         this.mView.stopAnimation();
       }
       
       public function getCurrentAnimationFrameLabel() : String
       {
-         return this.mAnimationController.getCurrentAnimationFrameLabel();
+         return this.mView.frameLabel;
       }
       
       public function updateTooltip(param1:int, param2:TooltipHealth) : void

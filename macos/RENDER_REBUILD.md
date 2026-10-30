@@ -167,6 +167,40 @@ base (`--profile`: fps, frame breakdown, allocation) against the table above.
 | M6 | **Effects layer**: projectiles, explosions, clouds, icons, fire-mission sequences. | Hidden world contains no world art. |
 | M7 | **Remove the mirror**; decouple logic onto a fixed 40 Hz step and present at 60 Hz+ with interpolated motion. | Smooth panning and movement; heavy base at the display rate. |
 
+### M2 notes: what ObjectView covers
+
+`game.render.view.ObjectView` is the **art** of a Renderable, not its whole
+container. The container (`DisplayContainer`) stays the object's Flash host
+for everything else game code does with it (about 250 sites: visibility,
+mouse input, overlays such as text effects, loading bars, icons). The cost is
+in the art, so that is the part that moves.
+
+- Static art (buildings, decorations, construction): `setArt`, state frames
+  with `gotoArtFrame` / `artFrame`, named parts with `artPart`
+  (`Flagpole`, `City_Name_Sign`, `Animation`).
+- Animations (units, installations): `loadAnimations`, `setAnimation`,
+  `setDirection`, `showAnimation`, play / stop, `frameLabel` (the `"end"`
+  waits), `moveAnimationBy`, `animationVisible`.
+- Hints are semantic: `setHealthHint(text)`, `setPowerHint(power)`,
+  `showHint(attention, shown)`, `attentionShown`, `setHintsRunning`. Game code
+  no longer walks art trees for `Hint_Health_Friendly*`, so a GPU view can
+  draw hints as overlays (M5) without touching unit code.
+- `FlashView` holds the code that used to be spread over Renderable,
+  IsometricCharacter, PlayerUnit, EnemyUnit, the installations and buildings,
+  moved unchanged; `AnimationController` is now private to it.
+
+Left for later milestones:
+
+- `animationClip` hands out the current Flash clip for EffectController's
+  fade / hit effects, which animate the art itself. Replace with view-side
+  effects when installations move (M4).
+- `setArt` takes a Flash display object made by the object loaders. A GPU
+  view needs the symbol (loader + class name) instead, so `setArt`'s callers
+  will pass that from M3 on.
+- `art` returns a Flash display object for code that only positions things by
+  it (loot rewards from WalkingAction); under a GPU view that becomes a
+  position.
+
 ## Testing
 
 - Saves: `armyattack_2` (light), the expanded base (heavy). Load first, then

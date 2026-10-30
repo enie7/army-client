@@ -173,22 +173,17 @@ package game.gameElements
       private function setFrame() : void
       {
          var _loc1_:int = 0;
-         if(!mGraphicsLoaded || mContainer.numChildren == 0 || mState == STATE_RUINS)
+         if(!mGraphicsLoaded || mView.art == null || mState == STATE_RUINS)
          {
             return;
          }
          if(!this.mHasBeenCompleted)
          {
             addSprite(this.mConstructionAnimation);
+            // One frame per two build steps; on the frame it is on already,
+            // this just stops it there.
             _loc1_ = 1 + this.mBuildingStepsDone / 2;
-            if(_loc1_ != this.mConstructionAnimation.currentFrame)
-            {
-               this.mConstructionAnimation.gotoAndStop(_loc1_);
-            }
-            else
-            {
-               this.mConstructionAnimation.stop();
-            }
+            mView.gotoArtFrame(_loc1_);
          }
          else
          {

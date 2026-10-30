@@ -90,13 +90,13 @@
 				return;
 			}
 			if (mState == STATE_PRODUCTION_READY && this.mHarvestAnimation == null) {
-				(getContainer().getChildAt(0) as MovieClip).gotoAndStop(2);
+				mView.gotoArtFrame(2);
 			} else if (mState == STATE_WITHERED) {
-				(getContainer().getChildAt(0) as MovieClip).gotoAndStop(3);
+				mView.gotoArtFrame(3);
 			} else {
-				(getContainer().getChildAt(0) as MovieClip).gotoAndStop(1);
+				mView.gotoArtFrame(1);
 				if (!GameState.mInstance.isAnimationsOn()) {
-					var animationMc: MovieClip = (getContainer().getChildAt(0) as MovieClip).getChildByName("Animation") as MovieClip;
+					var animationMc: MovieClip = mView.artPart("Animation");
 					animationMc.gotoAndStop(3); // The animations don't start with an idle position, but the 3rd frame is "idle" for all of them so i'm gonna be lazy again xD
 				}
 
@@ -109,11 +109,10 @@
 			if (!mGraphicsLoaded) {
 				return;
 			}
-			var stateMc: MovieClip = getContainer().getChildAt(0) as MovieClip;
-			if (stateMc == null || stateMc.currentFrame != 1) {
+			if (mView.artFrame != 1) {
 				return;
 			}
-			var animationMc: MovieClip = stateMc.getChildByName("Animation") as MovieClip;
+			var animationMc: MovieClip = mView.artPart("Animation");
 			if (animationMc == null) {
 				return;
 			}

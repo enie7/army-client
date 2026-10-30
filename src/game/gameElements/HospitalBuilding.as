@@ -148,7 +148,6 @@ package game.gameElements
          }
          else
          {
-            _loc7_ = mContainer.getChildAt(0);
             if(param1 == 0)
             {
                _loc2_ = _loc8_[mItem.mLoader](mItem.getIconGraphicsFile(),mItem.getIconGraphics());
@@ -157,15 +156,15 @@ package game.gameElements
             }
             else if(mHealth < mMaxHealth)
             {
-               _loc7_.gotoAndStop(3);
+               mView.gotoArtFrame(3);
             }
             else if(this.mReadyToHeal)
             {
-               _loc7_.gotoAndStop(2);
+               mView.gotoArtFrame(2);
             }
             else
             {
-               _loc7_.gotoAndStop(1);
+               mView.gotoArtFrame(1);
             }
          }
       }

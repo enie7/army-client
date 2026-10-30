@@ -80,7 +80,7 @@ package game.gameElements
          this.mSightRange = _loc4_.mSightRange;
          this.mAttackRange = _loc4_.mAttackRange;
          initAnimations(_loc4_.getGraphicAssets());
-         mAnimationController.setAnimation(AnimationController.INSTALLATION_ANIMATION_IDLE);
+         mView.setAnimation(AnimationController.INSTALLATION_ANIMATION_IDLE);
          updateAnimation(true,false);
          this.mEffectController = new EffectController();
          mVisible = true;
@@ -182,7 +182,7 @@ package game.gameElements
                hideLoadingBar();
                _loc2_ = (mTileSize.x - 1) * (mScene.mGridDimX >> 1);
                _loc3_ = (mTileSize.y - 1) * (mScene.mGridDimY >> 1);
-               this.mEffectController.startEffect(mScene,mAnimationController.getAnimation(),EffectController.EFFECT_TYPE_BIG_EXPLOSION,mX + _loc2_,mY + _loc3_);
+               this.mEffectController.startEffect(mScene,mView.animationClip,EffectController.EFFECT_TYPE_BIG_EXPLOSION,mX + _loc2_,mY + _loc3_);
                break;
             case STATE_DESTROYED:
                setAnimationAction(AnimationController.INSTALLATION_ANIMATION_WRECKING,false,true);

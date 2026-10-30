@@ -2,7 +2,6 @@ package game.characters
 {
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.MovieClip;
-   import game.utils.TimelinePauser;
    import flash.display.Sprite;
    import flash.events.Event;
    import flash.events.MouseEvent;
@@ -498,13 +497,12 @@ package game.characters
          }
          else if(mState == STATE_AIR_DROP)
          {
-            mAnimationController.getCurrentAnimationFrameLabel();
             if(!mScene.mParatrooperAnimation && this.mWaitingForAirplane)
             {
-               mAnimationController.playCurrentAnimation();
+               mView.playAnimation();
                this.mWaitingForAirplane = false;
             }
-            else if(mAnimationController.getCurrentAnimationFrameLabel() == "end")
+            else if(mView.frameLabel == "end")
             {
                setAnimationAction(AnimationController.CHARACTER_ANIMATION_IDLE,false,true);
                mState = STATE_WALKING;
@@ -1080,11 +1078,7 @@ package game.characters
       
       public function showActivationIcon(param1:Boolean) : void
       {
-         var _loc2_:MovieClip = null;
-         var _loc3_:int = 0;
-         var _loc4_:MovieClip = null;
-         var _loc5_:MovieClip = null;
-         if(!mAnimationController)
+         if(!mView.hasAnimations)
          {
             return;
          }
@@ -1093,40 +1087,13 @@ package game.characters
             // Remember the state only once the icon was there to set: right
             // after a unit appears its state clips may not have their art yet
             // (see IsometricCharacter.updateHintHealth).
-            this.mActivationIconVisible = -1;
-            _loc2_ = mAnimationController.getCurrentAnimation();
-            _loc3_ = 0;
-            while(_loc3_ < _loc2_.numChildren)
+            var result:int = mView.showHint(true,param1);
+            this.mActivationIconVisible = result < 0 ? -1 : (param1 ? 1 : 0);
+            if(result == 1)
             {
-               _loc4_ = _loc2_.getChildAt(_loc3_) as MovieClip;
-               _loc5_ = _loc4_.getChildByName("Hint_Health_Friendly_Attention") as MovieClip;
-               if(_loc5_)
-               {
-                  this.mActivationIconVisible = param1 ? 1 : 0;
-                  if(param1 != _loc5_.visible)
-                  {
-                     _loc5_.visible = param1;
-                     // A hidden warning would keep looping (and rebuilding its
-                     // children) unseen; pause it while hidden.
-                     if(param1)
-                     {
-                        TimelinePauser.resume(_loc5_);
-                     }
-                     else
-                     {
-                        TimelinePauser.pause(_loc5_);
-                     }
-                     hintsChanged();
-                  }
-               }
-               _loc3_++;
+               hintsChanged();
             }
          }
-      }
-      
-      public function getActivationTimeInMinutes() : int
-      {
-         return this.mActivationTimeInMinutes;
       }
    }
 }

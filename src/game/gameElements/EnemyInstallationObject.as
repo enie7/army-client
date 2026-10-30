@@ -130,7 +130,7 @@ package game.gameElements
          this.mSpawnTileNumber = _loc4_.mSpawnTile;
          this.mLastAttackDamage = _loc4_.mLastAttackDamage;
          this.mProtectorMission = _loc4_.mProtectorMission;
-         mAnimationController.setAnimation(AnimationController.INSTALLATION_ANIMATION_IDLE);
+         mView.setAnimation(AnimationController.INSTALLATION_ANIMATION_IDLE);
          if(this.hasAnimatedSecondFrame())
          {
             this.updateAnimation(true,false);
@@ -329,18 +329,18 @@ package game.gameElements
                {
                   GameState.mInstance.mScene.addEffect(null,EffectController.EFFECT_TYPE_BIG_EXPLOSION,mX + mScene.mGridDimX * getTileSize().x / 2,mY + mScene.mGridDimY * getTileSize().y / 2);
                   this.setAnimationAction(AnimationController.INSTALLATION_ANIMATION_WRECKING,false,true);
-                  mAnimationController.getAnimation().visible = false;
+                  mView.animationVisible = false;
                }
                else
                {
                   this.setAnimationAction(AnimationController.INSTALLATION_ANIMATION_WRECKING,false,true);
                   if(getTileSize().x > 1)
                   {
-                     mAnimationController.getCurrentAnimation().x = mAnimationController.getCurrentAnimation().x + (mScene.mGridDimX * getTileSize().x / 2 - mScene.mGridDimX / 2);
+                     mView.moveAnimationBy(mScene.mGridDimX * getTileSize().x / 2 - mScene.mGridDimX / 2,0);
                   }
                   if(getTileSize().y > 1)
                   {
-                     mAnimationController.getCurrentAnimation().y = mAnimationController.getCurrentAnimation().y + (mScene.mGridDimY * getTileSize().y / 2 - mScene.mGridDimY / 2);
+                     mView.moveAnimationBy(0,mScene.mGridDimY * getTileSize().y / 2 - mScene.mGridDimY / 2);
                   }
                }
                playCollectionSound(mDieSounds);

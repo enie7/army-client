@@ -1,7 +1,6 @@
 package game.characters
 {
    import flash.display.MovieClip;
-   import game.utils.TimelinePauser;
    import flash.events.Event;
    import flash.events.MouseEvent;
    import game.actions.AcceptHelpTrainPlayerUnitAction;
@@ -503,13 +502,13 @@ package game.characters
       
       override public function setAnimationDirection(param1:int) : void
       {
-         if(!mAnimationController)
+         if(!mView.hasAnimations)
          {
             return;
          }
-         if(mAnimationController.getCurrentAnimationIndex() == AnimationController.CHARACTER_ANIMATION_IDLE || mAnimationController.getCurrentAnimationIndex() == AnimationController.CHARACTER_ANIMATION_AIM)
+         if(mView.animationIndex == AnimationController.CHARACTER_ANIMATION_IDLE || mView.animationIndex == AnimationController.CHARACTER_ANIMATION_AIM)
          {
-            mAnimationController.setDirection(param1);
+            mView.setDirection(param1);
          }
       }
       
@@ -520,46 +519,15 @@ package game.characters
       
       override public function showHealthWarning(param1:Boolean) : void
       {
-         var _loc2_:MovieClip = null;
-         var _loc3_:MovieClip = null;
-         if(!mAnimationController)
+         if(!mView.hasAnimations)
          {
             return;
          }
-         var _loc4_:MovieClip = mAnimationController.getCurrentAnimation();
-         var _loc5_:int = 0;
-         while(_loc5_ < _loc4_.numChildren)
+         // The attention hint replaces the normal one while the warning shows.
+         mView.showHint(false,!param1);
+         if(mView.showHint(true,param1) == 1)
          {
-            _loc2_ = _loc4_.getChildAt(_loc5_) as MovieClip;
-            _loc3_ = _loc2_.getChildByName("Hint_Health_Friendly") as MovieClip;
-            if(_loc3_)
-            {
-               if(param1 == _loc3_.visible)
-               {
-                  _loc3_.visible = !param1;
-               }
-            }
-            _loc2_ = _loc4_.getChildAt(_loc5_) as MovieClip;
-            _loc3_ = _loc2_.getChildByName("Hint_Health_Friendly_Attention") as MovieClip;
-            if(_loc3_)
-            {
-               if(param1 != _loc3_.visible)
-               {
-                  _loc3_.visible = param1;
-                  // A hidden warning would keep looping (and rebuilding its
-                  // children) unseen; pause it while hidden.
-                  if(param1)
-                  {
-                     TimelinePauser.resume(_loc3_);
-                  }
-                  else
-                  {
-                     TimelinePauser.pause(_loc3_);
-                  }
-                  hintsChanged();
-               }
-            }
-            _loc5_++;
+            hintsChanged();
          }
       }
       

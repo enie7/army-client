@@ -57,10 +57,10 @@ package game.gameElements
       {
          var _loc2_:Matrix = null;
          super.graphicsLoaded(param1);
-         (param1 as MovieClip).gotoAndStop(this.FRAME_ENEMY_CONTROL);
-         this.mFlagPole = (param1 as MovieClip).getChildByName("Flagpole") as MovieClip;
+         mView.gotoArtFrame(this.FRAME_ENEMY_CONTROL);
+         this.mFlagPole = mView.artPart("Flagpole");
          this.mFlagPole.visible = false;
-         this.mNameSign = (param1 as MovieClip).getChildByName("City_Name_Sign") as MovieClip;
+         this.mNameSign = mView.artPart("City_Name_Sign");
          this.mCityName = this.mNameSign.getChildByName("City_Name") as TextField;
          this.mCityName.autoSize = TextFieldAutoSize.CENTER;
          this.mCityName.text = mItem.mName;
@@ -132,7 +132,6 @@ package game.gameElements
             return;
          }
          this.mFlagPole.gotoAndStop(int(this.mFlagPole.totalFrames * mHealth / mMaxHealth));
-         var _loc1_:MovieClip = mContainer.getChildAt(0) as MovieClip;
          if(getHealth() > 0)
          {
             if(getHealth() == mMaxHealth)
@@ -141,23 +140,23 @@ package game.gameElements
                this.mFlagPole.visible = false;
                if(Boolean(mProduction && !mProduction.isReady() && !mProduction.isWithered()) && Boolean(!GameState.mInstance.visitingFriend()) && FeatureTuner.USE_CITY_PRODUCTION_SMOKE_EFFECT)
                {
-                  _loc1_.gotoAndStop(this.FRAME_PLAYER_PRODUCING);
+                  mView.gotoArtFrame(this.FRAME_PLAYER_PRODUCING);
                }
                else
                {
-                  _loc1_.gotoAndStop(this.FRAME_PLAYER_CONTROL);
+                  mView.gotoArtFrame(this.FRAME_PLAYER_CONTROL);
                }
             }
             else
             {
-               _loc1_.gotoAndStop(this.FRAME_ENEMY_CONTROL);
+               mView.gotoArtFrame(this.FRAME_ENEMY_CONTROL);
                this.mFlagPole.visible = true;
             }
          }
          else
          {
             this.mFlagPole.visible = false;
-            _loc1_.gotoAndStop(this.FRAME_ENEMY_CONTROL);
+            mView.gotoArtFrame(this.FRAME_ENEMY_CONTROL);
          }
       }
       
