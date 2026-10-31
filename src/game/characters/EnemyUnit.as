@@ -1076,6 +1076,11 @@ package game.characters
          this.mActivationIconVisible = -1;
       }
       
+      public function getActivationTimeInMinutes() : int
+      {
+         return this.mActivationTimeInMinutes;
+      }
+
       public function showActivationIcon(param1:Boolean) : void
       {
          if(!mView.hasAnimations)

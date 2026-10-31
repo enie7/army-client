@@ -1,6 +1,7 @@
 package game.gameElements
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.MovieClip;
    import flash.events.Event;
    import flash.geom.Point;
@@ -84,7 +85,7 @@ package game.gameElements
             _loc1_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,"rocket");
             if(_loc1_ != null)
             {
-               mProjectile = new _loc1_();
+               mProjectile = GpuClip.make(_loc1_);
                this.addChild(mProjectile);
             }
          }
@@ -128,7 +129,7 @@ package game.gameElements
                   mProjectile.parent.removeChild(mProjectile);
                }
                _loc2_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,"effect_explosion");
-               _loc3_ = new _loc2_();
+               _loc3_ = GpuClip.make(_loc2_);
                _loc3_.x = this.mPos.x;
                _loc3_.y = this.mPos.y;
                _loc3_.scaleX = 0.25;

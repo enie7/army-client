@@ -276,6 +276,9 @@ package game.battlefield
       // world-space chunks (drawWorldChunk). Camera moves then cost no CPU
       // redraw at all; real changes bump mContentVersion instead.
       public var mGpuGround:Boolean = false;
+
+      // The visible cell range the sea wave strip was last laid out for.
+      private var mWaveKey:String = null;
       
       public var mContentVersion:int = 0;
       
@@ -520,33 +523,52 @@ package game.battlefield
          this.updateUnderCloudEnemyUnits();
          if(FeatureTuner.USE_SEA_WAVES_EFFECT)
          {
-            while(this.mWaveContainer.numChildren > 0)
+            _loc1_ = this.mMapData.getType(this.mMapData.mGridWidth - 1,this.mMapData.mGridHeight - 1);
+            var coast:Boolean = _loc1_ == MapData.TILE_TYPE_SHORE_S_1 || _loc1_ == MapData.TILE_TYPE_SHORE_S_2;
+            // The strip depends only on which cells are visible; this runs on
+            // every camera move, and rebuilding it each time made new wave
+            // clips every frame while scrolling (restarting their animation).
+            var key:String = coast ? _loc9_.left + "," + _loc9_.right : "";
+            if(key == this.mWaveKey)
             {
-               var wave:GpuClip = this.mWaveContainer.removeChildAt(0) as GpuClip;
+               return;
+            }
+            this.mWaveKey = key;
+            var count:int = 0;
+            if(coast)
+            {
+               _loc3_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Water_CoastTile");
+               _loc4_ = (_loc9_.left - _loc9_.left % 2) * this.mScene.mGridDimX;
+               while(_loc4_ < _loc9_.right * this.mScene.mGridDimX)
+               {
+                  // Reuse the clips already there (so they keep animating),
+                  // adding ones as needed.
+                  if(count < this.mWaveContainer.numChildren)
+                  {
+                     _loc2_ = this.mWaveContainer.getChildAt(count) as MovieClip;
+                  }
+                  else
+                  {
+                     // Played by the GPU timeline player when it can: as Flash
+                     // clips these animated waves were costly to build, and
+                     // the whole strip was rasterised again every frame.
+                     _loc2_ = GpuClip.make(_loc3_);
+                     this.mWaveContainer.addChild(_loc2_);
+                  }
+                  _loc2_.x = _loc4_ - _loc9_.left * this.mScene.mGridDimY;
+                  _loc4_ += this.mScene.mGridDimX * 2;
+                  count++;
+               }
+               this.mWaveContainer.y = this.mScene.mGridDimY * this.mScene.mSizeY;
+               this.mWaveContainer.x = _loc9_.left * this.mScene.mGridDimX;
+            }
+            while(this.mWaveContainer.numChildren > count)
+            {
+               var wave:GpuClip = this.mWaveContainer.removeChildAt(this.mWaveContainer.numChildren - 1) as GpuClip;
                if(wave)
                {
                   wave.dispose();
                }
-            }
-            _loc1_ = this.mMapData.getType(this.mMapData.mGridWidth - 1,this.mMapData.mGridHeight - 1);
-            if(_loc1_ == MapData.TILE_TYPE_SHORE_S_1 || _loc1_ == MapData.TILE_TYPE_SHORE_S_2)
-            {
-               _loc3_ = DCResourceManager.getInstance().getSWFClass("swf/new_backgroud_01","Water_CoastTile");
-               _loc4_ = (_loc9_.left - _loc9_.left % 2) * this.mScene.mGridDimX;
-               _loc5_ = 0;
-               while(_loc4_ < _loc9_.right * this.mScene.mGridDimX)
-               {
-                  // Played by the GPU timeline player when it can: as Flash
-                  // clips these animated waves were built afresh on every
-                  // map update, and the whole strip rasterised every frame.
-                  _loc2_ = GpuClip.make(_loc3_);
-                  _loc2_.x = _loc4_ - _loc9_.left * this.mScene.mGridDimY;
-                  this.mWaveContainer.addChild(_loc2_);
-                  _loc4_ += this.mScene.mGridDimX * 2;
-                  _loc5_++;
-               }
-               this.mWaveContainer.y = this.mScene.mGridDimY * this.mScene.mSizeY;
-               this.mWaveContainer.x = _loc9_.left * this.mScene.mGridDimX;
             }
          }
       }

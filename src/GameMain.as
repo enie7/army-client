@@ -11,6 +11,7 @@ package
    import game.isometric.elements.Element;
    import game.net.ErrorObject;
    import game.utils.FrameProfiler;
+   import game.utils.FpsCounter;
    import game.render.WorldRenderer;
    import game.render.view.GpuArt;
    import flash.desktop.NativeApplication;
@@ -58,8 +59,13 @@ package
          this.gameState = new GameState(this.mStateMachine);
          this.resetGame();
          addEventListener(Event.ENTER_FRAME,this.onEnterFrame,false,0,true);
-         stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDown,false,0,true);
-         stage.addEventListener(KeyboardEvent.KEY_UP,this.keyUp,false,0,true);
+         // In the capture phase, so no object below can stop a key from
+         // reaching the game: a lost key-up left an arrow key held, and the
+         // scene then scrolled on and ignored clicks and hovering.
+         stage.addEventListener(KeyboardEvent.KEY_DOWN,this.keyDown,true,0,true);
+         stage.addEventListener(KeyboardEvent.KEY_UP,this.keyUp,true,0,true);
+         // A key let go while another window is active never arrives here.
+         NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE,this.releaseKeys,false,0,true);
          stage.addEventListener(Event.RESIZE,this.windowResized);
          stage.addEventListener(FullScreenEvent.FULL_SCREEN,this.windowResized);
          this.discordRpc = new DiscordRpc();
@@ -68,13 +74,29 @@ package
       
       private function keyDown(param1:KeyboardEvent) : void
       {
+         // F3: frame rate overlay.
+         if(param1.keyCode == 114)
+         {
+            FpsCounter.toggle(stage);
+         }
          FrameProfiler.handleKey(param1.keyCode,param1.shiftKey,GameState.mInstance ? GameState.mInstance.mRootNode : null);
          this.gameState.keyDown(param1);
+         FrameProfiler.arrowKey(param1.keyCode,true);
       }
       
+      private function releaseKeys(param1:Event) : void
+      {
+         this.gameState.releaseScrollKeys();
+         for(var key:int = 37; key <= 40; key++)
+         {
+            FrameProfiler.arrowKey(key,false);
+         }
+      }
+
       private function keyUp(param1:KeyboardEvent) : void
       {
          this.gameState.keyUp(param1);
+         FrameProfiler.arrowKey(param1.keyCode,false);
       }
       
       private function windowResized(param1:Event) : void
@@ -99,6 +121,11 @@ package
       private function onEnterFrame(param1:Event) : void
       {
          FrameProfiler.frame(stage);
+         if(FpsCounter.showAtStart)
+         {
+            FpsCounter.showAtStart = false;
+            FpsCounter.show(stage);
+         }
          var behind:int = getTimer() - this.mGameTime;
          var steps:int = 0;
          FrameProfiler.begin("logic");

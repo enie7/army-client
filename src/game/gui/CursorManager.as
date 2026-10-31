@@ -3,6 +3,7 @@ package game.gui
    import com.dchoc.graphics.DCResourceManager;
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
+   import game.render.view.GpuClip;
    import flash.display.Sprite;
    import flash.events.Event;
    import flash.geom.Point;
@@ -154,7 +155,9 @@ package game.gui
             _loc2_ = _loc3_.getSWFClass(Config.SWF_INTERFACE_NAME,this.CURSOR_TYPE_NAMES[_loc5_]);
             if(_loc2_)
             {
-               _loc1_ = new _loc2_() as MovieClip;
+               // Drawn by the GPU timeline player: an animated cursor drawn
+               // by Flash had to be rasterised again every frame.
+               _loc1_ = GpuClip.make(_loc2_);
                _loc1_.mouseEnabled = false;
                _loc1_.mouseChildren = false;
                this.mCursors.push(_loc1_);

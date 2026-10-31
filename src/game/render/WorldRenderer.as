@@ -33,6 +33,7 @@ package game.render
    import flash.desktop.NativeApplication;
    import game.render.timeline.TimelineGallery;
    import game.render.timeline.TimelineLibrary;
+   import game.render.timeline.TimelineClip;
    import starling.core.Starling;
    import starling.display.DisplayObject;
    import starling.display.Image;
@@ -108,6 +109,9 @@ package game.render
       // Development aid: what had to be rasterised again, by kind.
       private var mMisses:Object = {};
 
+      // The scene whose art was last prewarmed (GpuArt.prewarm).
+      private var mPrewarmed:IsometricScene;
+
       private var mInput:flash.display.Sprite = new flash.display.Sprite();
 
       private var mScene:IsometricScene;
@@ -164,6 +168,7 @@ package game.render
          super();
          this.mStage = stage;
          this.mCache = new SnapshotCache(512);
+         GpuTextures.reclaim = this.reclaimTextures;
          this.mStarling = new Starling(StarlingRoot,stage,new Rectangle(0,0,stage.stageWidth,stage.stageHeight),null,"auto","auto");
          this.mStarling.addEventListener(starling.events.Event.ROOT_CREATED,this.onRootCreated);
          this.mStarling.addEventListener(starling.events.Event.FATAL_ERROR,this.onFatalError);
@@ -230,6 +235,59 @@ package game.render
          {
             sInstance.mGallery = new TimelineGallery(sInstance.mStage,sInstance.mRoot,TimelineLibrary.instance);
          }
+      }
+
+      // Development aid: a mouse move to stage coordinates, through the input
+      // layer as real mouse movement arrives.
+      public static function moveMouseTo(x:Number, y:Number) : void
+      {
+         if(sInstance == null)
+         {
+            return;
+         }
+         var local:Point = sInstance.mInput.globalToLocal(new Point(x,y));
+         sInstance.mInput.dispatchEvent(new MouseEvent(MouseEvent.MOUSE_MOVE,true,false,local.x,local.y));
+      }
+
+      // Development aid: a mouse click at stage coordinates, through the input
+      // layer as a real click arrives (press, release, click).
+      public static function clickAt(x:Number, y:Number) : void
+      {
+         if(sInstance == null)
+         {
+            return;
+         }
+         var input:flash.display.Sprite = sInstance.mInput;
+         var local:Point = input.globalToLocal(new Point(x,y));
+         for each(var type:String in [MouseEvent.MOUSE_DOWN,MouseEvent.MOUSE_UP,MouseEvent.CLICK])
+         {
+            input.dispatchEvent(new MouseEvent(type,true,false,local.x,local.y));
+         }
+      }
+
+      // Development aid: save what is on screen (the GPU stage with the Flash
+      // display list over it) as a PNG in the app storage directory.
+      public static function saveScreenshot(name:String) : void
+      {
+         saveScreenshotTo(File.applicationStorageDirectory.resolvePath(name));
+      }
+
+      public static function saveScreenshotTo(file:File) : void
+      {
+         if(sInstance == null || sInstance.mRoot == null)
+         {
+            return;
+         }
+         var stage:Stage = sInstance.mStage;
+         var shot:BitmapData = new BitmapData(stage.stageWidth,stage.stageHeight,false,0);
+         sInstance.mStarling.stage.drawToBitmapData(shot);
+         shot.draw(stage);
+         var bytes:ByteArray = shot.encode(shot.rect,new PNGEncoderOptions());
+         shot.dispose();
+         var out:FileStream = new FileStream();
+         out.open(file,FileMode.WRITE);
+         out.writeBytes(bytes);
+         out.close();
       }
 
       // Save what the gallery shows (GPU stage with the Flash layer over it),
@@ -399,7 +457,7 @@ package game.render
             return "gpu off";
          }
          var c:SnapshotCache = sInstance.mCache;
-         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, ground chunks drawn " + sInstance.mGroundDrawn + " | " + GpuArt.describe() + ", culled " + sInstance.mCulled;
+         var line:String = "presents " + sInstance.mPresents + " | gpu " + c.hits + " cached / " + c.misses + " rasterised, " + c.usedMegabytes.toFixed(0) + "MB, textures: " + c.entryCount + " looks, " + c.liveCount + " live, " + countOf(sBitmapTextures) + " bitmaps, " + TimelineClip.textTextures + " texts, " + GpuTextures.failures + " failed, ground chunks drawn " + sInstance.mGroundDrawn + " | " + GpuArt.describe() + ", culled " + sInstance.mCulled;
          sInstance.mCulled = 0;
          var rows:Array = [];
          for(var k:String in sInstance.mMisses)
@@ -494,7 +552,22 @@ package game.render
          }
          GpuArt.upload();
          FrameProfiler.begin("gpu.present");
-         this.mStarling.nextFrame();
+         // Starling makes textures of its own while drawing (filter passes);
+         // without room for them the frame fails: free what can be made
+         // again, and the next frame draws.
+         try
+         {
+            this.mStarling.nextFrame();
+         }
+         catch(e:Error)
+         {
+            if(e.errorID != 3691 || !GpuTextures.guards)
+            {
+               throw e;
+            }
+            ++GpuTextures.failures;
+            this.reclaimTextures();
+         }
          FrameProfiler.end("gpu.present");
       }
 
@@ -569,6 +642,10 @@ package game.render
             return;
          }
          this.mCache.nextFrame();
+         if(++sFrame % 60 == 0)
+         {
+            sweepBitmapTextures();
+         }
          this.attach(game,scene);
          FrameProfiler.begin("gpu.world");
          this.mirrorWorld(scene);
@@ -724,15 +801,27 @@ package game.render
          }
          this.mRoot.visible = true;
          GpuArt.setScale(scale * Starling.contentScaleFactor);
+         FrameProfiler.begin("gpu.tick");
          GpuArt.tick();
+         FrameProfiler.end("gpu.tick");
          // Both layers sit at the camera: what lies off screen is left out,
          // so Starling neither batches nor uploads it.
          this.mViewLeft = -CULL_MARGIN - scene.mContainer.x;
          this.mViewTop = -CULL_MARGIN - scene.mContainer.y;
          this.mViewRight = this.mStage.stageWidth + CULL_MARGIN - scene.mContainer.x;
          this.mViewBottom = this.mStage.stageHeight + CULL_MARGIN - scene.mContainer.y;
+         if(this.mPrewarmed != scene)
+         {
+            // A new scene (loaded save, map change): its art, at once.
+            this.mPrewarmed = scene;
+            GpuArt.prewarm();
+         }
+         FrameProfiler.begin("gpu.mirror");
          this.mirrorLayer(scene.mContainer,scene.getFloorContainer(),this.mRoot.world,this.mWorldImages,this.mWorldMotion,this.mWorldOrder,scale);
+         FrameProfiler.end("gpu.mirror");
+         FrameProfiler.begin("gpu.effects");
          this.mirrorLayer(scene.mSceneHud,null,this.mRoot.effects,this.mEffectImages,this.mEffectMotion,this.mEffectOrder,scale);
+         FrameProfiler.end("gpu.effects");
       }
 
       // Mirror the children of a world-space Flash layer into `layer`, in order:
@@ -778,10 +867,24 @@ package game.render
                order[used] = gpu;
                motions[used] = motion;
                ++used;
-               // Only the art's placeholder left in the container (or only
-               // stand-ins, for a group): done.
-               if((child as DisplayObjectContainer).numChildren <= 1 || gpu is starling.display.Sprite && sGroups[child] == gpu)
+               // A group: done. A GPU-drawn object: done too when only its art's
+               // placeholder is left in the container, or when what else is
+               // there (popups and the like) can be drawn as a group.
+               if(gpu is starling.display.Sprite && sGroups[child] == gpu || (child as DisplayObjectContainer).numChildren <= 1)
                {
+                  continue;
+               }
+               var overlays:starling.display.Sprite = overlayGroupOf(child as DisplayObjectContainer);
+               if(overlays)
+               {
+                  overlays.scaleX = child.scaleX * scale;
+                  overlays.scaleY = child.scaleY * scale;
+                  overlays.rotation = child.rotation * DEG_TO_RAD;
+                  overlays.alpha = child.alpha;
+                  overlays.visible = true;
+                  order[used] = overlays;
+                  motions[used] = motion;
+                  ++used;
                   continue;
                }
             }
@@ -880,25 +983,107 @@ package game.render
          return name;
       }
 
-      // GPU groups: plain Flash containers holding only stand-ins (GpuClip),
-      // e.g. the sea wave strip. Drawn as their clips, laid out like the
-      // stand-ins; null for other containers.
+      // GPU groups: Flash containers whose contents the GPU can draw as
+      // they are (stand-ins for GPU clips, bitmaps, and plain sprites holding
+      // such), e.g. projectiles, loot pop-ups, the sea wave strip. Drawn as a
+      // Starling sprite laid out like the Flash children, every frame; null
+      // for anything else, which is snapshotted.
       private static var sGroups:Dictionary = new Dictionary(true);
+
+      private static var sBitmapImages:Dictionary = new Dictionary(true);
+
+      // Texture per BitmapData, held strongly so it can be disposed: icons are
+      // loaded anew for each piece of loot, and a texture whose bitmap had
+      // been collected stayed on the GPU until the Stage3D limit was hit.
+      private static var sBitmapTextures:Dictionary = new Dictionary();
+
+      private static var sBitmapUsed:Dictionary = new Dictionary();
+
+      private static var sFrame:int = 0;
+
+      private static function countOf(table:Dictionary) : int
+      {
+         var n:int = 0;
+         for(var key:Object in table)
+         {
+            ++n;
+         }
+         return n;
+      }
+
+      // Out of GPU textures: free all that can be made again.
+      private function reclaimTextures() : void
+      {
+         this.mCache.reclaim();
+         for(var data:Object in sBitmapTextures)
+         {
+            if(int(sBitmapUsed[data]) < sFrame)
+            {
+               Texture(sBitmapTextures[data]).dispose();
+               delete sBitmapTextures[data];
+               delete sBitmapUsed[data];
+            }
+         }
+      }
+
+      // Free the textures of bitmaps not drawn for a while.
+      private static function sweepBitmapTextures() : void
+      {
+         for(var data:Object in sBitmapTextures)
+         {
+            if(sFrame - int(sBitmapUsed[data]) > 80)
+            {
+               Texture(sBitmapTextures[data]).dispose();
+               delete sBitmapTextures[data];
+               delete sBitmapUsed[data];
+            }
+         }
+      }
 
       private static function gpuGroupOf(child:flash.display.DisplayObject) : starling.display.Sprite
       {
          var c:DisplayObjectContainer = child as DisplayObjectContainer;
-         if(c == null || c is DisplayContainer || c is GpuClip || c.numChildren == 0)
+         if(c == null || c is DisplayContainer || c is GpuClip || !groupable(c,0))
          {
             return null;
          }
-         for(var i:int = 0; i < c.numChildren; i++)
+         return syncGroup(c,0);
+      }
+
+      // The overlays of a GPU-drawn object's container (everything after the
+      // art's placeholder at index 0), as a group; null if any needs Flash.
+      private static function overlayGroupOf(container:DisplayObjectContainer) : starling.display.Sprite
+      {
+         return groupable(container,1) ? syncGroup(container,1) : null;
+      }
+
+      private static function groupable(c:DisplayObjectContainer, from:int) : Boolean
+      {
+         if(c.numChildren <= from)
          {
-            if(!(c.getChildAt(i) is GpuClip))
-            {
-               return null;
-            }
+            return from == 0 ? false : true;
          }
+         for(var i:int = from; i < c.numChildren; i++)
+         {
+            var d:flash.display.DisplayObject = c.getChildAt(i);
+            if(d is GpuClip || d is Bitmap)
+            {
+               continue;
+            }
+            var inner:DisplayObjectContainer = d as DisplayObjectContainer;
+            // Plain containers only: art (a MovieClip with a timeline) draws
+            // itself, and must be snapshotted.
+            if(inner && !(inner is DisplayContainer) && !(inner is MovieClip && MovieClip(inner).totalFrames > 1) && (inner.numChildren == 0 || groupable(inner,0)))
+            {
+               continue;
+            }
+            return false;
+         }
+         return true;
+      }
+
+      private static function syncGroup(c:DisplayObjectContainer, from:int) : starling.display.Sprite
+      {
          var group:starling.display.Sprite = sGroups[c];
          if(group == null)
          {
@@ -907,22 +1092,62 @@ package game.render
             sGroups[c] = group;
          }
          group.removeChildren();
-         for(i = 0; i < c.numChildren; i++)
+         for(var i:int = from; i < c.numChildren; i++)
          {
-            var stand:GpuClip = GpuClip(c.getChildAt(i));
-            var node:starling.display.DisplayObject = stand.gpuNode;
-            if(node && stand.visible)
+            var d:flash.display.DisplayObject = c.getChildAt(i);
+            if(!d.visible || d.alpha <= 0)
             {
-               node.x = stand.x;
-               node.y = stand.y;
-               node.scaleX = stand.scaleX;
-               node.scaleY = stand.scaleY;
-               node.rotation = stand.rotation * DEG_TO_RAD;
-               node.alpha = stand.alpha;
+               continue;
+            }
+            var node:starling.display.DisplayObject;
+            if(d is GpuClip)
+            {
+               node = GpuClip(d).gpuNode;
+            }
+            else if(d is Bitmap)
+            {
+               node = imageOf(Bitmap(d));
+            }
+            else
+            {
+               node = syncGroup(d as DisplayObjectContainer,0);
+            }
+            if(node)
+            {
+               node.transformationMatrix = d.transform.matrix;
+               node.alpha = d.alpha;
                group.addChild(node);
             }
          }
          return group;
+      }
+
+      private static function imageOf(bitmap:Bitmap) : Image
+      {
+         var data:BitmapData = bitmap.bitmapData;
+         if(data == null)
+         {
+            return null;
+         }
+         var texture:Texture = sBitmapTextures[data];
+         if(texture == null)
+         {
+            texture = GpuTextures.fromBitmapData(data);
+            if(texture == null)
+            {
+               return null;
+            }
+            sBitmapTextures[data] = texture;
+         }
+         sBitmapUsed[data] = sFrame;
+         var image:Image = sBitmapImages[bitmap];
+         if(image == null || image.texture != texture)
+         {
+            image = new Image(texture);
+            image.touchable = false;
+            sBitmapImages[bitmap] = image;
+         }
+         return image;
       }
 
       // Whether art with `bounds` (in the container's coordinates; null when

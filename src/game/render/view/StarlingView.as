@@ -111,6 +111,39 @@ package game.render.view
          return out;
       }
 
+      // The symbols this view can show: its static art's, or every
+      // animation state's (for GpuArt.prewarm).
+      public function get symbols() : Array
+      {
+         var out:Array = [];
+         if(this.mGpuAnimations)
+         {
+            for(var i:int = 0; i < mAnimations.animationCount; i++)
+            {
+               out.push(mAnimations.symbolAt(i));
+            }
+         }
+         else if(this.mSource)
+         {
+            var walk:Function = function(d:flash.display.DisplayObject):void
+            {
+               var name:String = symbolName(d);
+               if(GpuArt.library.hasSymbol(name))
+               {
+                  out.push(name);
+                  return;
+               }
+               var c:DisplayObjectContainer = d as DisplayObjectContainer;
+               for(var j:int = 0; c && j < c.numChildren; j++)
+               {
+                  walk(c.getChildAt(j));
+               }
+            };
+            walk(this.mSource);
+         }
+         return out;
+      }
+
       private function get onGpu() : Boolean
       {
          return this.mSource != null || this.mGpuAnimations;
@@ -746,6 +779,24 @@ package game.render.view
       {
          if(this.mNode == null)
          {
+            // Not on screen yet, but states may already have been built (hint
+            // text is set while the map loads): drop them, they are built
+            // again from the new atlas when needed. Otherwise they kept the
+            // old atlas's disposed textures and drew nothing.
+            if(this.mGpuAnimations)
+            {
+               for each(var built:starling.display.DisplayObject in this.mAnimNodes)
+               {
+                  if(built)
+                  {
+                     built.dispose();
+                  }
+               }
+               this.mAnimNodes = [];
+               this.mAnimClips = [];
+               this.mAnimBuiltFrom = [];
+               this.mPlaceholderDirty = true;
+            }
             return;
          }
          var clips:Vector.<TimelineClip> = this.mGpuAnimations ? this.currentClips() : this.mClips;

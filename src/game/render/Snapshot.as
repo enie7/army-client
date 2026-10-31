@@ -1,5 +1,6 @@
 package game.render
 {
+   import flash.display.BitmapData;
    import starling.textures.Texture;
 
    // One rasterised look in SnapshotCache: a texture plus the offset of its
@@ -18,12 +19,20 @@ package game.render
 
       public var lastUsed:int;
 
+      // Live snapshots (SnapshotCache): the buffer drawn into, kept for reuse.
+      public var bitmap:BitmapData;
+
       public function dispose() : void
       {
          if(this.texture)
          {
             this.texture.dispose();
             this.texture = null;
+         }
+         if(this.bitmap)
+         {
+            this.bitmap.dispose();
+            this.bitmap = null;
          }
       }
    }

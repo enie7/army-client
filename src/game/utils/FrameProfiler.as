@@ -1,12 +1,15 @@
 package game.utils
 {
    import flash.desktop.NativeApplication;
+   import game.render.GpuTextures;
+   import game.render.view.GpuArt;
    import flash.display.Bitmap;
    import flash.display.BitmapData;
    import flash.display.DisplayObject;
    import flash.display.DisplayObjectContainer;
    import flash.display.MovieClip;
    import flash.display.Stage;
+   import flash.events.UncaughtErrorEvent;
    import flash.events.Event;
    import flash.events.InvokeEvent;
    import flash.filesystem.File;
@@ -28,11 +31,17 @@ package game.utils
    import flash.utils.getQualifiedClassName;
    import flash.utils.getTimer;
    import game.render.WorldRenderer;
+   import game.utils.OfflineSave;
+   import flash.events.TimerEvent;
+   import flash.utils.Timer;
+   import flash.text.TextFormat;
+   import flash.text.TextField;
    import game.render.timeline.TimelineClip;
    import game.gui.PauseDialog;
    import game.isometric.GridCell;
    import game.isometric.characters.IsometricCharacter;
    import game.states.GameState;
+   import game.gui.popups.PopUpManager;
 
    // Development aid: per-frame timing of named sections, summarised with
    // trace() and to <app storage>/profile.log every few seconds. Active in a
@@ -98,6 +107,7 @@ package game.utils
          if(sConstructedTime > 0)
          {
             sScripts += sExitTime - sConstructedTime;
+            sFrameScripts = sExitTime - sConstructedTime;
          }
       }
 
@@ -109,6 +119,7 @@ package game.utils
          if(sEnterDone > 0)
          {
             sConstruct += sConstructedTime - sEnterDone;
+            sFrameConstruct = sConstructedTime - sEnterDone;
          }
       }
 
@@ -119,6 +130,7 @@ package game.utils
          {
             sEnterDone = getTimer();
             sHandlers += sEnterDone - sLastFrame;
+            sFrameHandlers = sEnterDone - sLastFrame;
          }
       }
 
@@ -133,6 +145,11 @@ package game.utils
          // (debugger runtime only; same as Shift+A, for when keys don't reach adl).
          for each(var arg:String in event.arguments)
          {
+            // --fps: show the frame rate overlay (F3) from the start.
+            if(arg == "--fps")
+            {
+               FpsCounter.showAtStart = true;
+            }
             if(arg.indexOf("--alloc-sample=") == 0)
             {
                sAllocAt = getTimer() + int(arg.substr(15)) * 1000;
@@ -167,9 +184,69 @@ package game.utils
             {
                TimelineClip.masksOff = true;
             }
+            if(arg.indexOf("--autoshot=") == 0)
+            {
+               PauseDialog.autoshotSeconds = int(arg.substr(11));
+            }
+            if(arg == "--autoplay")
+            {
+               PauseDialog.autoplay = true;
+            }
+            if(arg.indexOf("--autohover=") == 0)
+            {
+               PauseDialog.autohoverSeconds = int(arg.substr(12));
+            }
+            if(arg.indexOf("--autoclick=") == 0)
+            {
+               PauseDialog.autoclickSeconds = int(arg.substr(12));
+            }
+            if(arg.indexOf("--autobug=") == 0)
+            {
+               PauseDialog.autobugSeconds = int(arg.substr(10));
+            }
+            if(arg == "--autopan")
+            {
+               PauseDialog.autopan = true;
+            }
             if(arg == "--autokey")
             {
                PauseDialog.autokey = true;
+            }
+            if(arg.indexOf("--leak-textures=") == 0)
+            {
+               PauseDialog.leakTexturesSeconds = int(arg.substr(16));
+            }
+            if(arg.indexOf("--compare-scale=") == 0)
+            {
+               PauseDialog.compareScale = Number(arg.substr(16));
+            }
+            else if(arg.indexOf("--compare=") == 0)
+            {
+               PauseDialog.compareSymbol = arg.substr(10);
+            }
+            if(arg == "--hide-hud")
+            {
+               PauseDialog.hideHud = true;
+            }
+            if(arg == "--texture-probe")
+            {
+               PauseDialog.textureProbe = true;
+            }
+            if(arg == "--no-texture-guards")
+            {
+               GpuTextures.guards = false;
+            }
+            if(arg == "--autoloot")
+            {
+               PauseDialog.autoloot = true;
+            }
+            if(arg == "--autowork")
+            {
+               PauseDialog.autowork = true;
+            }
+            if(arg.indexOf("--autoplace=") == 0)
+            {
+               PauseDialog.autoplace = arg.substr(12);
             }
             if(arg == "--gallery-hold")
             {
@@ -182,6 +259,111 @@ package game.utils
             sLog = new FileStream();
             sLog.open(file,FileMode.WRITE);
             log("profiling to " + file.nativePath + " (debugger=" + Capabilities.isDebugger + ")");
+            // Errors nothing catches would otherwise vanish in the release
+            // runtime: log them (with the stack, in the debugger).
+            var main:DisplayObject = NativeApplication.nativeApplication.openedWindows.length ? NativeApplication.nativeApplication.openedWindows[0].stage.getChildAt(0) : null;
+            if(main && main.loaderInfo)
+            {
+               main.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR,onUncaughtError);
+            }
+         }
+      }
+
+      private static var sBugReports:int = 0;
+
+      // Everything needed to look at a moment the player says is broken, in
+      // Documents/ArmyAttack/bug-reports/: a screenshot, the game saved as it
+      // is (loadable with the load picker or --autoload), and in the profile
+      // log a marker with the world census and the playing clips, to line up
+      // with the frame timings around it.
+      // What gates arrow-key and mouse scrolling right now.
+      private static function describeInput() : String
+      {
+         var game:GameState = GameState.mInstance;
+         if(game == null || game.mScene == null)
+         {
+            return "input: no scene";
+         }
+         var sc:Object = game.mScene;
+         return "input: keys up " + sc.mUpPressed + " down " + sc.mDownPressed + " left " + sc.mLeftPressed + " right " + sc.mRightPressed + " anyKey " + sc.mAnyScrollKeyPressed + " | state " + game.mState + " modal " + PopUpManager.isModalPopupActive() + " current " + game.mCurrentAction + " queue " + game.mMainActionQueue.mActions.length + " | " + game.mScene.describeScrollState();
+      }
+
+      private static var sArrowsDown:Object = {};
+
+      // Logs arrow presses and releases (not key repeats) with what gates
+      // scrolling, to follow a scroll that does not happen.
+      public static function arrowKey(keyCode:int, down:Boolean) : void
+      {
+         if(!ENABLED || keyCode < 37 || keyCode > 40 || Boolean(sArrowsDown[keyCode]) == down)
+         {
+            return;
+         }
+         sArrowsDown[keyCode] = down;
+         mark("arrow " + keyCode + (down ? " down " : " up ") + describeInput());
+      }
+
+      public static function bugReport(stage:Stage) : void
+      {
+         var n:int = ++sBugReports;
+         var stamp:String = new Date().getTime().toString();
+         var dir:File = File.documentsDirectory.resolvePath("ArmyAttack/bug-reports");
+         dir.createDirectory();
+         var base:String = "bug-" + stamp + "-" + n;
+         mark("BUG REPORT " + n + ": " + dir.nativePath + "/" + base);
+         try
+         {
+            WorldRenderer.saveScreenshotTo(dir.resolvePath(base + ".png"));
+         }
+         catch(e:Error)
+         {
+            log("  screenshot failed: " + e);
+         }
+         try
+         {
+            var save:FileStream = new FileStream();
+            save.open(dir.resolvePath(base + ".sav"),FileMode.WRITE);
+            save.writeUTFBytes(JSON.stringify(OfflineSave.generateSaveJson()));
+            save.close();
+         }
+         catch(e:Error)
+         {
+            log("  save failed: " + e);
+         }
+         try
+         {
+            mark(WorldRenderer.describeWorld());
+            mark(GpuArt.atlas ? GpuArt.atlas.describeRoots() : "no atlas");
+            mark(describeInput());
+            if(stage)
+            {
+               listPlaying(stage);
+            }
+         }
+         catch(e:Error)
+         {
+            log("  census failed: " + e);
+         }
+         if(stage)
+         {
+            var note:TextField = new TextField();
+            note.defaultTextFormat = new TextFormat("_sans",14,0xffffff,true);
+            note.background = true;
+            note.backgroundColor = 0xaa0000;
+            note.autoSize = "left";
+            note.mouseEnabled = false;
+            note.text = " Bug report " + n + " saved ";
+            note.x = 10;
+            note.y = stage.stageHeight - 40;
+            stage.addChild(note);
+            var hide:Timer = new Timer(2000,1);
+            hide.addEventListener(TimerEvent.TIMER,function(event:TimerEvent):void
+            {
+               if(note.parent)
+               {
+                  note.parent.removeChild(note);
+               }
+            });
+            hide.start();
          }
       }
 
@@ -190,6 +372,18 @@ package game.utils
       public static function mark(text:String) : void
       {
          log("== " + text + " at " + getTimer() + "ms");
+      }
+
+      private static var sUncaught:int = 0;
+
+      private static function onUncaughtError(event:UncaughtErrorEvent) : void
+      {
+         // The first few in full, then a count: they tend to repeat per frame.
+         if(++sUncaught <= 5 || sUncaught % 200 == 0)
+         {
+            var error:Error = event.error as Error;
+            log("UNCAUGHT ERROR #" + sUncaught + ": " + (error ? error + (error.getStackTrace() ? "\n" + error.getStackTrace() : "") : event.error));
+         }
       }
 
       private static function log(line:String) : void
@@ -208,6 +402,26 @@ package game.utils
       private static var sLastFrame:int = 0;
       private static var sFrameTotal:int = 0;
       private static var sFrameMax:int = 0;
+
+      // Frames over budget (40 fps = 25ms), and per frame what it spent:
+      // logged as "hitch" lines so long frames can be told apart.
+      private static const BUDGET_MS:int = 27;
+
+      private static var sOver25:int = 0;
+
+      private static var sOver33:int = 0;
+
+      private static var sOver50:int = 0;
+
+      private static var sFrameNamed:Object = {};
+
+      private static var sFrameHandlers:int = 0;
+
+      private static var sFrameConstruct:int = 0;
+
+      private static var sFrameScripts:int = 0;
+
+      private static var sHitchLines:int = 0;
       private static var sReportStart:int = 0;
 
       private static var sLayerRoot:DisplayObjectContainer;
@@ -229,7 +443,9 @@ package game.utils
       {
          if(ENABLED && sStarts[name] != undefined)
          {
-            sTotals[name] = int(sTotals[name]) + getTimer() - sStarts[name];
+            var spent:int = getTimer() - sStarts[name];
+            sTotals[name] = int(sTotals[name]) + spent;
+            sFrameNamed[name] = int(sFrameNamed[name]) + spent;
             sCalls[name] = int(sCalls[name]) + 1;
             delete sStarts[name];
          }
@@ -237,6 +453,12 @@ package game.utils
 
       public static function handleKey(keyCode:uint, shiftKey:Boolean, root:DisplayObjectContainer) : void
       {
+         // Shift+B: bug report (screenshot, save, census) for "this looks broken".
+         if(ENABLED && shiftKey && keyCode == Keyboard.B)
+         {
+            bugReport(root ? root.stage : null);
+            return;
+         }
          // Shift+R outlines what the renderer repaints each frame (debugger only).
          if(ENABLED && shiftKey && keyCode == Keyboard.R && Capabilities.isDebugger)
          {
@@ -696,6 +918,34 @@ package game.utils
          }
          sLastFrame = now;
          var heap:Number = System.totalMemoryNumber;
+         var collected:Boolean = sLastHeap > 0 && heap < sLastHeap;
+         if(interval > 25)
+         {
+            ++sOver25;
+         }
+         if(interval > 33)
+         {
+            ++sOver33;
+         }
+         if(interval > 50)
+         {
+            ++sOver50;
+         }
+         if(interval > BUDGET_MS && sHitchLines < 20)
+         {
+            ++sHitchLines;
+            var hitch:String = "hitch " + interval + "ms: our ENTER_FRAME " + sFrameHandlers + " | timelines " + sFrameConstruct + " | scripts " + sFrameScripts + " | render+idle " + (sExitTime > 0 ? now - sExitTime : 0) + (collected ? " | GC" : "");
+            for(var n:String in sFrameNamed)
+            {
+               if(sFrameNamed[n] > 0)
+               {
+                  hitch += " | " + n + " " + sFrameNamed[n];
+               }
+            }
+            log(hitch);
+         }
+         sFrameNamed = {};
+         sFrameHandlers = sFrameConstruct = sFrameScripts = 0;
          if(sLastHeap > 0)
          {
             if(heap < sLastHeap)
@@ -752,7 +1002,8 @@ package game.utils
          if(now - sReportStart >= REPORT_MS && sFrames > 0)
          {
             var line:String = "fps " + (1000 * sFrames / (now - sReportStart)).toFixed(1) +
-               " | frame avg " + (sFrameTotal / sFrames).toFixed(1) + "ms max " + sFrameMax + "ms";
+               " | frame avg " + (sFrameTotal / sFrames).toFixed(1) + "ms max " + sFrameMax + "ms" +
+               " over 25/33/50ms " + sOver25 + "/" + sOver33 + "/" + sOver50;
             var script:Number = 0;
             for(var name:String in sTotals)
             {
@@ -777,6 +1028,8 @@ package game.utils
             sFrames = 0;
             sFrameTotal = 0;
             sFrameMax = 0;
+            sOver25 = sOver33 = sOver50 = 0;
+            sHitchLines = 0;
             sReportStart = now;
          }
       }

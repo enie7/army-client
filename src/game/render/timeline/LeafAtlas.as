@@ -1,6 +1,7 @@
 package game.render.timeline
 {
    import flash.display.BitmapData;
+   import game.render.GpuTextures;
    import flash.display.DisplayObject;
    import flash.display.DisplayObjectContainer;
    import flash.display.MovieClip;
@@ -8,6 +9,11 @@ package game.render.timeline
    import flash.display.StageQuality;
    import flash.geom.Matrix;
    import flash.geom.Rectangle;
+   import flash.geom.Point;
+   import flash.geom.ColorTransform;
+   import flash.filters.BitmapFilter;
+   import flash.filters.GlowFilter;
+   import flash.filters.BlurFilter;
    import flash.text.TextField;
    import flash.utils.getDefinitionByName;
    import game.utils.TimelinePauser;
@@ -174,6 +180,38 @@ package game.render.timeline
          return node;
       }
 
+      // Development aid: the cached art roots, and clips playing inside them.
+      public function describeRoots() : String
+      {
+         var roots:int = 0;
+         var playing:Array = [];
+         for(var name:String in this.mRoots)
+         {
+            ++roots;
+            collectPlaying(this.mRoots[name],name,playing);
+         }
+         return "atlas roots: " + roots + ", playing inside: " + playing.length + (playing.length ? " e.g. " + playing.slice(0,6).join(", ") : "");
+      }
+
+      private static function collectPlaying(o:DisplayObject, path:String, out:Array) : void
+      {
+         if(o == null)
+         {
+            return;
+         }
+         var mc:MovieClip = o as MovieClip;
+         if(mc && mc.isPlaying && mc.totalFrames > 1)
+         {
+            out.push(path + " (" + mc.currentFrame + "/" + mc.totalFrames + ")");
+         }
+         var c:DisplayObjectContainer = o as DisplayObjectContainer;
+         for(var i:int = 0; c && i < c.numChildren; i++)
+         {
+            var child:DisplayObject = c.getChildAt(i);
+            collectPlaying(child,path + "/" + (child ? child.name : "null"),out);
+         }
+      }
+
       private static function stopTree(o:DisplayObject) : void
       {
          var mc:MovieClip = o as MovieClip;
@@ -188,25 +226,246 @@ package game.render.timeline
          }
       }
 
-      private function rasterise(source:DisplayObject) : Leaf
+      private var mFiltered:Object = {};
+
+      // The leaf drawn with Flash filters applied (as the timeline placing
+      // it filters it), keyed by `key` (the filter settings): Flash's own
+      // glow, e.g. a strong one as a hard outline, which Starling's glow
+      // (no strength) cannot draw. Null if it cannot be drawn so.
+      public function getFiltered(id:int, filters:Array, key:String) : Leaf
+      {
+         var cacheKey:String = id + "|" + key;
+         if(cacheKey in this.mFiltered)
+         {
+            return this.mFiltered[cacheKey];
+         }
+         var made:Array = [];
+         var pad:int = 2;
+         for each(var f:Object in filters)
+         {
+            if(f.type == "glow")
+            {
+               made.push(new flash.filters.GlowFilter(f.color,f.alpha,f.blurX,f.blurY,f.strength,f.quality || 1,f.inner,f.knockout));
+            }
+            else if(f.type == "blur")
+            {
+               made.push(new flash.filters.BlurFilter(f.blurX,f.blurY,f.quality || 1));
+            }
+            else
+            {
+               made = null;
+               break;
+            }
+            pad += Math.ceil(Math.max(f.blurX,f.blurY));
+         }
+         var leaf:Leaf = null;
+         var source:DisplayObject = made && made.length ? this.find(id) : null;
+         if(source)
+         {
+            leaf = this.rasterise(source,made,pad);
+         }
+         this.mFiltered[cacheKey] = leaf;
+         return leaf;
+      }
+
+      // A static sprite (one frame of shapes, no text or masks) drawn as one
+      // leaf with Flash filters applied, keyed like getFiltered: composited
+      // from its shapes' rasters, then filtered. Null if it is not static.
+      public function getFilteredSprite(id:int, filters:Array, key:String) : Leaf
+      {
+         var cacheKey:String = "s" + id + "|" + key;
+         if(cacheKey in this.mFiltered)
+         {
+            return this.mFiltered[cacheKey];
+         }
+         this.mFiltered[cacheKey] = null;
+         var pad:int = 2;
+         var made:Array = flashFilters(filters);
+         for each(var f:Object in filters)
+         {
+            pad += Math.ceil(Math.max(f.blurX,f.blurY));
+         }
+         var parts:Array = [];
+         if(made == null || !this.collectStatic(id,new Matrix(),null,parts,0) || parts.length == 0)
+         {
+            return null;
+         }
+         var minX:Number = Number.MAX_VALUE;
+         var minY:Number = Number.MAX_VALUE;
+         var maxX:Number = -Number.MAX_VALUE;
+         var maxY:Number = -Number.MAX_VALUE;
+         for each(var part:Object in parts)
+         {
+            var leaf:Leaf = part.leaf;
+            var r:Rectangle = new Rectangle(leaf.offsetX,leaf.offsetY,leaf.region.width / this.mScale,leaf.region.height / this.mScale);
+            var m:Matrix = part.m;
+            for each(var corner:Point in [r.topLeft,new Point(r.right,r.top),new Point(r.left,r.bottom),r.bottomRight])
+            {
+               var p:Point = m.transformPoint(corner);
+               minX = Math.min(minX,p.x);
+               minY = Math.min(minY,p.y);
+               maxX = Math.max(maxX,p.x);
+               maxY = Math.max(maxY,p.y);
+            }
+         }
+         var x0:Number = Math.floor(minX * this.mScale) - 1 - pad;
+         var y0:Number = Math.floor(minY * this.mScale) - 1 - pad;
+         var w:int = Math.ceil(maxX * this.mScale) + 1 + pad - x0;
+         var h:int = Math.ceil(maxY * this.mScale) + 1 + pad - y0;
+         if(w > PAGE_SIZE - 2 * PADDING || h > PAGE_SIZE - 2 * PADDING)
+         {
+            return null;
+         }
+         var tmp:BitmapData = new BitmapData(w,h,true,0);
+         for each(part in parts)
+         {
+            leaf = part.leaf;
+            var src:BitmapData = new BitmapData(leaf.region.width,leaf.region.height,true,0);
+            src.copyPixels(leaf.page.bitmap,leaf.region,new Point(0,0));
+            // Raster pixels -> art units -> through the placements -> pixels.
+            var dm:Matrix = new Matrix(1 / this.mScale,0,0,1 / this.mScale,leaf.offsetX,leaf.offsetY);
+            dm.concat(part.m);
+            dm.concat(new Matrix(this.mScale,0,0,this.mScale,-x0,-y0));
+            tmp.draw(src,dm,part.ct,null,null,true);
+            src.dispose();
+         }
+         for each(var filter:flash.filters.BitmapFilter in made)
+         {
+            tmp.applyFilter(tmp,tmp.rect,new Point(0,0),filter);
+         }
+         var slot:Rectangle = this.allocate(w,h);
+         var page:Page = this.mPages[int(slot.width)];
+         page.bitmap.copyPixels(tmp,tmp.rect,new Point(slot.x,slot.y));
+         tmp.dispose();
+         page.dirty = true;
+         var baked:Leaf = new Leaf();
+         baked.page = page;
+         baked.region = new Rectangle(slot.x,slot.y,w,h);
+         baked.offsetX = x0 / this.mScale;
+         baked.offsetY = y0 / this.mScale;
+         ++this.rasterised;
+         this.mFiltered[cacheKey] = baked;
+         return baked;
+      }
+
+      // The shapes of sprite `id`'s only frame, in drawing order, with their
+      // matrix and colour transform to the sprite; false if it is not static.
+      private function collectStatic(id:int, m:Matrix, ct:ColorTransform, out:Array, depth:int) : Boolean
+      {
+         var def:SpriteDef = depth < 8 ? this.mLibrary.sprite(id) : null;
+         if(def == null || def.totalFrames != 1)
+         {
+            return false;
+         }
+         var ops:Array = [];
+         for each(var op:PlaceOp in def.ops[0])
+         {
+            if(!op.remove && op.character >= 0)
+            {
+               ops.push(op);
+            }
+         }
+         ops.sortOn("depth",Array.NUMERIC);
+         for each(op in ops)
+         {
+            if(op.clipDepth > 0 || op.filters || op.blendMode && op.blendMode != "normal" || op.hasVisible && !op.visible)
+            {
+               return false;
+            }
+            var cm:Matrix = op.matrix ? op.matrix.clone() : new Matrix();
+            cm.concat(m);
+            var cct:ColorTransform = null;
+            if(op.color)
+            {
+               var c:Array = op.color;
+               cct = new ColorTransform(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7]);
+            }
+            if(ct)
+            {
+               if(cct == null)
+               {
+                  cct = new ColorTransform();
+               }
+               cct.concat(ct);
+            }
+            if(this.mLibrary.isSprite(op.character))
+            {
+               if(!this.collectStatic(op.character,cm,cct,out,depth + 1))
+               {
+                  return false;
+               }
+               continue;
+            }
+            var info:Object = this.mLibrary.leaf(op.character);
+            if(info == null || info.kind == "edittext")
+            {
+               return false;
+            }
+            var leaf:Leaf = this.get(op.character);
+            if(leaf)
+            {
+               out.push({"leaf":leaf,"m":cm,"ct":cct});
+            }
+         }
+         return true;
+      }
+
+      private static function flashFilters(filters:Array) : Array
+      {
+         var made:Array = [];
+         for each(var f:Object in filters)
+         {
+            if(f.type == "glow")
+            {
+               made.push(new flash.filters.GlowFilter(f.color,f.alpha,f.blurX,f.blurY,f.strength,f.quality || 1,f.inner,f.knockout));
+            }
+            else if(f.type == "blur")
+            {
+               made.push(new flash.filters.BlurFilter(f.blurX,f.blurY,f.quality || 1));
+            }
+            else
+            {
+               return null;
+            }
+         }
+         return made.length ? made : null;
+      }
+
+      private function rasterise(source:DisplayObject, filters:Array = null, pad:int = 0) : Leaf
       {
          var bounds:Rectangle = source.getBounds(source);
          if(bounds.width <= 0 || bounds.height <= 0)
          {
             return null;
          }
-         var x0:Number = Math.floor(bounds.x * this.mScale) - 1;
-         var y0:Number = Math.floor(bounds.y * this.mScale) - 1;
-         var w:int = Math.ceil(bounds.right * this.mScale) + 1 - x0;
-         var h:int = Math.ceil(bounds.bottom * this.mScale) + 1 - y0;
+         // Filters are in screen pixels in Flash (not scaled with the art).
+         var x0:Number = Math.floor(bounds.x * this.mScale) - 1 - pad;
+         var y0:Number = Math.floor(bounds.y * this.mScale) - 1 - pad;
+         var w:int = Math.ceil(bounds.right * this.mScale) + 1 + pad - x0;
+         var h:int = Math.ceil(bounds.bottom * this.mScale) + 1 + pad - y0;
          if(w > PAGE_SIZE - 2 * PADDING || h > PAGE_SIZE - 2 * PADDING)
          {
             return null;
          }
          var slot:Rectangle = this.allocate(w,h);
          var page:Page = this.mPages[int(slot.width)];
-         this.mMatrix.setTo(this.mScale,0,0,this.mScale,slot.x - x0,slot.y - y0);
-         page.bitmap.drawWithQuality(source,this.mMatrix,null,null,new Rectangle(slot.x,slot.y,w,h),true,StageQuality.HIGH_16X16);
+         if(filters)
+         {
+            var tmp:BitmapData = new BitmapData(w,h,true,0);
+            this.mMatrix.setTo(this.mScale,0,0,this.mScale,-x0,-y0);
+            tmp.drawWithQuality(source,this.mMatrix,null,null,null,true,StageQuality.HIGH_16X16);
+            for each(var filter:flash.filters.BitmapFilter in filters)
+            {
+               tmp.applyFilter(tmp,tmp.rect,new Point(0,0),filter);
+            }
+            page.bitmap.copyPixels(tmp,tmp.rect,new Point(slot.x,slot.y));
+            tmp.dispose();
+         }
+         else
+         {
+            this.mMatrix.setTo(this.mScale,0,0,this.mScale,slot.x - x0,slot.y - y0);
+            page.bitmap.drawWithQuality(source,this.mMatrix,null,null,new Rectangle(slot.x,slot.y,w,h),true,StageQuality.HIGH_16X16);
+         }
          page.dirty = true;
          var leaf:Leaf = new Leaf();
          leaf.page = page;
@@ -247,14 +506,21 @@ package game.render.timeline
       {
          if(!(id in this.mTextFields))
          {
-            this.mTextFields[id] = this.find(id) as TextField;
+            var tf:TextField = this.find(id) as TextField;
+            // Kept on its own (it is drawn with other text later), so it does
+            // not keep the art it was found in alive.
+            if(tf && tf.parent)
+            {
+               tf.parent.removeChild(tf);
+            }
+            this.mTextFields[id] = tf;
          }
          return this.mTextFields[id];
       }
 
       // Dynamic text: the text leaf drawn with other text, as its own
       // texture {texture, offsetX, offsetY} (art units), or null if empty.
-      public function drawText(id:int, text:String) : Object
+      public function drawText(id:int, text:String, autoSize:String = null) : Object
       {
          ++textDraws;
          var tf:TextField = this.textField(id);
@@ -264,6 +530,13 @@ package game.render.timeline
          }
          this.authoredText(id);
          var old:String = tf.text;
+         var oldAutoSize:String = tf.autoSize;
+         var oldX:Number = tf.x;
+         var oldWidth:Number = tf.width;
+         if(autoSize)
+         {
+            tf.autoSize = autoSize;
+         }
          tf.text = text;
          var bounds:Rectangle = tf.getBounds(tf);
          var out:Object = null;
@@ -276,14 +549,26 @@ package game.render.timeline
             var bmp:BitmapData = new BitmapData(w,h,true,0);
             this.mMatrix.setTo(this.mScale,0,0,this.mScale,-x0,-y0);
             bmp.drawWithQuality(tf,this.mMatrix,null,null,null,true,StageQuality.HIGH_16X16);
-            out = {
-               "texture":Texture.fromBitmapData(bmp,false,false,this.mScale),
-               "offsetX":x0 / this.mScale,
+            // Auto-sizing moves the field to keep it centred (or right
+            // aligned); that move is in the parent's coordinates, so it goes
+            // onto the offset too.
+            // No room left on the GPU: the text is not drawn, rather than
+            // the frame failing.
+            var texture:Texture = GpuTextures.fromBitmapData(bmp,this.mScale);
+            out = texture ? {
+               "texture":texture,
+               "offsetX":x0 / this.mScale + (autoSize ? tf.x - oldX : 0),
                "offsetY":y0 / this.mScale
-            };
+            } : null;
             bmp.dispose();
          }
          tf.text = old;
+         if(autoSize)
+         {
+            tf.autoSize = oldAutoSize;
+            tf.width = oldWidth;
+            tf.x = oldX;
+         }
          return out;
       }
 
@@ -296,6 +581,60 @@ package game.render.timeline
             {
                page.upload();
             }
+         }
+         this.releaseRoots();
+      }
+
+      // Let go of the art built to find leaves once a frame's finds are done.
+      // Off the display list and stopped, a clip left on some frames (a unit's
+      // health hint on its 2nd or 51st) still has the runtime build that
+      // frame's children anew every frame: kept, the roots made ~80 badge
+      // clips a second for good, and much of the garbage. Each goes back to
+      // its first frame (which stays put) and is dropped; a later find makes
+      // the root again.
+      private function releaseRoots() : void
+      {
+         var any:Boolean = false;
+         for each(var root:MovieClip in this.mRoots)
+         {
+            rewindTree(root);
+            emptyTree(root);
+            any = true;
+         }
+         if(any)
+         {
+            this.mRoots = {};
+         }
+      }
+
+      // Take everything out of the art, deepest first.
+      private static function emptyTree(o:DisplayObject) : void
+      {
+         var c:DisplayObjectContainer = o as DisplayObjectContainer;
+         if(c == null)
+         {
+            return;
+         }
+         while(c.numChildren > 0)
+         {
+            var child:DisplayObject = c.getChildAt(c.numChildren - 1);
+            emptyTree(child);
+            c.removeChildAt(c.numChildren - 1);
+         }
+      }
+
+      private static function rewindTree(o:DisplayObject) : void
+      {
+         var mc:MovieClip = o as MovieClip;
+         if(mc && mc.totalFrames > 1 && mc.currentFrame != 1)
+         {
+            mc.gotoAndStop(1);
+         }
+         stopTree(o);
+         var c:DisplayObjectContainer = o as DisplayObjectContainer;
+         for(var i:int = 0; c && i < c.numChildren; i++)
+         {
+            rewindTree(c.getChildAt(i));
          }
       }
 
@@ -331,7 +670,8 @@ package game.render.timeline
          }
          this.mPages.length = 0;
          this.mLeaves = {};
-         this.mRoots = {};
+         this.mFiltered = {};
+         this.releaseRoots();
          this.mTextFields = {};
       }
 
@@ -340,6 +680,7 @@ package game.render.timeline
 
 import flash.display.BitmapData;
 import starling.textures.Texture;
+import game.render.GpuTextures;
 
 class Page
 {
@@ -392,7 +733,12 @@ class Page
    {
       if(this.texture == null)
       {
-         this.texture = Texture.fromBitmapData(this.bitmap,false,false,this.mScale);
+         // Without room for it, the page stays dirty and is tried again.
+         this.texture = GpuTextures.fromBitmapData(this.bitmap,this.mScale);
+         if(this.texture == null)
+         {
+            return;
+         }
       }
       else
       {

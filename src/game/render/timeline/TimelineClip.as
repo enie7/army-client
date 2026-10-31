@@ -9,6 +9,7 @@ package game.render.timeline
    import starling.filters.FilterChain;
    import starling.filters.FragmentFilter;
    import starling.filters.GlowFilter;
+   import starling.textures.Texture;
 
    // A Starling replay of one SWF sprite's timeline, behaving like a Flash
    // MovieClip: it applies the sprite's placement stream frame by frame
@@ -69,6 +70,25 @@ package game.render.timeline
          this.mAtlas = atlas;
          this.mAsMask = asMask;
          this.seek(1);
+      }
+
+      // Textures of text drawn by code, alive now (profiling).
+      public static var textTextures:int = 0;
+
+      // Text drawn by code has a texture of its own (not from the atlas),
+      // which disposing its image would leave behind.
+      override public function dispose() : void
+      {
+         for each(var node:Node in this.mNodes)
+         {
+            if(node.textTexture)
+            {
+               node.textTexture.dispose();
+               node.textTexture = null;
+               --textTextures;
+            }
+         }
+         super.dispose();
       }
 
       public static function forSymbol(name:String, library:TimelineLibrary, atlas:LeafAtlas) : TimelineClip
@@ -196,7 +216,7 @@ package game.render.timeline
       // Set the text of the dynamic text field placed under `name` (like
       // setting TextField.text); false if there is none. The field is drawn
       // again from the original TextField with the new text.
-      public function setText(name:String, text:String) : Boolean
+      public function setText(name:String, text:String, autoSize:String = null) : Boolean
       {
          for each(var node:Node in this.mNodes)
          {
@@ -205,12 +225,17 @@ package game.render.timeline
                if(node.text != text)
                {
                   node.text = text;
-                  var drawn:Object = this.mAtlas.drawText(node.character,text);
+                  var drawn:Object = this.mAtlas.drawText(node.character,text,autoSize);
                   if(node.textTexture)
                   {
                      node.textTexture.dispose();
+                     --textTextures;
                   }
                   node.textTexture = drawn ? drawn.texture : null;
+                  if(drawn)
+                  {
+                     ++textTextures;
+                  }
                   node.image.visible = drawn != null;
                   if(drawn)
                   {
@@ -457,7 +482,44 @@ package game.render.timeline
             }
             if(op.filters)
             {
-               node.display.filter = makeFilter(op.filters);
+               // A new filter only when the settings change (a glow pulsing
+               // over a loop): one made for every frame's placement, for
+               // clips that loop all game long (cursors), was a heavy and
+               // growing cost.
+               var key:String = filterKey(op.filters);
+               var baked:Leaf = key != node.filterKey && node.image && node.text == null ? this.mAtlas.getFiltered(node.character,op.filters,key) : null;
+               var bakedClip:Leaf = key != node.filterKey && node.display is TimelineClip ? this.mAtlas.getFilteredSprite(node.character,op.filters,key) : null;
+               if(bakedClip)
+               {
+                  // A static sprite: drawn whole with the filter by Flash.
+                  TimelineClip(node.display).showBaked(this.mAtlas.textureOf(bakedClip),bakedClip.offsetX,bakedClip.offsetY);
+                  if(node.display.filter)
+                  {
+                     var was:FragmentFilter = node.display.filter;
+                     node.display.filter = null;
+                     was.dispose();
+                  }
+                  node.filterKey = key;
+               }
+               else if(baked)
+               {
+                  // A shape: drawn with the filter by Flash, into the atlas.
+                  node.image.texture = this.mAtlas.textureOf(baked);
+                  node.image.readjustSize();
+                  node.image.x = baked.offsetX;
+                  node.image.y = baked.offsetY;
+                  node.filterKey = key;
+               }
+               else if(key != node.filterKey)
+               {
+                  var old:FragmentFilter = node.display.filter;
+                  node.display.filter = makeFilter(op.filters);
+                  node.filterKey = key;
+                  if(old)
+                  {
+                     old.dispose();
+                  }
+               }
             }
             if(op.blendMode)
             {
@@ -548,6 +610,8 @@ package game.render.timeline
          if(node.textTexture)
          {
             node.textTexture.dispose();
+            node.textTexture = null;
+            --textTextures;
          }
       }
 
@@ -582,6 +646,41 @@ package game.render.timeline
          }
       }
 
+      // Drawn as one image (a static sprite with its filter baked in, see
+      // LeafAtlas.getFilteredSprite) instead of its parts.
+      private var mBaked:Image;
+
+      internal function showBaked(texture:Texture, offsetX:Number, offsetY:Number) : void
+      {
+         for each(var node:Node in this.mNodes)
+         {
+            node.display.visible = false;
+         }
+         if(this.mBaked == null)
+         {
+            this.mBaked = new Image(texture);
+            this.mBaked.style = new ColorTransformStyle();
+            addChild(this.mBaked);
+         }
+         else
+         {
+            this.mBaked.texture = texture;
+            this.mBaked.readjustSize();
+         }
+         this.mBaked.x = offsetX;
+         this.mBaked.y = offsetY;
+         this.tintBaked();
+      }
+
+      private function tintBaked() : void
+      {
+         if(this.mBaked)
+         {
+            this.mBaked.color = clamp(this.mTintR) << 16 | clamp(this.mTintG) << 8 | clamp(this.mTintB);
+            ColorTransformStyle(this.mBaked.style).setOffsets(this.mOffsetR,this.mOffsetG,this.mOffsetB);
+         }
+      }
+
       internal function setTint(r:Number, g:Number, b:Number, or:Number, og:Number, ob:Number) : void
       {
          if(r == this.mTintR && g == this.mTintG && b == this.mTintB && or == this.mOffsetR && og == this.mOffsetG && ob == this.mOffsetB)
@@ -598,11 +697,22 @@ package game.render.timeline
          {
             this.place(node);
          }
+         this.tintBaked();
       }
 
       private static function clamp(v:Number) : int
       {
          return Math.max(0,Math.min(255,Math.round(v * 255)));
+      }
+
+      private static function filterKey(list:Array) : String
+      {
+         var key:String = "";
+         for each(var f:Object in list)
+         {
+            key += f.type + ":" + f.color + ":" + f.alpha + ":" + f.strength + ":" + f.blurX + ":" + f.blurY + ";";
+         }
+         return key;
       }
 
       private static function makeFilter(list:Array) : FragmentFilter
@@ -649,6 +759,9 @@ class Node
    public var text:String;
 
    public var textTexture:Texture;
+
+   // The settings the display's filter was made with.
+   public var filterKey:String;
 
    // Transformed by code: the timeline no longer sets its matrix.
    public var scripted:Boolean;

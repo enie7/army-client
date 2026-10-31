@@ -1147,7 +1147,8 @@ package game.gui
       {
          var _loc2_:File = null;
          trace("[MichiDebug] Saved game");
-         _loc2_ = new File();
+         // Start the save picker in Documents with a .sav name filled in.
+         _loc2_ = File.documentsDirectory.resolvePath("ArmyAttack.sav");
          _loc2_.addEventListener(PermissionEvent.PERMISSION_STATUS,this.onPermission);
          _loc2_.requestPermission();
       }
@@ -2477,6 +2478,12 @@ package game.gui
          var _loc3_:ByteArray = new ByteArray();
          _loc3_.writeUTF(_loc2_);
          var _loc4_:File = param1.target as File;
+         // Saves are .sav files (the load picker offers only those): add the
+         // extension when the name was typed without one.
+         if(!_loc4_.extension)
+         {
+            _loc4_ = _loc4_.parent.resolvePath(_loc4_.name + ".sav");
+         }
          var _loc5_:FileStream = new FileStream();
          _loc5_.open(_loc4_,FileMode.WRITE);
          _loc5_.writeUTFBytes(JSON.stringify(_loc2_));

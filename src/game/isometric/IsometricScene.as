@@ -3529,7 +3529,7 @@ package game.isometric
       // drag-scrolling in mouseMove.
       public function describeScrollState() : String
       {
-         return "scroll gates: tutorialCompleted=" + MissionManager.isTutorialCompleted() + " zoomActivated=" + this.mZoomActivated + " mouseScrolling=" + this.mMouseScrolling + " mouseDisabled=" + this.mMouseDisabled + " camera=" + this.mCamera.getCameraX() + "," + this.mCamera.getCameraY() + " bounds=" + this.mCamera.getBounds() + " openArea=" + mMinAreaX + "," + mMinAreaY + "-" + mMaxAreaX + "," + mMaxAreaY + " zoom=" + this.mContainer.scaleX + " stage=" + this.mGame.getStageWidth() + "x" + this.mGame.getStageHeight();
+         return "scroll gates: tutorialCompleted=" + MissionManager.isTutorialCompleted() + " zoomActivated=" + this.mZoomActivated + " mouseScrolling=" + this.mMouseScrolling + " mouseDisabled=" + this.mMouseDisabled + " allowMouse=" + this.mAllowMouseX + "," + this.mAllowMouseY + " camera=" + this.mCamera.getCameraX() + "," + this.mCamera.getCameraY() + " bounds=" + this.mCamera.getBounds() + " openArea=" + mMinAreaX + "," + mMinAreaY + "-" + mMaxAreaX + "," + mMaxAreaY + " zoom=" + this.mContainer.scaleX + " stage=" + this.mGame.getStageWidth() + "x" + this.mGame.getStageHeight();
       }
       
       // Display container of the floor hit area; the GPU renderer forwards

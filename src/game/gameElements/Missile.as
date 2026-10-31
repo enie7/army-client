@@ -1,6 +1,7 @@
 package game.gameElements
 {
    import com.dchoc.graphics.DCResourceManager;
+   import game.render.view.GpuClip;
    import flash.display.MovieClip;
    import flash.events.Event;
    import flash.geom.Point;
@@ -92,7 +93,7 @@ package game.gameElements
             _loc1_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,"rocket");
             if(_loc1_ != null)
             {
-               mProjectile = new _loc1_();
+               mProjectile = GpuClip.make(_loc1_);
                if(!FeatureTuner.USE_LOW_SWF)
                {
                   mProjectile.rotation = this.mAngles[0];
@@ -140,7 +141,7 @@ package game.gameElements
                {
                   mProjectile.parent.removeChild(mProjectile);
                }
-               (_loc9_ = new (_loc8_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,"effect_explosion"))()).x = (this.mWaypoints[this.mSegmentCount] as Point).x;
+               (_loc9_ = GpuClip.make(_loc8_ = DCResourceManager.getInstance().getSWFClass(Config.SWF_EFFECTS_NAME,"effect_explosion"))).x = (this.mWaypoints[this.mSegmentCount] as Point).x;
                _loc9_.y = (this.mWaypoints[this.mSegmentCount] as Point).y;
                _loc9_.scaleX = 0.25;
                _loc9_.scaleY = 0.25;

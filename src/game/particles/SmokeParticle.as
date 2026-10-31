@@ -1,6 +1,7 @@
 package game.particles
 {
    import flash.display.DisplayObjectContainer;
+   import game.render.view.GpuClip;
    import flash.display.Sprite;
    
    public class SmokeParticle
@@ -26,7 +27,7 @@ package game.particles
       public function SmokeParticle(param1:Class, param2:DisplayObjectContainer, param3:Number, param4:Number, param5:Boolean = false)
       {
          super();
-         this.clip = new param1();
+         this.clip = GpuClip.make(param1);
          if(param5)
          {
             param2.addChildAt(this.clip,0);

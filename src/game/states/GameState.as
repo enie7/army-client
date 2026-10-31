@@ -3715,6 +3715,16 @@ package game.states
          }
       }
       
+      // Let go of the arrow keys (the window lost focus while one was held).
+      public function releaseScrollKeys() : void
+      {
+         if(this.mScene)
+         {
+            this.mScene.mUpPressed = this.mScene.mDownPressed = this.mScene.mLeftPressed = this.mScene.mRightPressed = false;
+         }
+         this.mCtrlPressed = false;
+      }
+
       public function keyUp(param1:KeyboardEvent) : void
       {
          if(param1.keyCode == 17)

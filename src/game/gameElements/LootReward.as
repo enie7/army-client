@@ -372,7 +372,7 @@ package game.gameElements
       {
          var _loc1_:TextEffect = new TextEffect(TextEffect.TYPE_GAIN,"+" + this.mAmount + " " + this.mItem.mName);
          var _loc2_:MovieClip = _loc1_.getClip();
-         _loc2_.mouseChildre = false;
+         _loc2_.mouseChildren = false;
          _loc2_.mouseEnabled = false;
          addChild(_loc2_);
          _loc1_.start();

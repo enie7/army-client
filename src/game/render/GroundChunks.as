@@ -105,11 +105,22 @@ package game.render
          tiles.drawWorldChunk(this.mFieldScratch,this.mFogScratch,cx * SIZE,cy * SIZE);
          if(chunk == null)
          {
+            var ground:Texture = GpuTextures.make(emptyChunkTexture);
+            var fog:Texture = ground ? GpuTextures.make(emptyChunkTexture) : null;
+            if(fog == null)
+            {
+               // No room on the GPU: drawn when there is.
+               if(ground)
+               {
+                  ground.dispose();
+               }
+               return;
+            }
             chunk = new Chunk();
             chunk.cx = cx;
             chunk.cy = cy;
-            chunk.ground = new Image(Texture.empty(SIZE,SIZE,true,false,false,1));
-            chunk.fog = new Image(Texture.empty(SIZE,SIZE,true,false,false,1));
+            chunk.ground = new Image(ground);
+            chunk.fog = new Image(fog);
             chunk.ground.x = chunk.fog.x = cx * SIZE;
             chunk.ground.y = chunk.fog.y = cy * SIZE;
             this.mGround.addChild(chunk.ground);
@@ -121,6 +132,11 @@ package game.render
          chunk.fog.texture.root.uploadBitmapData(this.mFogScratch);
          chunk.version = version;
          ++this.drawn;
+      }
+
+      private static function emptyChunkTexture() : Texture
+      {
+         return Texture.empty(SIZE,SIZE,true,false,false,1);
       }
 
       private function evict(centerX:Number, centerY:Number) : void

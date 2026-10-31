@@ -7,6 +7,8 @@ package game.gui
    import flash.text.TextField;
    import flash.text.TextFieldAutoSize;
    import game.items.Item;
+   import game.render.view.GpuClip;
+   import flash.utils.getQualifiedClassName;
    
    public class TextEffect
    {
@@ -29,6 +31,9 @@ package game.gui
       private var mType:int;
       
       private var mTextFieldName:String;
+
+      // The clip as drawn by the GPU timeline player, or null for Flash.
+      private var mGpu:GpuClip;
       
       public function TextEffect(param1:int, param2:String, param3:Item = null)
       {
@@ -39,6 +44,23 @@ package game.gui
          var _loc4_:String = param1 == TYPE_LOSS ? "feedback_loss" : "feedback_gain";
          this.mTextFieldName = "Header";
          var _loc5_:Class = DCResourceManager.getInstance().getSWFClass(Config.SWF_INTERFACE_NAME,_loc4_);
+         // Played by the GPU timeline player when it can (the text then set on
+         // its clip); not with an item icon, which is loaded into the art.
+         this.mGpu = param3 ? null : GpuClip.create(getQualifiedClassName(_loc5_));
+         if(this.mGpu)
+         {
+            this.mClip = this.mGpu;
+            this.mClip.mouseEnabled = false;
+            this.mClip.mouseChildren = false;
+            if(param1 == TYPE_BONUS || param1 == TYPE_MULTIPLIER)
+            {
+               this.mClip.scaleX = 2;
+               this.mClip.scaleY = 2;
+            }
+            this.mGpu.gotoAndStop(0);
+            this.mGpu.setPartText("Header","Text_Field",this.mText,TextFieldAutoSize.CENTER);
+            return;
+         }
          this.mClip = new _loc5_();
          this.mClip.mouseEnabled = false;
          this.mClip.mouseChildren = false;
@@ -80,6 +102,19 @@ package game.gui
       public function enterFrame(param1:Event) : void
       {
          this.mClip.nextFrame();
+         if(this.mGpu)
+         {
+            // The timeline may place the text anew on this frame.
+            this.mGpu.setPartText("Header","Text_Field",this.mText,TextFieldAutoSize.CENTER);
+            if(this.mClip.currentFrame == this.mClip.totalFrames)
+            {
+               this.mClip.stop();
+               this.mClip.removeEventListener(Event.ENTER_FRAME,this.enterFrame);
+               Utils.removeFromParent(this.mClip);
+               this.mGpu.dispose();
+            }
+            return;
+         }
          var _loc2_:TextField = (this.mClip.getChildByName("Header") as MovieClip).getChildByName("Text_Field") as TextField;
          _loc2_.text = this.mText;
          _loc2_.autoSize = TextFieldAutoSize.CENTER;

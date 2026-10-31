@@ -81,7 +81,29 @@ package game.render.art
          // removal matters.
          if(event.target == event.currentTarget)
          {
-            stopTree(event.target as DisplayObject);
+            rewindTree(event.target as DisplayObject);
+         }
+      }
+
+      // Stopped off the display list on some frames (the attention hint's
+      // 2nd or 51st), the runtime still builds the frame's children anew
+      // every frame, and that keeps the clip from being collected: a zombie
+      // making badges for good. Back on the first frame, which stays put.
+      private static function rewindTree(o:DisplayObject) : void
+      {
+         var mc:MovieClip = o as MovieClip;
+         if(mc && mc.totalFrames > 1 && mc.currentFrame != 1)
+         {
+            mc.gotoAndStop(1);
+         }
+         else if(mc && mc.isPlaying)
+         {
+            mc.stop();
+         }
+         var c:DisplayObjectContainer = o as DisplayObjectContainer;
+         for(var i:int = 0; c && i < c.numChildren; i++)
+         {
+            rewindTree(c.getChildAt(i));
          }
       }
 

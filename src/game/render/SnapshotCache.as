@@ -25,11 +25,25 @@ package game.render
    {
       private static const MAX_SIDE:int = 4096;
 
+      // Stage3D allows 4096 textures in all; past that every new one fails
+      // and the frame with it. Many small looks fit the pixel budget long
+      // before that, so their number is capped too.
+      private static const MAX_ENTRIES:int = 1200;
+
+      private var mEntryCount:int = 0;
+
       private var mBudgetPixels:Number;
 
       private var mUsedPixels:Number = 0;
 
       private var mEntries:Object = {};
+
+      // Animating objects -> their live buffer; and the frame each object
+      // last missed the cache, to spot animation. Held strongly, so a buffer
+      // is disposed by sweepLive rather than lost with its object.
+      private var mLive:Dictionary = new Dictionary();
+
+      private var mLastMiss:Dictionary = new Dictionary(true);
 
       private var mClassIds:Dictionary = new Dictionary(true);
 
@@ -60,6 +74,10 @@ package game.render
       public function nextFrame() : void
       {
          ++this.mFrame;
+         if(this.mFrame % 60 == 0)
+         {
+            this.sweepLive();
+         }
       }
 
       public function get usedMegabytes() : Number
@@ -79,6 +97,26 @@ package game.render
          this.mH2 = 17;
          this.signature(obj);
          var key:String = sx + "," + sy + "," + this.mH1 + "," + this.mH2 + (isIdentity(ct) ? "" : "," + ct.toString());
+         // Objects whose look changes every frame (animated overlays: missile
+         // trails, loot pop-ups, explosions) draw into one buffer of their own,
+         // reused, instead of a new bitmap and texture per look: those made
+         // tens of MB of garbage a second in combat, and long collections.
+         var live:Snapshot = this.mLive[obj];
+         if(live != null)
+         {
+            live.lastUsed = this.mFrame;
+            if(live.key != key)
+            {
+               ++this.misses;
+               live.key = key;
+               this.redrawLive(live,obj,sx,sy,ct);
+            }
+            else
+            {
+               ++this.hits;
+            }
+            return live.texture ? live : null;
+         }
          var entry:Snapshot = this.mEntries[key];
          if(entry != null)
          {
@@ -87,12 +125,25 @@ package game.render
             return entry.texture ? entry : null;
          }
          ++this.misses;
+         // A miss on consecutive frames: it is animating, give it a buffer.
+         if(this.mLastMiss[obj] === this.mFrame - 1)
+         {
+            delete this.mLastMiss[obj];
+            live = new Snapshot();
+            live.key = key;
+            live.lastUsed = this.mFrame;
+            this.mLive[obj] = live;
+            this.redrawLive(live,obj,sx,sy,ct);
+            return live.texture ? live : null;
+         }
+         this.mLastMiss[obj] = this.mFrame;
          entry = this.rasterise(obj,sx,sy,ct);
          entry.key = key;
          entry.lastUsed = this.mFrame;
          this.mEntries[key] = entry;
+         ++this.mEntryCount;
          this.mUsedPixels += entry.pixels;
-         if(this.mUsedPixels > this.mBudgetPixels)
+         if(this.mUsedPixels > this.mBudgetPixels || this.mEntryCount > MAX_ENTRIES)
          {
             this.evict();
          }
@@ -105,7 +156,14 @@ package game.render
          {
             entry.dispose();
          }
+         for(var obj:Object in this.mLive)
+         {
+            Snapshot(this.mLive[obj]).dispose();
+         }
+         this.mLive = new Dictionary();
+         this.mLastMiss = new Dictionary(true);
          this.mEntries = {};
+         this.mEntryCount = 0;
          this.mUsedPixels = 0;
       }
 
@@ -212,11 +270,82 @@ package game.render
          var bd:BitmapData = new BitmapData(w,h,true,0);
          this.mMatrix.translate(-x0,-y0);
          bd.drawWithQuality(obj,this.mMatrix,isIdentity(ct) ? null : ct,null,null,true,StageQuality.HIGH_16X16);
-         entry.texture = Texture.fromBitmapData(bd,false,false,1);
+         entry.texture = upload(bd);
          entry.offsetX = x0;
          entry.offsetY = y0;
          entry.pixels = w * h;
          return entry;
+      }
+
+      // Draw `obj` into its live buffer, growing the buffer (with slack) only
+      // when the look no longer fits.
+      private function redrawLive(live:Snapshot, obj:DisplayObject, sx:Number, sy:Number, ct:ColorTransform) : void
+      {
+         var local:Rectangle = obj.getBounds(obj);
+         if(local.width <= 0 || local.height <= 0)
+         {
+            live.offsetX = live.offsetY = 0;
+            if(live.bitmap && live.texture)
+            {
+               live.bitmap.fillRect(live.bitmap.rect,0);
+               live.texture.root.uploadBitmapData(live.bitmap);
+            }
+            return;
+         }
+         this.mMatrix.setTo(sx,0,0,sy,0,0);
+         var r:Rectangle = transformedBounds(local,this.mMatrix,this.mPoint);
+         var x0:int = Math.floor(r.x) - 1;
+         var y0:int = Math.floor(r.y) - 1;
+         var w:int = Math.min(MAX_SIDE,Math.ceil(r.right) + 1 - x0);
+         var h:int = Math.min(MAX_SIDE,Math.ceil(r.bottom) + 1 - y0);
+         if(w <= 0 || h <= 0)
+         {
+            return;
+         }
+         if(live.bitmap == null || w > live.bitmap.width || h > live.bitmap.height)
+         {
+            var bw:int = Math.min(MAX_SIDE,Math.max(w + (w >> 2),live.bitmap ? live.bitmap.width : 0));
+            var bh:int = Math.min(MAX_SIDE,Math.max(h + (h >> 2),live.bitmap ? live.bitmap.height : 0));
+            if(live.bitmap)
+            {
+               this.mUsedPixels -= live.pixels;
+            }
+            live.dispose();
+            live.bitmap = new BitmapData(bw,bh,true,0);
+            live.texture = upload(live.bitmap);
+            if(live.texture == null)
+            {
+               live.bitmap.dispose();
+               live.bitmap = null;
+               return;
+            }
+            live.pixels = bw * bh;
+            this.mUsedPixels += live.pixels;
+         }
+         else
+         {
+            live.bitmap.fillRect(live.bitmap.rect,0);
+         }
+         this.mMatrix.translate(-x0,-y0);
+         live.bitmap.drawWithQuality(obj,this.mMatrix,isIdentity(ct) ? null : ct,null,null,true,StageQuality.HIGH_16X16);
+         live.texture.root.uploadBitmapData(live.bitmap);
+         live.offsetX = x0;
+         live.offsetY = y0;
+      }
+
+      // Free the live buffers of objects not drawn for a while.
+      private function sweepLive() : void
+      {
+         for(var obj:Object in this.mLive)
+         {
+            var live:Snapshot = this.mLive[obj];
+            if(this.mFrame - live.lastUsed > 80)
+            {
+               this.mUsedPixels -= live.pixels;
+               live.dispose();
+               delete this.mLive[obj];
+            }
+         }
       }
 
       private function evict() : void
@@ -232,13 +361,63 @@ package game.render
          }
          all.sortOn("lastUsed",Array.NUMERIC);
          var target:Number = this.mBudgetPixels * 0.8;
-         for(var i:int = 0; i < all.length && this.mUsedPixels > target; i++)
+         var targetCount:int = MAX_ENTRIES * 0.8;
+         for(var i:int = 0; i < all.length && (this.mUsedPixels > target || this.mEntryCount > targetCount); i++)
          {
             entry = all[i];
             delete this.mEntries[entry.key];
+            --this.mEntryCount;
             this.mUsedPixels -= entry.pixels;
             entry.dispose();
          }
+      }
+
+      // A texture of `bd`, or null when the GPU has no room for one; the
+      // look is then simply not drawn this time, instead of the frame failing.
+      private static function upload(bd:BitmapData) : Texture
+      {
+         return GpuTextures.fromBitmapData(bd);
+      }
+
+      // The GPU is out of textures: free every look and live buffer not drawn
+      // this frame (they are drawn again when next needed).
+      public function reclaim() : void
+      {
+         for each(var entry:Snapshot in this.mEntries)
+         {
+            if(entry.lastUsed < this.mFrame)
+            {
+               delete this.mEntries[entry.key];
+               --this.mEntryCount;
+               this.mUsedPixels -= entry.pixels;
+               entry.dispose();
+            }
+         }
+         for(var obj:Object in this.mLive)
+         {
+            var live:Snapshot = this.mLive[obj];
+            if(live.lastUsed < this.mFrame)
+            {
+               this.mUsedPixels -= live.pixels;
+               live.dispose();
+               delete this.mLive[obj];
+            }
+         }
+      }
+
+      public function get entryCount() : int
+      {
+         return this.mEntryCount;
+      }
+
+      public function get liveCount() : int
+      {
+         var n:int = 0;
+         for(var obj:Object in this.mLive)
+         {
+            ++n;
+         }
+         return n;
       }
 
       private static function isIdentity(ct:ColorTransform) : Boolean
